@@ -1,0 +1,687 @@
+<!doctype html>
+<html lang="bn">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>PixelPreserve — Image to WebP</title>
+    <style>
+      :root {
+        --ink: #151b32;
+        --muted: #72809b;
+        --line: #e4e8f1;
+        --brand: #6558f5;
+        --green: #10a979;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        min-height: 100vh;
+        margin: 0;
+        color: var(--ink);
+        font-family:
+          Inter,
+          system-ui,
+          -apple-system,
+          "Segoe UI",
+          sans-serif;
+        background: #f8f9fd;
+      }
+
+      .app {
+        width: min(100% - 32px, 1050px);
+        margin: auto;
+        padding: 38px 0 52px;
+      }
+      .glow {
+        position: fixed;
+        z-index: -1;
+        width: 500px;
+        height: 500px;
+        border-radius: 50%;
+        opacity: 0.25;
+        filter: blur(85px);
+      }
+      .glow-a {
+        top: -220px;
+        left: -220px;
+        background: #aaa1ff;
+      }
+      .glow-b {
+        right: -220px;
+        bottom: -250px;
+        background: #8ee9d0;
+      }
+
+      header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 38px;
+      }
+      .logo {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+        font-size: 18px;
+        font-weight: 850;
+        letter-spacing: -0.6px;
+      }
+      .logo-mark {
+        display: grid;
+        width: 32px;
+        height: 32px;
+        color: white;
+        border-radius: 10px;
+        place-items: center;
+        background: linear-gradient(135deg, #6558f5, #9e66f8);
+        box-shadow: 0 8px 20px #7467f266;
+      }
+      .privacy {
+        padding: 8px 12px;
+        color: #506078;
+        font-size: 13px;
+        background: white;
+        border: 1px solid var(--line);
+        border-radius: 999px;
+      }
+
+      .hero {
+        margin-bottom: 26px;
+        text-align: center;
+      }
+      .eyebrow {
+        color: var(--brand);
+        font-size: 12px;
+        font-weight: 800;
+        letter-spacing: 1.2px;
+      }
+      h1 {
+        margin: 9px 0 10px;
+        font-size: clamp(30px, 5vw, 51px);
+        line-height: 1.05;
+        letter-spacing: -2.3px;
+      }
+      .hero p {
+        margin: 0;
+        color: var(--muted);
+        font-size: 16px;
+      }
+
+      .card {
+        padding: 20px;
+        background: #ffffffdf;
+        border: 1px solid #e8ebf3;
+        border-radius: 24px;
+        box-shadow: 0 18px 55px #29375c0d;
+      }
+      #drop-zone {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        min-height: 255px;
+        padding: 30px;
+        text-align: center;
+        cursor: pointer;
+        background: linear-gradient(145deg, #fbfcff, #f7f6ff);
+        border: 2px dashed #cdd3e3;
+        border-radius: 17px;
+        transition: 0.2s;
+      }
+      #drop-zone.is-dragging {
+        background: #f1efff;
+        border-color: var(--brand);
+      }
+      .upload-icon {
+        display: grid;
+        width: 58px;
+        height: 58px;
+        margin-bottom: 14px;
+        color: var(--brand);
+        background: #edeaff;
+        border-radius: 18px;
+        place-items: center;
+      }
+      #drop-zone h2 {
+        margin: 0;
+        font-size: 20px;
+      }
+      #drop-zone p {
+        margin: 7px 0 18px;
+        color: var(--muted);
+        font-size: 14px;
+      }
+      #image-input {
+        display: none;
+      }
+
+      .button {
+        padding: 12px 18px;
+        color: white;
+        font: 700 14px inherit;
+        cursor: pointer;
+        background: linear-gradient(135deg, var(--brand), #785cf1);
+        border: 0;
+        border-radius: 10px;
+        box-shadow: 0 8px 18px #6d5bf233;
+      }
+      .formats {
+        margin-top: 16px;
+        color: #8a95aa;
+        font-size: 12px;
+      }
+      .settings {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 14px;
+        margin-top: 18px;
+        padding: 15px;
+        background: #fafbfe;
+        border: 1px solid var(--line);
+        border-radius: 14px;
+      }
+      .setting {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        font-size: 13px;
+        font-weight: 700;
+      }
+      .setting small {
+        display: block;
+        margin-top: 3px;
+        color: var(--muted);
+        font-weight: 500;
+      }
+      select {
+        padding: 8px;
+        color: var(--ink);
+        font: 600 13px inherit;
+        background: white;
+        border: 1px solid #dbe0eb;
+        border-radius: 8px;
+      }
+
+      .results {
+        display: none;
+        margin-top: 20px;
+      }
+      .results.is-visible {
+        display: block;
+      }
+      .results-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 15px;
+        margin-bottom: 12px;
+      }
+      .summary {
+        color: var(--muted);
+        font-size: 14px;
+      }
+      .summary strong {
+        color: var(--ink);
+      }
+      #download-all {
+        white-space: nowrap;
+        background: linear-gradient(135deg, #0baf7d, #20c18c);
+      }
+      #download-all:disabled {
+        cursor: wait;
+        opacity: 0.6;
+      }
+      #file-list {
+        display: grid;
+        gap: 9px;
+        max-height: 370px;
+        overflow: auto;
+        padding-right: 3px;
+      }
+      .file-row {
+        display: grid;
+        grid-template-columns: 43px minmax(0, 1fr) auto;
+        gap: 12px;
+        align-items: center;
+        padding: 10px;
+        background: white;
+        border: 1px solid var(--line);
+        border-radius: 13px;
+      }
+      .thumbnail {
+        width: 43px;
+        height: 43px;
+        object-fit: cover;
+        background: #edf0f5;
+        border-radius: 9px;
+      }
+      .file-name {
+        overflow: hidden;
+        font-size: 13px;
+        font-weight: 750;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+      .file-meta {
+        margin-top: 3px;
+        color: var(--muted);
+        font-size: 12px;
+      }
+      .file-status {
+        color: var(--green);
+        font-size: 12px;
+        font-weight: 800;
+      }
+      .file-status.waiting {
+        color: #9a7a00;
+      }
+      .file-status.error {
+        color: #d24d5e;
+      }
+      .file-download {
+        padding: 7px;
+        color: var(--brand);
+        font-size: 13px;
+        font-weight: 800;
+        text-decoration: none;
+      }
+      .note {
+        display: flex;
+        gap: 9px;
+        margin: 18px 3px 0;
+        color: #66748c;
+        font-size: 12px;
+        line-height: 1.5;
+      }
+      .note b {
+        color: #465570;
+      }
+
+      @media (max-width: 600px) {
+        .app {
+          width: min(100% - 22px, 1050px);
+          padding-top: 20px;
+        }
+        header {
+          margin-bottom: 30px;
+        }
+        .privacy {
+          font-size: 11px;
+        }
+        .card {
+          padding: 12px;
+        }
+        .settings {
+          grid-template-columns: 1fr;
+        }
+        .results-header {
+          flex-direction: column;
+          align-items: flex-start;
+        }
+        #download-all {
+          width: 100%;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="glow glow-a"></div>
+    <div class="glow glow-b"></div>
+
+    <main class="app">
+      <header>
+        <div class="logo"><span class="logo-mark">✦</span>PixelPreserve</div>
+        <span class="privacy">🔒 আপনার ব্রাউজারেই প্রসেস হয়</span>
+      </header>
+
+      <section class="hero">
+        <div class="eyebrow">FAST • PRIVATE • HIGH QUALITY</div>
+        <h1>ছবি WebP করুন, মান ধরে রাখুন।</h1>
+        <p>
+          একসাথে যত ইচ্ছা ছবি convert করুন এবং সবগুলো এক ক্লিকে ZIP-এ download
+          করুন।
+        </p>
+      </section>
+
+      <section class="card">
+        <label id="drop-zone" for="image-input">
+          <span class="upload-icon">⇧</span>
+          <h2>ছবি এখানে drop করুন</h2>
+          <p>অথবা আপনার device থেকে বেছে নিন</p>
+          <span class="button">ছবি নির্বাচন করুন</span>
+          <span class="formats"
+            >JPG, PNG, WebP, GIF ও অন্যান্য browser-supported ছবি</span
+          >
+          <input type="file" id="image-input" accept="image/*" multiple />
+        </label>
+
+        <div class="settings">
+          <div class="setting">
+            <div>
+              ছবির Resolution <small>আসল width ও height অপরিবর্তিত থাকবে</small>
+            </div>
+            <b>100% রাখুন</b>
+          </div>
+          <label class="setting">
+            <span
+              >WebP Quality <small>ফাইল সাইজ ও ছবির মানের ভারসাম্য</small></span
+            >
+            <select id="quality">
+              <option value="target">Smart target (200–300 KB)</option>
+              <option value="1">Maximum quality</option>
+              <option value=".92">High quality</option>
+              <option value=".82">Balanced</option>
+            </select>
+          </label>
+        </div>
+
+        <div class="results" id="results">
+          <div class="results-header">
+            <div class="summary" id="summary"></div>
+            <button class="button" id="download-all">
+              সবগুলো ZIP-এ Download
+            </button>
+          </div>
+          <div id="file-list"></div>
+        </div>
+
+        <p class="note">
+          <span>✦</span>
+          <span
+            ><b>নোট:</b> Resolution কমানো হয় না। Smart target 200–300 KB পেতে
+            quality সামঞ্জস্য করে; খুব বিস্তারিত বা বড় ছবিতে resolution না কমিয়ে
+            ঠিক ওই সাইজ সবসময় সম্ভব নাও হতে পারে।</span
+          >
+        </p>
+      </section>
+    </main>
+
+    <script>
+      const imageInput = document.querySelector("#image-input");
+      const dropZone = document.querySelector("#drop-zone");
+      const fileList = document.querySelector("#file-list");
+      const results = document.querySelector("#results");
+      const summary = document.querySelector("#summary");
+      const qualitySelect = document.querySelector("#quality");
+      const downloadAllButton = document.querySelector("#download-all");
+
+      let convertedFiles = [];
+
+      function formatBytes(bytes) {
+        if (bytes < 1024) return `${bytes} B`;
+        const kilobytes = bytes / 1024;
+        return `${kilobytes.toFixed(bytes < 102400 ? 0 : 1)} KB`;
+      }
+
+      function getBaseName(filename) {
+        const dotIndex = filename.lastIndexOf(".");
+        return dotIndex > 0 ? filename.slice(0, dotIndex) : filename;
+      }
+
+      function canvasToWebP(canvas, quality) {
+        return new Promise((resolve) =>
+          canvas.toBlob(resolve, "image/webp", quality),
+        );
+      }
+
+      async function createSmartSizeWebP(canvas) {
+        let lowQuality = 0.35;
+        let highQuality = 1;
+        let closestBlob = await canvasToWebP(canvas, 1);
+
+        for (let attempt = 0; attempt < 7; attempt += 1) {
+          const currentQuality = (lowQuality + highQuality) / 2;
+          const blob = await canvasToWebP(canvas, currentQuality);
+
+          if (
+            Math.abs(blob.size - 256000) < Math.abs(closestBlob.size - 256000)
+          ) {
+            closestBlob = blob;
+          }
+
+          if (blob.size > 300000) highQuality = currentQuality;
+          else lowQuality = currentQuality;
+        }
+
+        return closestBlob;
+      }
+
+      function createFileRow(file) {
+        const row = document.createElement("article");
+        row.className = "file-row";
+        row.innerHTML = `
+        <img class="thumbnail" alt="">
+        <div>
+          <div class="file-name"></div>
+          <div class="file-meta">প্রসেস করা হচ্ছে…</div>
+        </div>
+        <span class="file-status waiting">অপেক্ষায়</span>
+      `;
+
+        row.querySelector(".thumbnail").src = URL.createObjectURL(file);
+        row.querySelector(".file-name").textContent =
+          `${getBaseName(file.name)}.webp`;
+        fileList.append(row);
+        return row;
+      }
+
+      function loadImage(file) {
+        return new Promise((resolve, reject) => {
+          const image = new Image();
+          image.onload = () => resolve(image);
+          image.onerror = reject;
+          image.src = URL.createObjectURL(file);
+        });
+      }
+
+      async function convertFile(file, row) {
+        try {
+          const image = await loadImage(file);
+          const canvas = document.createElement("canvas");
+          canvas.width = image.naturalWidth;
+          canvas.height = image.naturalHeight;
+          canvas.getContext("2d").drawImage(image, 0, 0);
+
+          const blob =
+            qualitySelect.value === "target"
+              ? await createSmartSizeWebP(canvas)
+              : await canvasToWebP(canvas, Number(qualitySelect.value));
+          const filename = `${getBaseName(file.name)}.webp`;
+          const objectUrl = URL.createObjectURL(blob);
+
+          convertedFiles.push({ name: filename, blob, objectUrl });
+          row.querySelector(".file-meta").textContent =
+            `${image.naturalWidth} × ${image.naturalHeight} · ${formatBytes(blob.size)}`;
+
+          const downloadLink = document.createElement("a");
+          downloadLink.className = "file-download";
+          downloadLink.href = objectUrl;
+          downloadLink.download = filename;
+          downloadLink.textContent = "Download";
+          row.querySelector(".file-status").replaceWith(downloadLink);
+        } catch {
+          const status = row.querySelector(".file-status");
+          status.textContent = "ব্যর্থ";
+          status.className = "file-status error";
+          row.querySelector(".file-meta").textContent =
+            "এই ফাইলটি browser support করেনি";
+        }
+      }
+
+      async function processFiles(fileCollection) {
+        const files = [...fileCollection].filter((file) =>
+          file.type.startsWith("image/"),
+        );
+        if (!files.length) return;
+
+        convertedFiles.forEach((file) => URL.revokeObjectURL(file.objectUrl));
+        convertedFiles = [];
+        fileList.innerHTML = "";
+        results.classList.add("is-visible");
+        summary.innerHTML = `<strong>${files.length}</strong> টি ছবি প্রস্তুত করা হচ্ছে…`;
+
+        await Promise.all(
+          files.map((file) => convertFile(file, createFileRow(file))),
+        );
+
+        const totalSize = convertedFiles.reduce(
+          (total, file) => total + file.blob.size,
+          0,
+        );
+        summary.innerHTML = `<strong>${convertedFiles.length}</strong> টি WebP তৈরি হয়েছে · মোট ${formatBytes(totalSize)}`;
+      }
+
+      imageInput.addEventListener("change", (event) =>
+        processFiles(event.target.files),
+      );
+      ["dragenter", "dragover"].forEach((eventName) => {
+        dropZone.addEventListener(eventName, (event) => {
+          event.preventDefault();
+          dropZone.classList.add("is-dragging");
+        });
+      });
+      ["dragleave", "drop"].forEach((eventName) => {
+        dropZone.addEventListener(eventName, (event) => {
+          event.preventDefault();
+          dropZone.classList.remove("is-dragging");
+        });
+      });
+      dropZone.addEventListener("drop", (event) =>
+        processFiles(event.dataTransfer.files),
+      );
+
+      // The ZIP builder uses the standard uncompressed ZIP format (Store method).
+      // It intentionally has no external dependency, so it works offline.
+      function uint16(value) {
+        return [value & 255, (value >>> 8) & 255];
+      }
+
+      function uint32(value) {
+        return [
+          value & 255,
+          (value >>> 8) & 255,
+          (value >>> 16) & 255,
+          (value >>> 24) & 255,
+        ];
+      }
+
+      function crc32(bytes) {
+        let crc = ~0;
+        for (const byte of bytes) {
+          crc ^= byte;
+          for (let bit = 0; bit < 8; bit += 1) {
+            crc = (crc >>> 1) ^ (crc & 1 ? 0xedb88320 : 0);
+          }
+        }
+        return ~crc >>> 0;
+      }
+
+      async function buildZip(files) {
+        const encoder = new TextEncoder();
+        const localRecords = [];
+        const centralRecords = [];
+        let offset = 0;
+
+        for (const file of files) {
+          const data = new Uint8Array(await file.blob.arrayBuffer());
+          const filename = encoder.encode(file.name);
+          const checksum = crc32(data);
+          const utf8Flag = 0x0800;
+
+          const localRecord = new Uint8Array([
+            0x50,
+            0x4b,
+            0x03,
+            0x04,
+            ...uint16(20),
+            ...uint16(utf8Flag),
+            ...uint16(0),
+            ...uint16(0),
+            ...uint16(0),
+            ...uint32(checksum),
+            ...uint32(data.length),
+            ...uint32(data.length),
+            ...uint16(filename.length),
+            ...uint16(0),
+            ...filename,
+            ...data,
+          ]);
+
+          const centralRecord = new Uint8Array([
+            0x50,
+            0x4b,
+            0x01,
+            0x02,
+            ...uint16(20),
+            ...uint16(20),
+            ...uint16(utf8Flag),
+            ...uint16(0),
+            ...uint16(0),
+            ...uint16(0),
+            ...uint32(checksum),
+            ...uint32(data.length),
+            ...uint32(data.length),
+            ...uint16(filename.length),
+            ...uint16(0),
+            ...uint16(0),
+            ...uint16(0),
+            ...uint16(0),
+            ...uint32(0),
+            ...uint32(offset),
+            ...filename,
+          ]);
+
+          localRecords.push(localRecord);
+          centralRecords.push(centralRecord);
+          offset += localRecord.length;
+        }
+
+        const centralDirectorySize = centralRecords.reduce(
+          (size, record) => size + record.length,
+          0,
+        );
+        const endRecord = new Uint8Array([
+          0x50,
+          0x4b,
+          0x05,
+          0x06,
+          ...uint16(0),
+          ...uint16(0),
+          ...uint16(files.length),
+          ...uint16(files.length),
+          ...uint32(centralDirectorySize),
+          ...uint32(offset),
+          ...uint16(0),
+        ]);
+
+        return new Blob([...localRecords, ...centralRecords, endRecord], {
+          type: "application/zip",
+        });
+      }
+
+      downloadAllButton.addEventListener("click", async () => {
+        if (!convertedFiles.length) return;
+
+        downloadAllButton.disabled = true;
+        downloadAllButton.textContent = "ZIP তৈরি হচ্ছে…";
+
+        try {
+          const zipBlob = await buildZip(convertedFiles);
+          const zipUrl = URL.createObjectURL(zipBlob);
+          const link = document.createElement("a");
+          link.href = zipUrl;
+          link.download = "webp-images.zip";
+          link.click();
+          setTimeout(() => URL.revokeObjectURL(zipUrl), 1000);
+        } finally {
+          downloadAllButton.disabled = false;
+          downloadAllButton.textContent = "সবগুলো ZIP-এ Download";
+        }
+      });
+    </script>
+  </body>
+</html>
