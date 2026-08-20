@@ -117,6 +117,39 @@
         border-radius: 24px;
         box-shadow: 0 18px 55px #29375c0d;
       }
+      .tool-tabs {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 6px;
+        margin-bottom: 20px;
+        padding: 5px;
+        background: #f2f3f9;
+        border-radius: 12px;
+      }
+      .tool-tab {
+        padding: 12px 14px;
+        color: var(--muted);
+        font: 750 13px inherit;
+        cursor: pointer;
+        background: transparent;
+        border: 0;
+        border-radius: 8px;
+        transition: 0.2s;
+      }
+      .tool-tab:hover {
+        color: var(--ink);
+      }
+      .tool-tab.is-active {
+        color: var(--brand);
+        background: white;
+        box-shadow: 0 4px 12px #29375c12;
+      }
+      .tool-panel {
+        display: none;
+      }
+      .tool-panel.is-active {
+        display: block;
+      }
       #drop-zone {
         display: flex;
         flex-direction: column;
@@ -301,6 +334,84 @@
         color: #465570;
       }
 
+      .text-tool {
+        margin-top: 28px;
+        padding-top: 24px;
+        border-top: 1px solid var(--line);
+      }
+      .text-tool-header {
+        display: flex;
+        align-items: end;
+        justify-content: space-between;
+        gap: 16px;
+        margin-bottom: 14px;
+      }
+      .text-tool h2 {
+        margin: 0;
+        font-size: 21px;
+      }
+      .text-tool-header p {
+        margin: 5px 0 0;
+        color: var(--muted);
+        font-size: 13px;
+      }
+      .text-count {
+        color: var(--muted);
+        font-size: 12px;
+        white-space: nowrap;
+      }
+      #case-text {
+        display: block;
+        width: 100%;
+        min-height: 170px;
+        padding: 15px;
+        color: var(--ink);
+        font: 15px/1.6 inherit;
+        resize: vertical;
+        background: white;
+        border: 1px solid #dbe0eb;
+        border-radius: 12px;
+        outline: 0;
+      }
+      #case-text:focus {
+        border-color: var(--brand);
+        box-shadow: 0 0 0 3px #6558f51a;
+      }
+      .case-options,
+      .text-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-top: 12px;
+      }
+      .case-button,
+      .text-action {
+        padding: 9px 12px;
+        color: #506078;
+        font: 700 12px inherit;
+        cursor: pointer;
+        background: white;
+        border: 1px solid #dbe0eb;
+        border-radius: 8px;
+        transition: 0.2s;
+      }
+      .case-button:hover,
+      .case-button.is-active,
+      .text-action:hover {
+        color: var(--brand);
+        border-color: #aaa1ff;
+        background: #f5f3ff;
+      }
+      .text-action.primary {
+        color: white;
+        background: var(--brand);
+        border-color: var(--brand);
+      }
+      .text-action.primary:hover {
+        color: white;
+        background: #5548e5;
+      }
+
       @media (max-width: 600px) {
         .app {
           width: min(100% - 22px, 1050px);
@@ -325,6 +436,11 @@
         #download-all {
           width: 100%;
         }
+        .text-tool-header {
+          align-items: flex-start;
+          flex-direction: column;
+          gap: 5px;
+        }
       }
     </style>
   </head>
@@ -340,63 +456,150 @@
 
       <section class="hero">
         <div class="eyebrow">FAST • PRIVATE • HIGH QUALITY</div>
-        <h1>ছবি WebP করুন, মান ধরে রাখুন।</h1>
-        <p>
-          একসাথে যত ইচ্ছা ছবি convert করুন এবং সবগুলো এক ক্লিকে ZIP-এ download
-          করুন।
-        </p>
+        <h1>দৈনন্দিন কাজের smart tools</h1>
+        <p>একই জায়গায় ছবি WebP করুন এবং text-এর case সহজেই বদলে নিন।</p>
       </section>
 
       <section class="card">
-        <label id="drop-zone" for="image-input">
-          <span class="upload-icon">⇧</span>
-          <h2>ছবি এখানে drop করুন</h2>
-          <p>অথবা আপনার device থেকে বেছে নিন</p>
-          <span class="button">ছবি নির্বাচন করুন</span>
-          <span class="formats"
-            >JPG, PNG, WebP, GIF ও অন্যান্য browser-supported ছবি</span
+        <div class="tool-tabs" role="tablist" aria-label="Tools">
+          <button
+            class="tool-tab is-active"
+            id="image-tab"
+            role="tab"
+            aria-controls="image-tool"
+            aria-selected="true"
+            type="button"
           >
-          <input type="file" id="image-input" accept="image/*" multiple />
-        </label>
-
-        <div class="settings">
-          <div class="setting">
-            <div>
-              ছবির Resolution <small>আসল width ও height অপরিবর্তিত থাকবে</small>
-            </div>
-            <b>100% রাখুন</b>
-          </div>
-          <label class="setting">
-            <span
-              >WebP Quality <small>ফাইল সাইজ ও ছবির মানের ভারসাম্য</small></span
-            >
-            <select id="quality">
-              <option value="target">Smart target (200–300 KB)</option>
-              <option value="1">Maximum quality</option>
-              <option value=".92">High quality</option>
-              <option value=".82">Balanced</option>
-            </select>
-          </label>
+            ✦ Image to WebP
+          </button>
+          <button
+            class="tool-tab"
+            id="text-tab"
+            role="tab"
+            aria-controls="text-tool"
+            aria-selected="false"
+            type="button"
+          >
+            Aa Text Case
+          </button>
         </div>
 
-        <div class="results" id="results">
-          <div class="results-header">
-            <div class="summary" id="summary"></div>
-            <button class="button" id="download-all">
-              সবগুলো ZIP-এ Download
+        <div
+          class="tool-panel is-active"
+          id="image-tool"
+          role="tabpanel"
+          aria-labelledby="image-tab"
+        >
+          <label id="drop-zone" for="image-input">
+            <span class="upload-icon">⇧</span>
+            <h2>ছবি এখানে drop করুন</h2>
+            <p>অথবা আপনার device থেকে বেছে নিন</p>
+            <span class="button">ছবি নির্বাচন করুন</span>
+            <span class="formats"
+              >JPG, PNG, WebP, GIF ও অন্যান্য browser-supported ছবি</span
+            >
+            <input type="file" id="image-input" accept="image/*" multiple />
+          </label>
+
+          <div class="settings">
+            <div class="setting">
+              <div>
+                ছবির Resolution
+                <small>আসল width ও height অপরিবর্তিত থাকবে</small>
+              </div>
+              <b>100% রাখুন</b>
+            </div>
+            <label class="setting">
+              <span
+                >WebP Quality
+                <small>ফাইল সাইজ ও ছবির মানের ভারসাম্য</small></span
+              >
+              <select id="quality">
+                <option value="target">Smart target (200–300 KB)</option>
+                <option value="1">Maximum quality</option>
+                <option value=".92">High quality</option>
+                <option value=".82">Balanced</option>
+              </select>
+            </label>
+          </div>
+
+          <div class="results" id="results">
+            <div class="results-header">
+              <div class="summary" id="summary"></div>
+              <button class="button" id="download-all">
+                সবগুলো ZIP-এ Download
+              </button>
+            </div>
+            <div id="file-list"></div>
+          </div>
+
+          <p class="note">
+            <span>✦</span>
+            <span
+              ><b>নোট:</b> Resolution কমানো হয় না। Smart target 200–300 KB পেতে
+              quality সামঞ্জস্য করে; খুব বিস্তারিত বা বড় ছবিতে resolution না
+              কমিয়ে ঠিক ওই সাইজ সবসময় সম্ভব নাও হতে পারে।</span
+            >
+          </p>
+        </div>
+
+        <section
+          class="tool-panel text-tool"
+          id="text-tool"
+          role="tabpanel"
+          aria-labelledby="text-tab"
+        >
+          <div class="text-tool-header">
+            <div>
+              <h2 id="text-tool-title">Text Case Converter</h2>
+              <p>আপনার লেখা সহজেই পছন্দের case-এ বদলে নিন।</p>
+            </div>
+            <span class="text-count" id="text-count">0 characters</span>
+          </div>
+          <textarea
+            id="case-text"
+            placeholder="এখানে আপনার text লিখুন বা paste করুন..."
+            spellcheck="false"
+          ></textarea>
+          <div class="case-options" aria-label="Text case options">
+            <button
+              class="case-button is-active"
+              data-case="sentence"
+              type="button"
+            >
+              Sc · Sentence case
+            </button>
+            <button class="case-button" data-case="lower" type="button">
+              lc · lower case
+            </button>
+            <button class="case-button" data-case="upper" type="button">
+              UC · UPPER CASE
+            </button>
+            <button class="case-button" data-case="capitalized" type="button">
+              CC · Capitalized Case
+            </button>
+            <button class="case-button" data-case="alternating" type="button">
+              aC · aLtErNaTiNg cAsE
+            </button>
+            <button class="case-button" data-case="title" type="button">
+              TC · Title Case
+            </button>
+            <button class="case-button" data-case="inverse" type="button">
+              iC · InVeRsE CaSe
             </button>
           </div>
-          <div id="file-list"></div>
-        </div>
-
-        <p class="note">
-          <span>✦</span>
-          <span
-            ><b>নোট:</b> Resolution কমানো হয় না। Smart target 200–300 KB পেতে
-            quality সামঞ্জস্য করে; খুব বিস্তারিত বা বড় ছবিতে resolution না কমিয়ে
-            ঠিক ওই সাইজ সবসময় সম্ভব নাও হতে পারে।</span
-          >
-        </p>
+          <div class="text-actions">
+            <button class="text-action primary" id="copy-text" type="button">
+              Copy
+            </button>
+            <button class="text-action" id="delete-text" type="button">
+              Delete
+            </button>
+            <button class="text-action" id="clear-text" type="button">
+              Clear
+            </button>
+          </div>
+        </section>
       </section>
     </main>
 
@@ -408,8 +611,142 @@
       const summary = document.querySelector("#summary");
       const qualitySelect = document.querySelector("#quality");
       const downloadAllButton = document.querySelector("#download-all");
+      const caseText = document.querySelector("#case-text");
+      const textCount = document.querySelector("#text-count");
+      const caseButtons = document.querySelectorAll("[data-case]");
+      const copyTextButton = document.querySelector("#copy-text");
+      const deleteTextButton = document.querySelector("#delete-text");
+      const clearTextButton = document.querySelector("#clear-text");
+      const toolTabs = document.querySelectorAll("[role='tab']");
+      const toolPanels = document.querySelectorAll("[role='tabpanel']");
 
       let convertedFiles = [];
+
+      toolTabs.forEach((tab) => {
+        tab.addEventListener("click", () => {
+          toolTabs.forEach((item) => {
+            const isSelected = item === tab;
+            item.classList.toggle("is-active", isSelected);
+            item.setAttribute("aria-selected", isSelected);
+          });
+          toolPanels.forEach((panel) => {
+            panel.classList.toggle(
+              "is-active",
+              panel.id === tab.getAttribute("aria-controls"),
+            );
+          });
+        });
+      });
+
+      function updateTextCount() {
+        const count = caseText.value.length;
+        textCount.textContent = `${count} character${count === 1 ? "" : "s"}`;
+      }
+
+      function convertCase(value, type) {
+        if (type === "lower") return value.toLowerCase();
+        if (type === "upper") return value.toUpperCase();
+        if (type === "capitalized") {
+          return value
+            .toLowerCase()
+            .replace(/\b\w/g, (letter) => letter.toUpperCase());
+        }
+        if (type === "alternating") {
+          let letterIndex = 0;
+          return [...value]
+            .map((character) => {
+              if (!/[a-z]/i.test(character)) return character;
+              const converted =
+                letterIndex % 2 === 0
+                  ? character.toLowerCase()
+                  : character.toUpperCase();
+              letterIndex += 1;
+              return converted;
+            })
+            .join("");
+        }
+        if (type === "title") {
+          const smallWords = new Set([
+            "a",
+            "an",
+            "and",
+            "as",
+            "at",
+            "but",
+            "by",
+            "for",
+            "in",
+            "of",
+            "on",
+            "or",
+            "the",
+            "to",
+          ]);
+          const words = value.toLowerCase().split(/(\s+)/);
+          let wordIndex = 0;
+          return words
+            .map((word) => {
+              if (/^\s+$/.test(word) || !word) return word;
+              const titled = word.charAt(0).toUpperCase() + word.slice(1);
+              const result =
+                wordIndex > 0 &&
+                wordIndex < words.length - 1 &&
+                smallWords.has(word)
+                  ? word
+                  : titled;
+              wordIndex += 1;
+              return result;
+            })
+            .join("");
+        }
+        if (type === "inverse") {
+          return [...value]
+            .map((character) =>
+              character === character.toUpperCase()
+                ? character.toLowerCase()
+                : character.toUpperCase(),
+            )
+            .join("");
+        }
+        return value
+          .toLowerCase()
+          .replace(/(^\s*\w|[.!?]\s+\w)/g, (match) => match.toUpperCase());
+      }
+
+      caseButtons.forEach((button) => {
+        button.addEventListener("click", () => {
+          caseText.value = convertCase(caseText.value, button.dataset.case);
+          caseButtons.forEach((item) =>
+            item.classList.toggle("is-active", item === button),
+          );
+          updateTextCount();
+          caseText.focus();
+        });
+      });
+      caseText.addEventListener("input", updateTextCount);
+      copyTextButton.addEventListener("click", async () => {
+        if (!caseText.value) return;
+        await navigator.clipboard.writeText(caseText.value);
+        copyTextButton.textContent = "Copied";
+        setTimeout(() => {
+          copyTextButton.textContent = "Copy";
+        }, 1200);
+      });
+      deleteTextButton.addEventListener("click", () => {
+        const start = caseText.selectionStart;
+        const end = caseText.selectionEnd;
+        caseText.value =
+          start !== end
+            ? caseText.value.slice(0, start) + caseText.value.slice(end)
+            : caseText.value.slice(0, -1);
+        caseText.focus();
+        updateTextCount();
+      });
+      clearTextButton.addEventListener("click", () => {
+        caseText.value = "";
+        caseText.focus();
+        updateTextCount();
+      });
 
       function formatBytes(bytes) {
         if (bytes < 1024) return `${bytes} B`;
