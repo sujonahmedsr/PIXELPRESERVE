@@ -4,6 +4,7 @@ import { FormEvent, useEffect, useMemo, useState } from "react";
 
 type TaskStatus = "todo" | "progress" | "done";
 type TaskPriority = "low" | "medium" | "high";
+type TaskFilter = "all" | TaskStatus;
 type Task = {
   id: string;
   title: string;
@@ -53,6 +54,8 @@ const statusLabels: Record<TaskStatus, string> = {
 export default function TasksPage() {
   const [tasks, setTasks] = useState<Task[]>(starterTasks);
   const [isAdding, setIsAdding] = useState(false);
+  const [query, setQuery] = useState("");
+  const [filter, setFilter] = useState<TaskFilter>("all");
   const [draft, setDraft] = useState({
     title: "",
     project: "",
@@ -87,6 +90,18 @@ export default function TasksPage() {
       task.due &&
       new Date(task.due) < new Date("2026-08-21"),
   ).length;
+  const visibleTasks = useMemo(() => {
+    const normalizedQuery = query.trim().toLowerCase();
+    return tasks.filter((task) => {
+      const matchesFilter = filter === "all" || task.status === filter;
+      const matchesQuery =
+        !normalizedQuery ||
+        [task.title, task.project, task.client].some((value) =>
+          value.toLowerCase().includes(normalizedQuery),
+        );
+      return matchesFilter && matchesQuery;
+    });
+  }, [filter, query, tasks]);
 
   function addTask(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -123,160 +138,295 @@ export default function TasksPage() {
     );
   }
 
+  function removeTask(id: string) {
+    setTasks((current) => current.filter((task) => task.id !== id));
+  }
+
+  function formatDueDate(value: string) {
+    if (!value) return "No deadline";
+    return new Intl.DateTimeFormat("en", {
+      month: "short",
+      day: "numeric",
+      year: "numeric",
+    }).format(new Date(`${value}T00:00:00`));
+  }
+
   return (
-    <main className="min-h-screen bg-[#f7faf7] px-6 py-7 text-[#17201e] md:px-12">
+    <main className="min-h-screen bg-[#f4f6f1] px-4 py-4 text-[#18231f] sm:px-6 lg:px-10 lg:py-6">
       <div className="mx-auto max-w-7xl">
-        <header className="flex items-center justify-between border-b border-[#dce5df] pb-7">
+        <header className="flex items-center justify-between rounded-2xl bg-[#18231f] px-5 py-4 text-white shadow-[0_18px_50px_rgba(24,35,31,.14)] sm:px-7">
           <a className="flex items-center gap-3 text-lg font-medium" href="/">
             <span className="grid size-9 place-items-center rounded-xl bg-[#157c62] text-white">
               ✦
             </span>{" "}
             PixelPreserve
           </a>
-          <a className="text-base font-medium text-[#157c62]" href="/">
-            Back to toolkit ↗
+          <a
+            className="text-sm font-medium text-[#d8f36a] transition hover:text-white"
+            href="/"
+          >
+            Back to toolkit <span aria-hidden="true">-&gt;</span>
           </a>
         </header>
-        <section className="py-20">
-          <p className="font-mono text-xs tracking-[.16em] text-[#157c62]">
-            PROJECT CONTROL ROOM
-          </p>
-          <div className="mt-4 flex flex-col justify-between gap-8 lg:flex-row lg:items-end">
-            <div>
-              <h1 className="max-w-3xl text-[40px] font-medium leading-[1.08] tracking-tight">
-                Keep the work{" "}
-                <em className="font-serif font-medium text-[#df795f]">
-                  moving.
-                </em>
-              </h1>
-              <p className="mt-6 max-w-xl text-lg leading-8 text-[#71807b]">
-                Client projects, deadlines and delivery momentum in one calm
-                workspace.
-              </p>
-            </div>
-            <button
-              className="rounded-lg bg-[#17201e] px-5 py-3 text-base font-medium text-white transition hover:bg-[#157c62]"
-              onClick={() => setIsAdding(true)}
-              type="button"
-            >
-              + Add task
-            </button>
+
+        <section className="flex flex-col justify-between gap-6 px-1 py-8 sm:px-3 lg:flex-row lg:items-end lg:py-10">
+          <div>
+            <p className="font-mono text-xs font-semibold tracking-[.2em] text-[#16866b]">
+              OPERATIONS / AUG 21, 2026
+            </p>
+            <h1 className="mt-4 max-w-3xl text-[40px] font-semibold leading-[1.04] tracking-[-1.8px] sm:text-5xl lg:text-[60px]">
+              Your work, in <span className="text-[#df795f]">motion.</span>
+            </h1>
+            <p className="mt-5 max-w-2xl text-lg leading-8 text-[#687770]">
+              A focused command center for the projects, deadlines, and details
+              that move your studio forward.
+            </p>
           </div>
         </section>
-        <section className="grid gap-4 md:grid-cols-4">
-          {[
-            { label: "All tasks", value: tasks.length },
-            {
-              label: "In progress",
-              value: tasks.filter((task) => task.status === "progress").length,
-            },
-            {
-              label: "Completed",
-              value: tasks.filter((task) => task.status === "done").length,
-            },
-            { label: "Overdue", value: overdue },
-          ].map((metric) => (
-            <article
-              className="rounded-2xl border border-[#dce5df] bg-white p-5"
-              key={metric.label}
-            >
-              <p className="text-base text-[#71807b]">{metric.label}</p>
-              <strong className="mt-3 block text-[40px] font-medium">
-                {metric.value}
-              </strong>
-            </article>
-          ))}
-        </section>
-        <section className="mt-5 rounded-2xl border border-[#dce5df] bg-white p-6">
-          <div className="flex items-end justify-between">
-            <div>
-              <p className="font-mono text-xs tracking-[.16em] text-[#157c62]">
-                DELIVERY HEALTH
-              </p>
-              <h2 className="mt-2 text-[40px] font-medium">Overall progress</h2>
-            </div>
-            <strong className="text-3xl text-[#157c62]">{progress}%</strong>
-          </div>
-          <div className="mt-5 h-3 overflow-hidden rounded-full bg-[#e8f0eb]">
-            <div
-              className="h-full rounded-full bg-[#157c62] transition-all"
-              style={{ width: `${progress}%` }}
-            />
-          </div>
-        </section>
-        <section className="mt-12">
-          <div className="mb-5 flex items-center justify-between">
-            <h2 className="text-[40px] font-medium">Task board</h2>
-            <span className="font-mono text-xs text-[#71807b]">
-              SAVED LOCALLY
-            </span>
-          </div>
-          <div className="grid gap-4 lg:grid-cols-3">
-            {(["todo", "progress", "done"] as TaskStatus[]).map((status) => (
-              <div className="rounded-2xl bg-[#edf4ef] p-4" key={status}>
-                <div className="flex items-center justify-between">
-                  <h3 className="text-[40px] font-medium">
-                    {statusLabels[status]}
-                  </h3>
-                  <span className="rounded-full bg-white px-3 py-1 font-mono text-xs">
-                    {tasks.filter((task) => task.status === status).length}
-                  </span>
+
+        <div className="grid gap-6 lg:grid-cols-[minmax(230px,25%)_minmax(0,75%)] lg:items-start">
+          <aside className="grid gap-4 lg:sticky lg:top-6">
+            <section className="rounded-2xl bg-[#18231f] p-5 text-white shadow-[0_16px_40px_rgba(24,35,31,.12)] sm:p-6">
+              <div className="flex items-start justify-between">
+                <div>
+                  <p className="font-mono text-xs tracking-[.16em] text-[#d8f36a]">
+                    DELIVERY HEALTH
+                  </p>
+                  <h2 className="mt-3 text-3xl font-semibold">
+                    Overall progress
+                  </h2>
                 </div>
-                <div className="mt-4 grid gap-3">
-                  {tasks
-                    .filter((task) => task.status === status)
-                    .map((task) => (
-                      <article
-                        className="rounded-xl border border-[#dce5df] bg-white p-4"
-                        key={task.id}
-                      >
-                        <div className="flex items-start justify-between gap-3">
-                          <h4 className="text-base font-medium">
-                            {task.title}
-                          </h4>
-                          <span
-                            className={`text-base font-medium uppercase ${task.priority === "high" ? "text-[#df795f]" : "text-[#157c62]"}`}
-                          >
-                            {task.priority}
-                          </span>
-                        </div>
-                        <p className="mt-2 text-sm text-[#71807b]">
-                          {task.project} · {task.client}
-                        </p>
-                        <div className="mt-4 flex items-center justify-between border-t border-[#edf1ed] pt-3 text-sm text-[#71807b]">
-                          <span>{task.due || "No deadline"}</span>
-                          <button
-                            className="text-base font-medium text-[#157c62]"
-                            onClick={() => cycleStatus(task.id)}
-                            type="button"
-                          >
-                            Next status ↗
-                          </button>
-                        </div>
-                      </article>
-                    ))}
-                </div>
+                <strong className="text-3xl font-semibold text-[#d8f36a]">
+                  {progress}%
+                </strong>
               </div>
-            ))}
-          </div>
-        </section>
+              <div
+                className="mt-7 h-2 overflow-hidden rounded-full bg-white/15"
+                role="progressbar"
+                aria-label="Overall task progress"
+                aria-valuemin={0}
+                aria-valuemax={100}
+                aria-valuenow={progress}
+              >
+                <div
+                  className="h-full rounded-full bg-[#d8f36a] transition-all"
+                  style={{ width: `${progress}%` }}
+                />
+              </div>
+              <p className="mt-4 text-sm text-white/60">
+                {tasks.filter((task) => task.status === "done").length} of{" "}
+                {tasks.length} tasks complete
+              </p>
+            </section>
+            <section className="grid grid-cols-2 gap-px overflow-hidden rounded-2xl border border-[#dbe2d9] bg-[#dbe2d9]">
+              {[
+                { label: "All tasks", value: tasks.length },
+                {
+                  label: "In progress",
+                  value: tasks.filter((task) => task.status === "progress")
+                    .length,
+                },
+                {
+                  label: "Completed",
+                  value: tasks.filter((task) => task.status === "done").length,
+                },
+                { label: "Overdue", value: overdue },
+              ].map((metric) => (
+                <article className="bg-white p-4" key={metric.label}>
+                  <p className="text-sm text-[#687770]">{metric.label}</p>
+                  <strong
+                    className={`mt-2 block text-3xl font-semibold ${metric.label === "Overdue" && metric.value ? "text-[#c65e45]" : ""}`}
+                  >
+                    {metric.value}
+                  </strong>
+                </article>
+              ))}
+            </section>
+          </aside>
+
+          <section
+            aria-labelledby="task-board-title"
+            className="min-w-0 rounded-2xl border border-[#dbe2d9] bg-white p-4 shadow-[0_14px_40px_rgba(24,35,31,.06)] sm:p-6 lg:p-7"
+          >
+            <div className="flex flex-col justify-between gap-5 border-b border-[#e4e9e2] pb-6 lg:flex-row lg:items-end">
+              <div>
+                <p className="font-mono text-xs font-semibold tracking-[.16em] text-[#16866b]">
+                  LIVE BOARD
+                </p>
+                <h2
+                  id="task-board-title"
+                  className="mt-2 text-3xl font-semibold"
+                >
+                  Task board
+                </h2>
+                <p className="mt-2 text-base text-[#687770]">
+                  Everything moving through delivery, at a glance.
+                </p>
+              </div>
+              <div className="flex w-full flex-col gap-2 sm:flex-row lg:w-auto">
+                <label className="flex min-w-0 flex-1 items-center gap-2 rounded-xl border border-[#cbd7cc] bg-[#f8faf7] px-3 text-sm text-[#687770] shadow-[0_4px_12px_rgba(24,35,31,.04)] transition focus-within:border-[#16866b] focus-within:ring-2 focus-within:ring-[#16866b]/20 lg:min-w-64">
+                  <span aria-hidden="true" className="text-base">
+                    ⌕
+                  </span>
+                  <span className="sr-only">Search tasks</span>
+                  <input
+                    id="task-search"
+                    className="w-full bg-transparent py-2.5 text-[#18231f] outline-none placeholder:text-[#9aa8a2]"
+                    onChange={(event) => setQuery(event.target.value)}
+                    placeholder="Search tasks"
+                    value={query}
+                  />
+                </label>
+                <label className="sr-only" htmlFor="task-filter">
+                  Sort tasks by status
+                </label>
+                <select
+                  id="task-filter"
+                  className="rounded-xl border border-[#cbd7cc] bg-[#f8faf7] px-3 py-2.5 text-sm font-semibold text-[#18231f] shadow-[0_4px_12px_rgba(24,35,31,.04)] outline-none focus:border-[#16866b] focus:ring-2 focus:ring-[#16866b]/20"
+                  onChange={(event) =>
+                    setFilter(event.target.value as TaskFilter)
+                  }
+                  value={filter}
+                >
+                  <option value="all">All statuses</option>
+                  <option value="todo">To do</option>
+                  <option value="progress">In progress</option>
+                  <option value="done">Complete</option>
+                </select>
+                <button
+                  className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#16866b] px-4 py-2.5 text-sm font-semibold text-white shadow-[0_8px_18px_rgba(22,134,107,.18)] transition hover:-translate-y-0.5 hover:bg-[#106b56]"
+                  onClick={() => setIsAdding(true)}
+                  type="button"
+                >
+                  <span className="text-lg leading-none" aria-hidden="true">
+                    +
+                  </span>
+                  Add task
+                </button>
+              </div>
+            </div>
+            <div className="mt-6 grid gap-4 lg:grid-cols-3">
+              {(["todo", "progress", "done"] as TaskStatus[]).map((status) => (
+                <section
+                  className="min-w-0 rounded-xl bg-[#f1f4ee] p-3.5"
+                  key={status}
+                  aria-labelledby={`column-${status}`}
+                >
+                  <div className="flex items-center justify-between border-b border-[#dfe7dc] pb-3">
+                    <h3
+                      id={`column-${status}`}
+                      className="text-lg font-semibold"
+                    >
+                      {statusLabels[status]}
+                    </h3>
+                    <span className="grid size-7 place-items-center rounded-lg bg-white font-mono text-xs font-semibold text-[#687770]">
+                      {tasks.filter((task) => task.status === status).length}
+                    </span>
+                  </div>
+                  <div className="mt-3 grid gap-3">
+                    {visibleTasks
+                      .filter((task) => task.status === status)
+                      .map((task) => (
+                        <article
+                          className="rounded-xl border border-[#dbe2d9] bg-white p-4 shadow-[0_5px_15px_rgba(24,35,31,.04)]"
+                          key={task.id}
+                        >
+                          <div className="flex items-start justify-between gap-3">
+                            <h4 className="text-base font-semibold leading-6">
+                              {task.title}
+                            </h4>
+                            <span
+                              className={`shrink-0 rounded-md px-2 py-1 text-[10px] font-bold uppercase tracking-wider ${task.priority === "high" ? "bg-[#fff0eb] text-[#c65e45]" : task.priority === "medium" ? "bg-[#fff7d7] text-[#8d6c13]" : "bg-[#e7f4ef] text-[#157c62]"}`}
+                            >
+                              {task.priority}
+                            </span>
+                          </div>
+                          <p className="mt-2 text-sm leading-5 text-[#687770]">
+                            {task.project} <span aria-hidden="true">/</span>{" "}
+                            {task.client}
+                          </p>
+                          <div className="mt-4 flex items-center justify-between gap-2 border-t border-[#edf1ed] pt-3 text-sm text-[#687770]">
+                            <span
+                              className={
+                                task.status !== "done" &&
+                                task.due &&
+                                new Date(task.due) < new Date("2026-08-21")
+                                  ? "font-semibold text-[#c65e45]"
+                                  : ""
+                              }
+                            >
+                              {formatDueDate(task.due)}
+                            </span>
+                            <div className="flex items-center gap-3">
+                              <button
+                                aria-label={`Delete ${task.title}`}
+                                className="grid size-8 place-items-center rounded-lg text-lg text-[#9aa8a2] transition hover:bg-[#fff0eb] hover:text-[#c65e45]"
+                                onClick={() => removeTask(task.id)}
+                                title="Delete task"
+                                type="button"
+                              >
+                                x
+                              </button>
+                              <button
+                                className="rounded-lg px-2 py-1 font-semibold text-[#16866b] transition hover:bg-[#e7f4ef]"
+                                onClick={() => cycleStatus(task.id)}
+                                type="button"
+                              >
+                                Next -&gt;
+                              </button>
+                            </div>
+                          </div>
+                        </article>
+                      ))}
+                    {!visibleTasks.some((task) => task.status === status) ? (
+                      <p className="rounded-lg border border-dashed border-[#cbd7cc] px-3 py-7 text-center text-sm text-[#85918c]">
+                        No tasks here.
+                      </p>
+                    ) : null}
+                  </div>
+                </section>
+              ))}
+            </div>
+            {!visibleTasks.length ? (
+              <div className="mt-4 rounded-xl border border-dashed border-[#cbd7cc] bg-[#f8faf7] p-8 text-center text-base text-[#687770]">
+                No tasks match this view.
+              </div>
+            ) : null}
+          </section>
+        </div>
+
         {isAdding ? (
-          <div className="fixed inset-0 z-10 grid place-items-center bg-[#17201e]/30 p-5">
+          <div
+            className="fixed inset-0 z-10 grid place-items-center overflow-y-auto bg-[#18231f]/60 p-4 sm:p-6"
+            role="presentation"
+          >
             <form
-              className="w-full max-w-lg rounded-2xl bg-white p-7 shadow-2xl"
+              aria-labelledby="new-task-title"
+              className="my-auto w-full max-w-xl rounded-2xl bg-white p-6 shadow-2xl sm:p-8"
               onSubmit={addTask}
             >
-              <div className="flex items-center justify-between">
-                <h2 className="text-[40px] font-medium">New task</h2>
+              <div className="flex items-start justify-between gap-5 border-b border-[#e4e9e2] pb-5">
+                <div>
+                  <p className="font-mono text-xs font-semibold tracking-[.16em] text-[#16866b]">
+                    NEW WORK ITEM
+                  </p>
+                  <h2
+                    id="new-task-title"
+                    className="mt-2 text-4xl font-semibold"
+                  >
+                    Add a task
+                  </h2>
+                </div>
                 <button
-                  className="text-2xl"
+                  aria-label="Close add task dialog"
+                  className="grid size-10 place-items-center rounded-xl bg-[#f1f4ee] text-2xl text-[#687770] transition hover:bg-[#e7eee7]"
                   onClick={() => setIsAdding(false)}
                   type="button"
                 >
-                  ×
+                  x
                 </button>
               </div>
-              <div className="mt-6 grid gap-4">
+              <div className="mt-6 grid gap-4 sm:grid-cols-2">
                 {(
                   [
                     ["title", "Task title"],
@@ -284,10 +434,13 @@ export default function TasksPage() {
                     ["client", "Client"],
                   ] as const
                 ).map(([key, label]) => (
-                  <label className="grid gap-2 text-base font-medium" key={key}>
+                  <label
+                    className={`grid gap-2 text-base font-semibold ${key === "title" ? "sm:col-span-2" : ""}`}
+                    key={key}
+                  >
                     {label}
                     <input
-                      className="rounded-lg border border-[#dce5df] px-3 py-3 font-normal outline-none focus:border-[#157c62]"
+                      className="rounded-xl border border-[#cbd7cc] px-3 py-3 text-base font-normal outline-none focus:border-[#16866b] focus:ring-2 focus:ring-[#16866b]/20"
                       value={draft[key]}
                       onChange={(event) =>
                         setDraft({ ...draft, [key]: event.target.value })
@@ -296,10 +449,10 @@ export default function TasksPage() {
                     />
                   </label>
                 ))}
-                <label className="grid gap-2 text-base font-medium">
+                <label className="grid gap-2 text-base font-semibold">
                   Deadline
                   <input
-                    className="rounded-lg border border-[#dce5df] px-3 py-3 font-normal"
+                    className="rounded-xl border border-[#cbd7cc] px-3 py-3 text-base font-normal outline-none focus:border-[#16866b]"
                     type="date"
                     value={draft.due}
                     onChange={(event) =>
@@ -307,10 +460,10 @@ export default function TasksPage() {
                     }
                   />
                 </label>
-                <label className="grid gap-2 text-base font-medium">
+                <label className="grid gap-2 text-base font-semibold">
                   Priority
                   <select
-                    className="rounded-lg border border-[#dce5df] px-3 py-3 font-normal"
+                    className="rounded-xl border border-[#cbd7cc] bg-white px-3 py-3 text-base font-normal outline-none focus:border-[#16866b]"
                     value={draft.priority}
                     onChange={(event) =>
                       setDraft({
@@ -326,7 +479,7 @@ export default function TasksPage() {
                 </label>
               </div>
               <button
-                className="mt-6 w-full rounded-lg bg-[#157c62] px-4 py-3 text-base font-medium text-white"
+                className="mt-7 w-full rounded-xl bg-[#16866b] px-4 py-3.5 text-base font-semibold text-white transition hover:bg-[#106b56]"
                 type="submit"
               >
                 Create task

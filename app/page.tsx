@@ -3,8 +3,9 @@
 import { ChangeEvent, DragEvent, useRef, useState } from "react";
 import { SectionHeading } from "./components/SectionHeading";
 import { ToolCard } from "./components/ToolCard";
+import { DesignToolPanel } from "./components/DesignToolPanel";
 
-type Tool = "image" | "text" | "json";
+type Tool = "image" | "text" | "json" | "glass" | "palette";
 type CaseType =
   | "sentence"
   | "lower"
@@ -21,13 +22,13 @@ type ConvertedFile = {
 };
 
 const caseOptions: { id: CaseType; shortcut: string; label: string }[] = [
-  { id: "sentence", shortcut: "Sc", label: "বাক্যরীতি" },
-  { id: "lower", shortcut: "lc", label: "ছোট হাতের অক্ষর" },
-  { id: "upper", shortcut: "UC", label: "বড় হাতের অক্ষর" },
-  { id: "capitalized", shortcut: "CC", label: "প্রতিটি শব্দ বড় হাতের" },
-  { id: "alternating", shortcut: "aC", label: "পরপর অক্ষর বদল" },
-  { id: "title", shortcut: "TC", label: "শিরোনাম রীতি" },
-  { id: "inverse", shortcut: "iC", label: "উল্টো রীতি" },
+  { id: "sentence", shortcut: "Sc", label: "Sentence case" },
+  { id: "lower", shortcut: "lc", label: "lowercase" },
+  { id: "upper", shortcut: "UC", label: "UPPERCASE" },
+  { id: "capitalized", shortcut: "CC", label: "Capitalized Case" },
+  { id: "alternating", shortcut: "aC", label: "aLtErNaTiNg cAsE" },
+  { id: "title", shortcut: "TC", label: "Title Case" },
+  { id: "inverse", shortcut: "iC", label: "Inverse case" },
 ];
 
 function formatBytes(bytes: number) {
@@ -349,18 +350,15 @@ export default function Home() {
   );
 
   return (
-    <main className="relative mx-auto w-[calc(100%-24px)] max-w-295 overflow-hidden px-0 pt-4.5 pb-10.5 min-[701px]:w-[calc(100%-48px)] min-[701px]:pt-7">
+    <main className="relative mx-auto w-[calc(100%-24px)] max-w-7xl px-0 pt-4.5 pb-10.5 min-[701px]:w-[calc(100%-48px)] min-[701px]:pt-7">
       <div className="pointer-events-none fixed -top-70 -right-30 z-[-1] size-117.5 rounded-full bg-[#d7eee2] opacity-55 blur-[100px]" />
       <div className="pointer-events-none fixed -bottom-82.5 -left-40 z-[-1] size-117.5 rounded-full bg-[#f3d5c3] opacity-55 blur-[100px]" />
       <nav className="flex items-center justify-between border-b border-[#dce5df] pb-7">
-        <a
-          className="inline-flex items-center gap-2.75 text-[17px] font-medium tracking-[-0.6px] text-[#17201e] no-underline"
-          href="#top"
-        >
-          <span className="grid size-7.75 rotate-[-8deg] place-items-center rounded-[9px] bg-[#157c62] text-[15px] text-white">
+        <a className="flex items-center gap-3 text-lg font-medium" href="/">
+          <span className="grid size-9 place-items-center rounded-xl bg-[#157c62] text-white">
             ✦
-          </span>
-          <span>PixelPreserve</span>
+          </span>{" "}
+          PixelPreserve
         </a>
         <div className="font-mono text-base tracking-[0.03em] text-[#71807b] max-[700px]:text-[0px]">
           <span className="mr-2 inline-block size-1.5 rounded-full bg-[#35a67d] shadow-[0_0_0_4px_#35a67d1a] max-[700px]:mr-0" />{" "}
@@ -398,7 +396,7 @@ export default function Home() {
         </p>
         <div className="mt-7.5 flex justify-center gap-7 font-mono text-base uppercase text-[#71807b] max-[700px]:flex-wrap max-[700px]:gap-x-4.5 max-[700px]:gap-y-3">
           <span>
-            <b className="mr-1.5 text-base font-medium text-[#17201e]">০৩</b>টি
+            <b className="mr-1.5 text-base font-medium text-[#17201e]">০৫</b>টি
             utility
           </span>
           <span>
@@ -423,11 +421,11 @@ export default function Home() {
             description="Developer workflow-এর ছোট friction গুলো সরিয়ে দিন।"
           />
           <span className="font-mono text-base tracking-[0.03em] text-[#71807b]">
-            ০৩টি টুল / FREE
+            ০৫টি টুল / FREE
           </span>
         </div>
         <div
-          className="mb-5.5 grid grid-cols-1 gap-2.5 min-[701px]:grid-cols-3"
+          className="mb-5.5 grid grid-cols-1 gap-2.5 min-[701px]:grid-cols-2 min-[1100px]:grid-cols-5"
           role="tablist"
           aria-label="Tools"
         >
@@ -454,6 +452,22 @@ export default function Home() {
             description="Pretty print ও validate"
             tag="API"
             onClick={() => setActiveTool("json")}
+          />
+          <ToolCard
+            active={activeTool === "glass"}
+            icon="◈"
+            title="Glass & shadow"
+            description="Generate polished CSS"
+            tag="CSS"
+            onClick={() => setActiveTool("glass")}
+          />
+          <ToolCard
+            active={activeTool === "palette"}
+            icon="●"
+            title="Palette checker"
+            description="Contrast and colour system"
+            tag="COLOR"
+            onClick={() => setActiveTool("palette")}
           />
         </div>
 
@@ -653,7 +667,7 @@ export default function Home() {
               </button>
             </div>
           </div>
-        ) : (
+        ) : activeTool === "json" ? (
           <div role="tabpanel">
             <div className="flex items-end justify-between gap-5">
               <div>
@@ -708,6 +722,8 @@ export default function Home() {
               </button>
             </div>
           </div>
+        ) : (
+          <DesignToolPanel kind={activeTool} />
         )}
       </section>
 
