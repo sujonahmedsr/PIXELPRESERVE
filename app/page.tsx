@@ -1,8 +1,10 @@
 "use client";
 
 import { ChangeEvent, DragEvent, useRef, useState } from "react";
+import { SectionHeading } from "./components/SectionHeading";
+import { ToolCard } from "./components/ToolCard";
 
-type Tool = "image" | "text";
+type Tool = "image" | "text" | "json";
 type CaseType =
   | "sentence"
   | "lower"
@@ -106,6 +108,14 @@ function transformText(value: string, type: CaseType) {
   return value
     .toLowerCase()
     .replace(/(^\s*\w|[.!?]\s+\w)/g, (match) => match.toUpperCase());
+}
+
+function formatJson(value: string) {
+  try {
+    return { value: JSON.stringify(JSON.parse(value), null, 2), error: "" };
+  } catch {
+    return { value, error: "JSON-এ একটি syntax error আছে" };
+  }
 }
 
 function uint16(value: number) {
@@ -220,6 +230,10 @@ export default function Home() {
   const [text, setText] = useState("");
   const [selectedCase, setSelectedCase] = useState<CaseType>("sentence");
   const [copyLabel, setCopyLabel] = useState("কপি");
+  const [jsonText, setJsonText] = useState(
+    '{"store": "PixelPreserve", "private": true}',
+  );
+  const [jsonError, setJsonError] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
 
   async function toWebp(canvas: HTMLCanvasElement, value: number) {
@@ -302,6 +316,18 @@ export default function Home() {
     window.setTimeout(() => setCopyLabel("কপি"), 1200);
   }
 
+  async function copyValue(value: string) {
+    await navigator.clipboard.writeText(value);
+    setCopyLabel("কপি হয়েছে");
+    window.setTimeout(() => setCopyLabel("কপি"), 1200);
+  }
+
+  function prettifyJson() {
+    const result = formatJson(jsonText);
+    setJsonText(result.value);
+    setJsonError(result.error);
+  }
+
   function deleteText() {
     setText((current) => current.slice(0, -1));
   }
@@ -323,78 +349,118 @@ export default function Home() {
   );
 
   return (
-    <main className="site-shell">
-      <div className="ambient ambient-one" />
-      <div className="ambient ambient-two" />
-      <nav className="topbar">
-        <a className="brand" href="#top">
-          <span className="brand-mark">✦</span>
+    <main className="relative mx-auto w-[calc(100%-24px)] max-w-295 overflow-hidden px-0 pt-4.5 pb-10.5 min-[701px]:w-[calc(100%-48px)] min-[701px]:pt-7">
+      <div className="pointer-events-none fixed -top-70 -right-30 z-[-1] size-117.5 rounded-full bg-[#d7eee2] opacity-55 blur-[100px]" />
+      <div className="pointer-events-none fixed -bottom-82.5 -left-40 z-[-1] size-117.5 rounded-full bg-[#f3d5c3] opacity-55 blur-[100px]" />
+      <nav className="flex items-center justify-between border-b border-[#dce5df] pb-7">
+        <a
+          className="inline-flex items-center gap-2.75 text-[17px] font-medium tracking-[-0.6px] text-[#17201e] no-underline"
+          href="#top"
+        >
+          <span className="grid size-7.75 rotate-[-8deg] place-items-center rounded-[9px] bg-[#157c62] text-[15px] text-white">
+            ✦
+          </span>
           <span>PixelPreserve</span>
         </a>
-        <div className="topbar-status">
-          <span className="status-dot" /> ব্রাউজারেই কাজ হয়{" "}
-          <span className="status-divider" /> সংস্করণ ১.০
+        <div className="font-mono text-base tracking-[0.03em] text-[#71807b] max-[700px]:text-[0px]">
+          <span className="mr-2 inline-block size-1.5 rounded-full bg-[#35a67d] shadow-[0_0_0_4px_#35a67d1a] max-[700px]:mr-0" />{" "}
+          ব্রাউজারেই কাজ হয়{" "}
+          <span className="mx-2 inline-block h-3 w-px align-middle bg-[#dce5df] max-[700px]:hidden" />{" "}
+          সংস্করণ ১.০
         </div>
+        <a
+          className="font-mono text-base tracking-[0.03em] text-[#71807b] no-underline max-[700px]:text-[0px]"
+          href="/tasks"
+        >
+          TASK CONTROL ROOM ↗
+        </a>
       </nav>
 
-      <section className="hero" id="top">
-        <div className="hero-kicker">
-          <span /> ব্যক্তিগত ব্রাউজার টুল <span />
+      <section
+        className="px-0 pt-17 pb-12.5 text-center min-[701px]:pt-24 min-[701px]:pb-18"
+        id="top"
+      >
+        <div className="inline-flex items-center gap-2.5 font-mono text-base tracking-[0.12em] text-[#157c62] max-[420px]:text-[9px]">
+          <span className="inline-block h-px w-6.5 bg-[#9ccab5]" /> PRIVATE
+          DEVELOPER TOOLKIT{" "}
+          <span className="inline-block h-px w-6.5 bg-[#9ccab5]" />
         </div>
-        <h1>
-          ছোট ছোট টুল।
+        <h1 className="mx-auto my-4.25 max-w-200 text-[40px] leading-[1.08] font-medium tracking-tight">
+          আপনার workflow-এর
           <br />
-          <em>সুন্দরভাবে</em> তৈরি।
+          <em className="font-serif font-medium tracking-[-3px] text-[#df795f]">
+            স্মার্ট toolkit.
+          </em>
         </h1>
-        <p>
-          দ্রুত কাজের জন্য তৈরি সুন্দর browser utility, যেখানে আপনার কোনো ফাইল
-          কোথাও upload হয় না।
+        <p className="mx-auto max-w-127.5 text-base leading-[1.75] text-[#71807b]">
+          WebP, JSON এবং text workflow-এর জন্য দ্রুত browser utilities। কোনো
+          ফাইল বা data আপনার device ছাড়ে না।
         </p>
+        <div className="mt-7.5 flex justify-center gap-7 font-mono text-base uppercase text-[#71807b] max-[700px]:flex-wrap max-[700px]:gap-x-4.5 max-[700px]:gap-y-3">
+          <span>
+            <b className="mr-1.5 text-base font-medium text-[#17201e]">০৩</b>টি
+            utility
+          </span>
+          <span>
+            <b className="mr-1.5 text-base font-medium text-[#17201e]">১০০%</b>{" "}
+            client-side
+          </span>
+          <span>
+            <b className="mr-1.5 text-base font-medium text-[#17201e]">০</b>{" "}
+            upload
+          </span>
+        </div>
       </section>
 
-      <section className="workspace" aria-label="PixelPreserve টুলসমূহ">
-        <div className="workspace-head">
-          <div>
-            <span className="section-label">আপনার টুলবক্স</span>
-            <h2>শুরু করতে একটি tool বেছে নিন</h2>
-          </div>
-          <span className="workspace-count">০২টি টুল</span>
+      <section
+        className="rounded-2xl border border-[#dce5df] bg-[#ffffffb8] p-4 shadow-[0_28px_70px_#224c3d0d] backdrop-blur-[15px] min-[701px]:rounded-[26px] min-[701px]:p-7.25"
+        aria-label="PixelPreserve টুলসমূহ"
+      >
+        <div className="mb-5.5 flex items-end justify-between gap-5 max-[700px]:items-start max-[700px]:flex-col max-[700px]:gap-2">
+          <SectionHeading
+            eyebrow="YOUR DAILY STACK"
+            title="কাজের জায়গা, এক screen-এ"
+            description="Developer workflow-এর ছোট friction গুলো সরিয়ে দিন।"
+          />
+          <span className="font-mono text-base tracking-[0.03em] text-[#71807b]">
+            ০৩টি টুল / FREE
+          </span>
         </div>
-        <div className="tool-tabs" role="tablist" aria-label="Tools">
-          <button
-            className={`tool-tab ${activeTool === "image" ? "is-active" : ""}`}
+        <div
+          className="mb-5.5 grid grid-cols-1 gap-2.5 min-[701px]:grid-cols-3"
+          role="tablist"
+          aria-label="Tools"
+        >
+          <ToolCard
+            active={activeTool === "image"}
+            icon="↗"
+            title="ছবি থেকে WebP"
+            description="Quality রেখে size কমান"
+            tag="MEDIA"
             onClick={() => setActiveTool("image")}
-            role="tab"
-            aria-selected={activeTool === "image"}
-            type="button"
-          >
-            <span className="tab-icon image-icon">↗</span>
-            <span>
-              <b>ছবি থেকে WebP</b>
-              <small>মান ঠিক রেখে সংকুচিত করুন</small>
-            </span>
-            <span className="tab-arrow">→</span>
-          </button>
-          <button
-            className={`tool-tab ${activeTool === "text" ? "is-active" : ""}`}
+          />
+          <ToolCard
+            active={activeTool === "text"}
+            icon="Aa"
+            title="লেখার ধরন"
+            description="Case transform করুন"
+            tag="TEXT"
             onClick={() => setActiveTool("text")}
-            role="tab"
-            aria-selected={activeTool === "text"}
-            type="button"
-          >
-            <span className="tab-icon text-icon">Aa</span>
-            <span>
-              <b>লেখার ধরন</b>
-              <small>আপনার লেখার রীতি বদলান</small>
-            </span>
-            <span className="tab-arrow">→</span>
-          </button>
+          />
+          <ToolCard
+            active={activeTool === "json"}
+            icon="{}"
+            title="JSON Formatter"
+            description="Pretty print ও validate"
+            tag="API"
+            onClick={() => setActiveTool("json")}
+          />
         </div>
 
         {activeTool === "image" ? (
-          <div className="tool-panel" role="tabpanel">
+          <div role="tabpanel">
             <label
-              className={`drop-zone ${isDragging ? "is-dragging" : ""}`}
+              className={`flex min-h-62.5 cursor-pointer flex-col items-center justify-center rounded-[15px] border border-dashed border-[#aecfbe] bg-[#f4f9f5] p-5.5 text-center transition duration-200 hover:border-[#157c62] hover:bg-[#e9f5ed] min-[421px]:min-h-69 min-[421px]:p-8 ${isDragging ? "border-[#157c62] bg-[#e9f5ed]" : ""}`}
               onDragEnter={(event) => {
                 event.preventDefault();
                 setIsDragging(true);
@@ -404,17 +470,23 @@ export default function Home() {
               onDrop={handleDrop}
               htmlFor="image-input"
             >
-              <span className="upload-icon">↑</span>
-              <strong>ছবি এখানে ছেড়ে দিন</strong>
-              <span>অথবা আপনার device থেকে বেছে নিন</span>
+              <span className="mb-3.75 grid size-12 place-items-center rounded-[14px] bg-[#157c62] text-[22px] text-white shadow-[0_9px_18px_#157c6230]">
+                ↑
+              </span>
+              <strong className="text-[18px] font-medium tracking-[-0.5px]">
+                ছবি এখানে ছেড়ে দিন
+              </strong>
+              <span className="mt-2 text-base text-[#71807b]">
+                অথবা আপনার device থেকে বেছে নিন
+              </span>
               <button
-                className="browse-button"
+                className="mt-5 rounded-lg border-0 bg-[#17201e] px-3.75 py-2.75 text-base font-medium text-white transition hover:-translate-y-0.5 hover:bg-[#157c62]"
                 type="button"
                 onClick={() => inputRef.current?.click()}
               >
                 ছবি বেছে নিন <span>↗</span>
               </button>
-              <small>
+              <small className="mt-4.25 text-base text-[#9aa8a1]">
                 JPG, PNG, WebP, GIF ও ব্রাউজারে সমর্থিত অন্যান্য ফরম্যাট
               </small>
               <input
@@ -423,18 +495,28 @@ export default function Home() {
                 type="file"
                 accept="image/*"
                 multiple
+                className="hidden"
                 onChange={handleFileChange}
               />
             </label>
-            <div className="image-settings">
-              <div>
-                <span className="setting-label">রেজোলিউশন</span>
-                <strong>১০০% আসল</strong>
-                <small>ছবির width ও height অপরিবর্তিত থাকবে</small>
+            <div className="mt-3.5 grid grid-cols-1 gap-3.5 rounded-xl border border-[#dce5df] bg-[#f8faf8] p-4 min-[701px]:grid-cols-2 min-[701px]:px-4.5">
+              <div className="grid grid-cols-[1fr_auto] items-center gap-x-3.5 gap-y-1">
+                <span className="font-mono text-base tracking-[0.08em] text-[#157c62]">
+                  রেজোলিউশন
+                </span>
+                <strong className="text-right text-base font-medium">
+                  ১০০% আসল
+                </strong>
+                <small className="col-span-full text-base text-[#71807b]">
+                  ছবির width ও height অপরিবর্তিত থাকবে
+                </small>
               </div>
-              <label>
-                <span className="setting-label">WebP মান</span>
+              <label className="grid grid-cols-[1fr_auto] items-center gap-x-3.5 gap-y-1">
+                <span className="font-mono text-base tracking-[0.08em] text-[#157c62]">
+                  WebP মান
+                </span>
                 <select
+                  className="max-w-58.75 rounded-md border border-[#dce5df] bg-white px-2 py-1.5 text-base text-[#17201e]"
                   value={quality}
                   onChange={(event) => setQuality(event.target.value)}
                 >
@@ -443,37 +525,50 @@ export default function Home() {
                   <option value=".92">উচ্চ মান</option>
                   <option value=".82">ভারসাম্যপূর্ণ</option>
                 </select>
-                <small>ফাইল size ও ছবির মানের সেরা ভারসাম্য</small>
+                <small className="col-span-full text-base text-[#71807b]">
+                  ফাইল size ও ছবির মানের সেরা ভারসাম্য
+                </small>
               </label>
             </div>
             {(isConverting || convertedFiles.length > 0) && (
-              <div className="results">
-                <div className="results-head">
+              <div className="mt-6 border-t border-[#dce5df] pt-6">
+                <div className="flex items-end justify-between gap-5">
                   <div>
-                    <span className="section-label">রূপান্তরের তালিকা</span>
-                    <h3>
+                    <span className="font-mono text-base tracking-[0.12em] text-[#157c62]">
+                      রূপান্তরের তালিকা
+                    </span>
+                    <h3 className="mt-2 text-[40px] leading-[1.08] font-medium tracking-[-1.8px]">
                       {isConverting
                         ? "আপনার ছবি প্রস্তুত করা হচ্ছে…"
                         : `${convertedFiles.length}টি WebP ফাইল প্রস্তুত`}
                     </h3>
                   </div>
                   <button
-                    className="download-button"
+                    className="rounded-lg border-0 bg-[#157c62] px-3.25 py-2.5 text-base font-medium text-white transition disabled:cursor-wait disabled:opacity-50"
                     onClick={() => void downloadZip()}
                     disabled={isConverting || !convertedFiles.length}
                   >
                     ZIP ডাউনলোড <span>↓</span>
                   </button>
                 </div>
-                <div className="file-list">
+                <div className="mt-4 grid gap-2">
                   {convertedFiles.map((file) => (
-                    <article className="file-row" key={file.url}>
-                      <div className="file-preview">
-                        <img src={file.url} alt="" />
+                    <article
+                      className="grid grid-cols-[42px_minmax(0,1fr)_auto] items-center gap-3 rounded-[9px] border border-[#dce5df] bg-white p-2"
+                      key={file.url}
+                    >
+                      <div className="size-10.5 overflow-hidden rounded-[7px] bg-[#edf1ed]">
+                        <img
+                          className="size-10.5 rounded-[7px] object-cover"
+                          src={file.url}
+                          alt=""
+                        />
                       </div>
                       <div>
-                        <strong>{file.name}</strong>
-                        <small>
+                        <strong className="block overflow-hidden text-base font-medium text-ellipsis whitespace-nowrap">
+                          {file.name}
+                        </strong>
+                        <small className="mt-1 block overflow-hidden text-base text-ellipsis whitespace-nowrap text-[#71807b]">
                           {file.dimensions} · {formatBytes(file.blob.size)}
                         </small>
                       </div>
@@ -484,34 +579,42 @@ export default function Home() {
                   ))}
                 </div>
                 {convertedFiles.length > 0 && (
-                  <div className="results-total">
+                  <div className="mt-3 flex justify-between font-mono text-base tracking-[0.03em] text-[#71807b]">
                     <span>মোট ফাইলের আকার</span>
-                    <strong>{formatBytes(totalSize)}</strong>
+                    <strong className="font-medium text-[#17201e]">
+                      {formatBytes(totalSize)}
+                    </strong>
                   </div>
                 )}
               </div>
             )}
           </div>
-        ) : (
-          <div className="tool-panel text-panel" role="tabpanel">
-            <div className="panel-intro">
+        ) : activeTool === "text" ? (
+          <div className="py-2" role="tabpanel">
+            <div className="flex items-end justify-between gap-5">
               <div>
-                <span className="section-label">লেখা রূপান্তর</span>
-                <h3>প্রতিটি শব্দকে আরও সুন্দর করুন।</h3>
+                <span className="font-mono text-base tracking-[0.12em] text-[#157c62]">
+                  লেখা রূপান্তর
+                </span>
+                <h3 className="mt-2 text-[40px] leading-[1.08] font-medium tracking-[-1.8px]">
+                  প্রতিটি শব্দকে আরও সুন্দর করুন।
+                </h3>
               </div>
-              <span className="character-count">{text.length}টি অক্ষর</span>
+              <span className="font-mono text-base text-[#71807b]">
+                {text.length}টি অক্ষর
+              </span>
             </div>
             <textarea
-              className="text-editor"
+              className="mt-4.75 block min-h-52.5 w-full resize-y rounded-xl border border-[#dce5df] bg-[#f8faf8] p-4.25 font-mono text-base leading-[1.7] text-[#17201e] outline-0 focus:border-[#8bc3aa] focus:bg-white focus:shadow-[0_0_0_3px_#8bc3aa1c]"
               value={text}
               onChange={(event) => setText(event.target.value)}
               placeholder="এখানে আপনার লেখা লিখুন বা paste করুন…"
               spellCheck={false}
             />
-            <div className="case-grid">
+            <div className="mt-3 grid grid-cols-2 gap-2 min-[701px]:grid-cols-4">
               {caseOptions.map((option) => (
                 <button
-                  className={`case-option ${selectedCase === option.id ? "is-active" : ""}`}
+                  className={`grid gap-1 rounded-[9px] border p-2.5 text-left transition ${selectedCase === option.id ? "border-[#a8d1ba] bg-[#f0f8f2] text-[#17201e]" : "border-[#dce5df] bg-white text-[#71807b]"}`}
                   key={option.id}
                   onClick={() => {
                     setSelectedCase(option.id);
@@ -519,28 +622,30 @@ export default function Home() {
                   }}
                   type="button"
                 >
-                  <b>{option.shortcut}</b>
-                  <span>{option.label}</span>
+                  <b className="font-mono text-base font-medium text-[#157c62]">
+                    {option.shortcut}
+                  </b>
+                  <span className="text-base font-medium">{option.label}</span>
                 </button>
               ))}
             </div>
-            <div className="text-actions">
+            <div className="mt-3.5 flex gap-2">
               <button
-                className="action-button primary"
+                className="rounded-lg border border-[#17201e] bg-[#17201e] px-3.25 py-2.5 text-base font-medium text-white transition hover:border-[#157c62] hover:bg-[#157c62]"
                 onClick={() => void copyText()}
                 type="button"
               >
                 {copyLabel} <span>↗</span>
               </button>
               <button
-                className="action-button"
+                className="rounded-lg border border-[#dce5df] bg-white px-3.25 py-2.5 text-base font-medium text-[#71807b] transition hover:border-[#a8d1ba] hover:text-[#17201e]"
                 onClick={deleteText}
                 type="button"
               >
                 মুছুন <span>⌫</span>
               </button>
               <button
-                className="action-button"
+                className="rounded-lg border border-[#dce5df] bg-white px-3.25 py-2.5 text-base font-medium text-[#71807b] transition hover:border-[#a8d1ba] hover:text-[#17201e]"
                 onClick={() => setText("")}
                 type="button"
               >
@@ -548,14 +653,70 @@ export default function Home() {
               </button>
             </div>
           </div>
+        ) : (
+          <div role="tabpanel">
+            <div className="flex items-end justify-between gap-5">
+              <div>
+                <span className="font-mono text-base tracking-[0.12em] text-[#157c62]">
+                  API WORKFLOW
+                </span>
+                <h3 className="mt-2 text-[40px] leading-[1.08] font-medium tracking-[-1.8px]">
+                  JSON-কে readable করুন।
+                </h3>
+              </div>
+              <span className="font-mono text-base text-[#71807b]">
+                {jsonText.length} chars
+              </span>
+            </div>
+            <textarea
+              className="mt-4.75 block min-h-72.5 w-full resize-y rounded-xl border border-[#dce5df] bg-[#f1f6f8] p-4.25 font-mono text-base leading-[1.7] text-[#31566b] outline-0 focus:border-[#8bc3aa] focus:bg-white focus:shadow-[0_0_0_3px_#8bc3aa1c]"
+              value={jsonText}
+              onChange={(event) => {
+                setJsonText(event.target.value);
+                setJsonError("");
+              }}
+              spellCheck={false}
+              aria-label="JSON input"
+            />
+            {jsonError ? (
+              <p className="mt-2.5 text-base text-[#b34635]">{jsonError}</p>
+            ) : null}
+            <div className="mt-3.5 flex gap-2">
+              <button
+                className="rounded-lg border border-[#17201e] bg-[#17201e] px-3.25 py-2.5 text-base font-medium text-white transition hover:border-[#157c62] hover:bg-[#157c62]"
+                onClick={prettifyJson}
+                type="button"
+              >
+                Format JSON <span>↗</span>
+              </button>
+              <button
+                className="rounded-lg border border-[#dce5df] bg-white px-3.25 py-2.5 text-base font-medium text-[#71807b] transition hover:border-[#a8d1ba] hover:text-[#17201e]"
+                onClick={() => void copyValue(jsonText)}
+                type="button"
+              >
+                {copyLabel} <span>⌘</span>
+              </button>
+              <button
+                className="rounded-lg border border-[#dce5df] bg-white px-3.25 py-2.5 text-base font-medium text-[#71807b] transition hover:border-[#a8d1ba] hover:text-[#17201e]"
+                onClick={() => {
+                  setJsonText("");
+                  setJsonError("");
+                }}
+                type="button"
+              >
+                Clear <span>×</span>
+              </button>
+            </div>
+          </div>
         )}
       </section>
 
-      <footer>
+      <footer className="flex justify-between gap-2.5 px-0.75 pt-7 font-mono text-base leading-[1.6] tracking-[0.04em] text-[#91a19a] max-[700px]:flex-col">
         <span>PIXELPRESERVE / ২০২৬</span>
         <span>
-          সব কাজ browser-এর ভেতরেই হয় <i>•</i> আপনার device থেকে কিছুই বাইরে যায়
-          না
+          সব কাজ browser-এর ভেতরেই হয়{" "}
+          <i className="mx-2 text-[#df795f] not-italic">•</i> আপনার device থেকে
+          কিছুই বাইরে যায় না
         </span>
       </footer>
     </main>

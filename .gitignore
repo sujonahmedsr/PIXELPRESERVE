@@ -3,4 +3,5 @@ node_modules/
 out/
 .env*
 *.log
-index.html
+*.tsbuildinfo
+/index.html

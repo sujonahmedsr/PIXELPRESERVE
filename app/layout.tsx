@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import "./globals.css";
+import "./tailwind.css";
 
 export const metadata: Metadata = {
   title: "PixelPreserve | ব্যক্তিগত ব্রাউজার টুল",
