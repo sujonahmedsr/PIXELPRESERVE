@@ -358,7 +358,7 @@ export default function Home() {
           <span className="grid size-9 place-items-center rounded-xl bg-[#157c62] text-white">
             ✦
           </span>{" "}
-          PixelPreserve
+          PIXELPRESERVE
         </a>
         <div className="font-mono text-base tracking-[0.03em] text-[#71807b] max-[700px]:text-[0px]">
           <span className="mr-2 inline-block size-1.5 rounded-full bg-[#35a67d] shadow-[0_0_0_4px_#35a67d1a] max-[700px]:mr-0" />{" "}
@@ -375,49 +375,13 @@ export default function Home() {
       </nav>
 
       <section
-        className="px-0 pt-17 pb-12.5 text-center min-[701px]:pt-24 min-[701px]:pb-18"
-        id="top"
-      >
-        <div className="inline-flex items-center gap-2.5 font-mono text-base tracking-[0.12em] text-[#157c62] max-[420px]:text-[9px]">
-          <span className="inline-block h-px w-6.5 bg-[#9ccab5]" /> PRIVATE
-          DEVELOPER TOOLKIT{" "}
-          <span className="inline-block h-px w-6.5 bg-[#9ccab5]" />
-        </div>
-        <h1 className="mx-auto my-4.25 max-w-200 text-[40px] leading-[1.08] font-medium tracking-tight">
-          আপনার workflow-এর
-          <br />
-          <em className="font-serif font-medium tracking-[-3px] text-[#df795f]">
-            স্মার্ট toolkit.
-          </em>
-        </h1>
-        <p className="mx-auto max-w-127.5 text-base leading-[1.75] text-[#71807b]">
-          WebP, JSON এবং text workflow-এর জন্য দ্রুত browser utilities। কোনো
-          ফাইল বা data আপনার device ছাড়ে না।
-        </p>
-        <div className="mt-7.5 flex justify-center gap-7 font-mono text-base uppercase text-[#71807b] max-[700px]:flex-wrap max-[700px]:gap-x-4.5 max-[700px]:gap-y-3">
-          <span>
-            <b className="mr-1.5 text-base font-medium text-[#17201e]">০৫</b>টি
-            utility
-          </span>
-          <span>
-            <b className="mr-1.5 text-base font-medium text-[#17201e]">১০০%</b>{" "}
-            client-side
-          </span>
-          <span>
-            <b className="mr-1.5 text-base font-medium text-[#17201e]">০</b>{" "}
-            upload
-          </span>
-        </div>
-      </section>
-
-      <section
-        className="rounded-2xl border border-[#dce5df] bg-[#ffffffb8] p-4 shadow-[0_28px_70px_#224c3d0d] backdrop-blur-[15px] min-[701px]:rounded-[26px] min-[701px]:p-7.25"
+        className="rounded-2xl border mt-4 border-[#dce5df] bg-[#ffffffb8] p-4 shadow-[0_28px_70px_#224c3d0d] backdrop-blur-[15px] min-[701px]:rounded-[26px] min-[701px]:p-7.25"
         aria-label="PixelPreserve টুলসমূহ"
       >
         <div className="mb-5.5 flex items-end justify-between gap-5 max-[700px]:items-start max-[700px]:flex-col max-[700px]:gap-2">
           <SectionHeading
             eyebrow="YOUR DAILY STACK"
-            title="কাজের জায়গা, এক screen-এ"
+            title="কাজের জায়গা, এক SCREEN-এ"
             description="Developer workflow-এর ছোট friction গুলো সরিয়ে দিন।"
           />
           <span className="font-mono text-base tracking-[0.03em] text-[#71807b]">
@@ -432,7 +396,7 @@ export default function Home() {
           <ToolCard
             active={activeTool === "image"}
             icon="↗"
-            title="ছবি থেকে WebP"
+            title="ছবি থেকে WEBP"
             description="Quality রেখে size কমান"
             tag="MEDIA"
             onClick={() => setActiveTool("image")}
@@ -440,7 +404,7 @@ export default function Home() {
           <ToolCard
             active={activeTool === "text"}
             icon="Aa"
-            title="লেখার ধরন"
+            title="CASE TRANSFORM"
             description="Case transform করুন"
             tag="TEXT"
             onClick={() => setActiveTool("text")}
@@ -448,7 +412,7 @@ export default function Home() {
           <ToolCard
             active={activeTool === "json"}
             icon="{}"
-            title="JSON Formatter"
+            title="JSON FORMATTER"
             description="Pretty print ও validate"
             tag="API"
             onClick={() => setActiveTool("json")}
@@ -456,7 +420,7 @@ export default function Home() {
           <ToolCard
             active={activeTool === "glass"}
             icon="◈"
-            title="Glass & shadow"
+            title="GLASS & SHADOW"
             description="Generate polished CSS"
             tag="CSS"
             onClick={() => setActiveTool("glass")}
@@ -464,7 +428,7 @@ export default function Home() {
           <ToolCard
             active={activeTool === "palette"}
             icon="●"
-            title="Palette checker"
+            title="PALETTE CHECKER"
             description="Contrast and colour system"
             tag="COLOR"
             onClick={() => setActiveTool("palette")}
@@ -610,9 +574,6 @@ export default function Home() {
                 <span className="font-mono text-base tracking-[0.12em] text-[#157c62]">
                   লেখা রূপান্তর
                 </span>
-                <h3 className="mt-2 text-[40px] leading-[1.08] font-medium tracking-[-1.8px]">
-                  প্রতিটি শব্দকে আরও সুন্দর করুন।
-                </h3>
               </div>
               <span className="font-mono text-base text-[#71807b]">
                 {text.length}টি অক্ষর
@@ -674,8 +635,8 @@ export default function Home() {
                 <span className="font-mono text-base tracking-[0.12em] text-[#157c62]">
                   API WORKFLOW
                 </span>
-                <h3 className="mt-2 text-[40px] leading-[1.08] font-medium tracking-[-1.8px]">
-                  JSON-কে readable করুন।
+                <h3 className="mt-2 text-[30px] leading-[1.08] font-medium tracking-[-1.8px]">
+                  MAKE JSON READABLE.
                 </h3>
               </div>
               <span className="font-mono text-base text-[#71807b]">

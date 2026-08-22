@@ -14,7 +14,7 @@ export function SectionHeading({
       <span className="font-mono text-base tracking-[0.12em] text-[#157c62]">
         {eyebrow}
       </span>
-      <h2 className="mt-2 max-w-142.5 text-[40px] leading-[1.08] font-medium tracking-[-1.8px]">
+      <h2 className="mt-2 max-w-142.5 text-[30px] leading-[1.08] font-medium tracking-[-1.8px]">
         {title}
       </h2>
       {description ? (

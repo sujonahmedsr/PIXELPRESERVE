@@ -159,7 +159,7 @@ export default function TasksPage() {
             <span className="grid size-9 place-items-center rounded-xl bg-[#157c62] text-white">
               ✦
             </span>{" "}
-            PixelPreserve
+            PIXELPRESERVE
           </a>
           <a
             className="text-sm font-medium text-[#d8f36a] transition hover:text-white"

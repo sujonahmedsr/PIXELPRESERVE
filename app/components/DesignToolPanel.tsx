@@ -226,7 +226,7 @@ function GlassPanel() {
             <span className="font-mono text-xs tracking-[.16em] opacity-70">
               LIVE PREVIEW
             </span>
-            <h3 className="mt-4 text-3xl font-semibold">Quiet surfaces.</h3>
+            <h3 className="mt-4 text-3xl font-semibold">QUIET SURFACES.</h3>
             <p className="mt-3 text-sm leading-6 opacity-70">
               A translucent card with a considered shadow system and a little
               atmosphere.
@@ -474,7 +474,7 @@ function PalettePanel() {
               CONTRAST CHECK
             </p>
             <h3 className="mt-2 text-3xl font-medium tracking-[-.04em] text-[#17201e]">
-              Make type effortless to read.
+              MAKE TYPE EFFORTLESS TO READ.
             </h3>
           </div>
           <div className="rounded-xl border border-[#cfe1d5] bg-white px-4 py-3 text-left shadow-[0_8px_20px_rgba(23,32,30,.04)] sm:min-w-32 sm:text-right">
@@ -531,7 +531,7 @@ function PalettePanel() {
             SAMPLE TYPE
           </p>
           <p className="relative mt-3 text-3xl font-semibold tracking-[-.04em]">
-            Accessible by design.
+            ACCESSIBLE BY DESIGN.
           </p>
           <p className="relative mt-2 max-w-xs text-sm leading-6 opacity-75">
             This preview updates as your color pair changes.
