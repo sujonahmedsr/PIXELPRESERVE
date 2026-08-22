@@ -1,1 +1,18 @@
 @import "tailwindcss";
+
+:root {
+  background: #edf3ef;
+  color: #17201e;
+}
+
+body {
+  min-width: 320px;
+  background:
+    radial-gradient(circle at 12% 8%, #ffffffcc 0, transparent 28rem),
+    linear-gradient(135deg, #f7faf7 0%, #edf3ef 52%, #f6eee8 100%);
+}
+
+::selection {
+  background: #b9d8c5;
+  color: #17201e;
+}
