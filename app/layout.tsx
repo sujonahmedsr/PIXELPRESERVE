@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import "./tailwind.css";
+import { SiteFooter } from "./components/SiteFooter";
+import { SiteHeader } from "./components/SiteHeader";
 
 export const metadata: Metadata = {
   title: "PIXELPRESERVE | ব্যক্তিগত ব্রাউজার টুল",
@@ -11,7 +13,11 @@ export default function RootLayout({
 }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="bn" suppressHydrationWarning>
-      <body suppressHydrationWarning>{children}</body>
+      <body suppressHydrationWarning>
+        <SiteHeader />
+        {children}
+        <SiteFooter />
+      </body>
     </html>
   );
 }

@@ -170,32 +170,7 @@ export default function Home() {
 
   const totalSize = files.reduce((sum, file) => sum + file.blob.size, 0);
   return (
-    <main className="relative mx-auto w-[calc(100%-24px)] max-w-7xl px-0 pb-10 pt-4.5 min-[701px]:w-[calc(100%-56px)] min-[701px]:pt-8">
-      <nav className="flex items-center justify-between border-b border-[#d5e2da] pb-6.5">
-        <a
-          className="group flex items-center gap-3 text-lg font-semibold tracking-[0.02em]"
-          href="/"
-        >
-          <span className="grid size-9 place-items-center rounded-xl bg-[#157c62] text-white shadow-[0_8px_18px_#157c6230] transition group-hover:rotate-6">
-            ✦
-          </span>
-          PIXELPRESERVE
-        </a>
-        <div className="flex items-center gap-6 font-mono text-base tracking-[0.03em] text-[#71807b]">
-          <a
-            className="transition hover:text-[#157c62] max-[700px]:text-[0px]"
-            href="/fiverr"
-          >
-            FIVERR CHECKER ↗
-          </a>
-          <a
-            className="transition hover:text-[#157c62] max-[700px]:text-[0px]"
-            href="/tasks"
-          >
-            TASK CONTROL ROOM ↗
-          </a>
-        </div>
-      </nav>
+    <main className="relative mx-auto w-[calc(100%-24px)] max-w-7xl px-0 pb-10 min-[701px]:w-[calc(100%-56px)]">
       <section className="mt-4 rounded-2xl border border-[#d5e2da] bg-[#ffffffc7] p-4 shadow-[0_30px_80px_#224c3d12] backdrop-blur-[18px] min-[701px]:rounded-[26px] min-[701px]:p-7.25">
         <div className="mb-5.5 flex items-end justify-between gap-5 max-[700px]:flex-col max-[700px]:items-start max-[700px]:gap-2">
           <SectionHeading
@@ -461,10 +436,6 @@ export default function Home() {
           <DesignToolPanel kind={activeTool} />
         )}
       </section>
-      <footer className="flex justify-between gap-2.5 px-0.75 pt-7 font-mono text-base text-[#91a19a] max-[700px]:flex-col">
-        <span>PIXELPRESERVE / ২০২৬</span>
-        <span>সব কাজ browser-এর ভেতরেই হয়</span>
-      </footer>
     </main>
   );
 }

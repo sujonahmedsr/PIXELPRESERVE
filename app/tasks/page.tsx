@@ -152,23 +152,8 @@ export default function TasksPage() {
   }
 
   return (
-    <main className="min-h-screen bg-[#f4f6f1] px-4 py-4 text-[#18231f] sm:px-6 lg:px-10 lg:py-6">
+    <main className="min-h-screen px-4 pb-4 text-[#18231f] sm:px-6 lg:px-10 lg:pb-6">
       <div className="mx-auto max-w-7xl">
-        <header className="flex items-center justify-between rounded-2xl bg-[#18231f] px-5 py-4 text-white shadow-[0_18px_50px_rgba(24,35,31,.14)] sm:px-7">
-          <a className="flex items-center gap-3 text-lg font-medium" href="/">
-            <span className="grid size-9 place-items-center rounded-xl bg-[#157c62] text-white">
-              ✦
-            </span>{" "}
-            PIXELPRESERVE
-          </a>
-          <a
-            className="text-sm font-medium text-[#d8f36a] transition hover:text-white"
-            href="/"
-          >
-            Back to toolkit <span aria-hidden="true">-&gt;</span>
-          </a>
-        </header>
-
         <section className="flex flex-col justify-between gap-6 px-1 py-8 sm:px-3 lg:flex-row lg:items-end lg:py-10">
           <div>
             <p className="font-mono text-xs font-semibold tracking-[.2em] text-[#16866b]">

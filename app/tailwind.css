@@ -12,6 +12,17 @@ body {
     linear-gradient(135deg, #f7faf7 0%, #edf3ef 52%, #f6eee8 100%);
 }
 
+a,
+button:not(:disabled),
+select,
+label[for] {
+  cursor: pointer;
+}
+
+button:disabled {
+  cursor: not-allowed;
+}
+
 ::selection {
   background: #b9d8c5;
   color: #17201e;

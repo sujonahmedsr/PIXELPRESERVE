@@ -171,100 +171,122 @@ export function FiverrChecker() {
   }
 
   return (
-    <div role="tabpanel">
-      <div className="flex items-end justify-between gap-5 max-[700px]:items-start max-[700px]:flex-col max-[700px]:gap-2">
+    <div role="tabpanel" className="w-full max-w-7xl mx-auto">
+      {/* Top Info Bar */}
+      <div className="mb-8 flex items-start sm:items-center justify-between gap-5 flex-col sm:flex-row">
         <div>
-          <span className="font-mono text-base tracking-[0.12em] text-[#157c62]">
-            SELLER SAFETY / LOCAL SCAN
+          <span className="font-mono text-sm tracking-[0.12em] text-[#157c62] uppercase font-semibold">
+            Fiverr / Message Safety
           </span>
-          <h3 className="mt-2 text-[30px] leading-[1.08] font-medium tracking-[-1.2px]">
-            Message পাঠান, red flag ধরুন.
-          </h3>
+          <h1 className="mt-2 text-2xl sm:text-[30px] leading-[1.08] font-medium tracking-[-1px] text-[#17201e]">
+            Fiverr message checker
+          </h1>
+          <p className="mt-2 max-w-lg text-sm sm:text-base leading-[1.6] text-[#71807b]">
+            Send করার আগে message-এর restricted terms পরিষ্কার করে নিন।
+          </p>
         </div>
-        <div className="flex items-center gap-3">
-          <span className="hidden rounded-full border border-[#b9d8c5] bg-[#f0f8f2] px-3 py-1.5 font-mono text-sm tracking-[0.08em] text-[#157c62] min-[521px]:inline-flex">
-            ● LIVE / PRIVATE
-          </span>
-          <span className="font-mono text-base text-[#71807b]">
-            {message.length} chars
+
+        <div className="flex flex-wrap sm:flex-col items-start sm:items-end gap-2.5">
+          <div className="flex items-center gap-2">
+            <span className="hidden rounded-full border border-[#b9d8c5] bg-[#f0f8f2] px-3.5 py-1.5 font-mono text-xs sm:text-sm tracking-[0.08em] text-[#157c62] sm:inline-flex shadow-sm">
+              ● LIVE / PRIVATE
+            </span>
+            <span className="font-mono text-xs sm:text-sm text-[#71807b] bg-white px-3 py-1.5 rounded-full border border-[#dce5df] shadow-sm">
+              {message.length} chars
+            </span>
+          </div>
+          <span className="font-mono text-xs sm:text-sm tracking-[0.03em] text-[#71807b]">
+            BROWSER ONLY / PRIVATE
           </span>
         </div>
       </div>
-      <div className="mt-4.75 grid items-stretch gap-3.5 min-[901px]:grid-cols-2">
+
+      {/* Main Grid Boxes */}
+      <div className="grid items-stretch gap-6 min-[901px]:grid-cols-2">
+        {/* Original Message Section */}
         <section
-          className={`flex flex-col rounded-xl border p-4 shadow-[0_16px_34px_#8d4e3210] ${hasInputError ? "border-[#e4a39a] bg-[#fff4f2]" : "border-[#dce5df] bg-[#fffaf4]"}`}
+          className={`flex flex-col rounded-2xl border p-5 shadow-[0_10px_30px_#8d4e320d] transition-all duration-200 ${hasInputError ? "border-[#e4a39a] bg-[#fff4f2]" : "border-[#dce5df] bg-[#fffaf4]"}`}
         >
-          <div className="flex items-center justify-between gap-3">
+          <div className="flex items-center justify-between gap-3 mb-3">
             <span
-              className={`font-mono text-base tracking-widest ${hasInputError ? "text-[#b34635]" : "text-[#71807b]"}`}
+              className={`font-mono text-sm sm:text-base tracking-widest font-semibold ${hasInputError ? "text-[#b34635]" : "text-[#71807b]"}`}
             >
               ORIGINAL MESSAGE
             </span>
             {message.trim() ? (
               <span
-                className={`rounded-full px-2.5 py-1 text-sm font-medium ${hasInputError ? "bg-[#f9d9d4] text-[#b34635]" : "bg-[#dff1e6] text-[#157c62]"}`}
+                className={`rounded-full px-3 py-1 text-xs sm:text-sm font-medium ${hasInputError ? "bg-[#f9d9d4] text-[#b34635]" : "bg-[#dff1e6] text-[#157c62]"}`}
               >
                 {hasInputError ? "Review needed" : "Looks clear"}
               </span>
             ) : null}
           </div>
+
           <textarea
-            className={`mt-3 block min-h-52.5 w-full flex-1 resize-y rounded-lg border bg-white p-4 text-base leading-[1.7] text-[#17201e] outline-0 ${hasInputError ? "border-[#e4a39a] focus:border-[#b34635] focus:shadow-[0_0_0_3px_#b3463526]" : "border-[#dce5df] focus:border-[#dfb883] focus:shadow-[0_0_0_3px_#dfb88326]"}`}
+            className={`block min-h-90 w-full flex-1 resize-y rounded-xl border bg-white p-4 text-base leading-[1.7] text-[#17201e] outline-0 transition-all ${hasInputError ? "border-[#e4a39a] focus:border-[#b34635] focus:shadow-[0_0_0_3px_#b3463526]" : "border-[#dce5df] focus:border-[#dfb883] focus:shadow-[0_0_0_3px_#dfb88326]"}`}
             value={message}
             onChange={(event) => setMessage(event.target.value)}
             placeholder="Fiverr buyer-এর message এখানে paste করুন…"
             aria-label="Fiverr message input"
             aria-invalid={hasInputError}
           />
-          <div className="mt-2 flex items-center justify-between gap-3">
+
+          {/* Footer info & Clear Button moved below the box */}
+          <div className="mt-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 pt-3 border-t border-[#dce5df]/60">
             {hasInputError ? (
-              <p className="rounded-lg border border-[#e4a39a] bg-[#fffaf4] px-3 py-2 text-base text-[#b34635]">
-                Restricted word পাওয়া গেছে: {restrictedWords.join(", ")}
+              <p className="rounded-lg border border-[#e4a39a] bg-white px-3.5 py-2 text-sm text-[#b34635] shadow-sm">
+                Restricted word পাওয়া গেছে: {restrictedWords.join(", ")}
               </p>
             ) : (
-              <p className="text-base text-[#71807b]">
-                Full message-এর restricted word-এর দ্বিতীয় অক্ষরের পরে hyphen
-                যোগ হবে।
+              <p className="text-sm text-[#71807b]">
+                Restricted word-এর দ্বিতীয় অক্ষরের পরে hyphen যোগ হবে।
               </p>
             )}
             <button
-              className="shrink-0 rounded-lg border border-[#dce5df] bg-white px-3 py-2 text-base font-medium text-[#71807b] shadow-[0_4px_10px_#224c3d0a] transition hover:-translate-y-0.5 hover:border-[#a8d1ba] hover:text-[#17201e] focus-visible:ring-2 focus-visible:ring-[#157c62] focus-visible:ring-offset-2"
+              className="w-full sm:w-auto shrink-0 rounded-xl border border-[#dce5df] bg-white px-4 py-2.5 text-sm font-medium text-[#71807b] shadow-[0_2px_8px_#224c3d08] transition hover:-translate-y-0.5 hover:border-[#a8d1ba] hover:text-[#17201e] active:translate-y-0"
               onClick={() => setMessage("")}
               type="button"
             >
-              Clear <span>×</span>
+              Clear <span className="text-base ml-1">×</span>
             </button>
           </div>
         </section>
-        <section className="flex min-h-62.5 flex-col rounded-xl border border-[#b9d8c5] bg-[#f0f8f2] p-4 shadow-[0_16px_34px_#157c6214]">
-          <div className="flex items-center justify-between gap-3">
-            <span className="font-mono text-base tracking-widest text-[#157c62]">
+
+        {/* Updated Message Section */}
+        <section className="flex min-h-70 flex-col rounded-2xl border border-[#b9d8c5] bg-[#f0f8f2] p-5 shadow-[0_10px_30px_#157c6210] transition-all duration-200">
+          <div className="flex items-center justify-between gap-3 mb-3">
+            <span className="font-mono text-sm sm:text-base tracking-widest text-[#157c62] font-semibold">
               UPDATED MESSAGE
             </span>
+          </div>
+
+          <div className="flex flex-1 rounded-xl border border-[#b9d8c5] bg-white p-4 shadow-[inset_0_2px_4px_#224c3d05] min-h-55">
+            {result ? (
+              <p className="whitespace-pre-wrap text-base leading-[1.7] text-[#17201e] w-full">
+                {result.safeRewrite}
+              </p>
+            ) : (
+              <div className="m-auto text-center p-6">
+                <span className="mx-auto grid size-12 place-items-center rounded-2xl bg-[#e4f3e8] text-xl text-[#157c62] shadow-[0_6px_16px_#157c6218]">
+                  ✦
+                </span>
+                <p className="mt-3 text-sm sm:text-base text-[#71807b]">
+                  Input-এ message লিখলে updated message এখানে দেখা যাবে।
+                </p>
+              </div>
+            )}
+          </div>
+
+          {/* Copy Button moved below the box */}
+          <div className="mt-4 flex items-center justify-end pt-3 border-t border-[#b9d8c5]/60">
             <button
-              className="inline-flex items-center gap-2 rounded-lg border border-[#157c62] bg-[#157c62] px-3.5 py-2.5 text-base font-medium text-white shadow-[0_7px_16px_#157c6238] transition hover:-translate-y-0.5 hover:bg-[#10664f] hover:shadow-[0_10px_20px_#157c6245] focus-visible:ring-2 focus-visible:ring-[#157c62] focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:border-[#b9d8c5] disabled:bg-[#b9d8c5] disabled:shadow-none"
+              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-xl border border-[#157c62] bg-[#157c62] px-5 py-2.5 text-sm sm:text-base font-medium text-white shadow-[0_6px_16px_#157c6230] transition hover:-translate-y-0.5 hover:bg-[#10664f] hover:shadow-[0_8px_20px_#157c6240] active:translate-y-0 disabled:cursor-not-allowed disabled:border-[#b9d8c5] disabled:bg-[#b9d8c5] disabled:shadow-none"
               onClick={() => void copyResult()}
               disabled={!result}
               type="button"
             >
               <span aria-hidden="true">▣</span> {copyLabel}
             </button>
-          </div>
-          <div className="mt-3 flex flex-1 rounded-lg border border-[#b9d8c5] bg-white p-4 shadow-[inset_0_1px_3px_#224c3d0a]">
-            {result ? (
-              <p className="whitespace-pre-wrap text-base leading-[1.7] text-[#17201e]">
-                {result.safeRewrite}
-              </p>
-            ) : (
-              <div className="m-auto text-center">
-                <span className="mx-auto grid size-11 place-items-center rounded-2xl bg-[#e4f3e8] text-xl text-[#157c62] shadow-[0_8px_16px_#157c6218]">
-                  ✦
-                </span>
-                <p className="mt-3 text-base text-[#71807b]">
-                  Input-এ message লিখলে updated message এখানে দেখা যাবে।
-                </p>
-              </div>
-            )}
           </div>
         </section>
       </div>
