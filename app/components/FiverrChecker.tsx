@@ -2,53 +2,61 @@
 
 import { useState } from "react";
 
-type FiverrFinding = {
-  label: string;
-  detail: string;
-  severity: "high" | "medium" | "low";
+// আপনার দেওয়া নির্দিষ্ট সোয়াপ রুল অনুযায়ী আপডেট করা অবজেক্ট
+const fiverrRules: Record<string, string> = {
+  instagram: "inst-agram",
+  whatsapp: "what-sapp",
+  telegram: "tele-gram",
+  facebook: "face-book",
+  linkedin: "link-edin",
+  payment: "pa-yment",
+  bitcoin: "bit-coin",
+  twitter: "twi-tter",
+  discord: "dis-cord",
+  email: "e-mail",
+  signal: "sig-nal",
+  paypal: "pay-pal",
+  crypto: "cry-pto",
+  gmail: "gm-ail",
+  phone: "ph-one",
+  skype: "sk-ype",
+  viber: "vi-ber",
+  mail: "ma-il",
+  call: "ca-ll",
+  zoom: "zo-om",
+  bank: "ba-nk",
+  pay: "p-ay",
+  payoneer: "pay-oneer",
 };
 
-const fiverrRestrictedWords = [
-  "advance",
-  "bank",
-  "bitcoin",
-  "call",
-  "connect",
-  "crypto",
-  "discord",
-  "email",
-  "facebook",
-  "gift",
-  "gmail",
-  "instagram",
-  "linkedin",
-  "outside",
-  "paypal",
-  "payoneer",
-  "payment",
-  "phone",
-  "signal",
-  "skype",
-  "telegram",
-  "twitter",
-  "viber",
-  "whatsapp",
-  "zoom",
-  "pay",
-];
+const restrictedWordsList = Object.keys(fiverrRules);
 
 function rewriteFiverrMessage(value: string) {
-  return value.replace(
-    new RegExp(`\\b(${fiverrRestrictedWords.join("|")})\\b`, "gi"),
-    (word) => `${word.slice(0, 2)}-${word.slice(2)}`,
-  );
+  const pattern = new RegExp(`\\b(${restrictedWordsList.join("|")})\\b`, "gi");
+
+  return value.replace(pattern, (matchedWord) => {
+    const lowerWord = matchedWord.toLowerCase();
+    const customSwap = fiverrRules[lowerWord];
+
+    if (customSwap) {
+      if (
+        matchedWord[0] === matchedWord[0].toUpperCase() &&
+        matchedWord[0] !== matchedWord[0].toLowerCase()
+      ) {
+        return customSwap.charAt(0).toUpperCase() + customSwap.slice(1);
+      }
+      return customSwap;
+    }
+
+    return `${matchedWord.slice(0, 2)}-${matchedWord.slice(2)}`;
+  });
 }
 
 function findFiverrRestrictedWords(value: string) {
   const matches = Array.from(
     new Set(
       value.match(
-        new RegExp(`\\b(${fiverrRestrictedWords.join("|")})\\b`, "gi"),
+        new RegExp(`\\b(${restrictedWordsList.join("|")})\\b`, "gi"),
       ) ?? [],
     ),
   );
@@ -57,115 +65,18 @@ function findFiverrRestrictedWords(value: string) {
   return matches;
 }
 
-function analyzeFiverrMessage(value: string) {
-  const message = value.trim();
-  const normalized = message.toLowerCase();
-  const restrictedWords = findFiverrRestrictedWords(message);
-  const findings: FiverrFinding[] = [];
-  const addFinding = (
-    label: string,
-    detail: string,
-    severity: FiverrFinding["severity"],
-  ) => findings.push({ label, detail, severity });
-  if (
-    /(telegram|whatsapp|skype|signal|discord|viber|zoom|call me|connect outside|contact me outside)/i.test(
-      normalized,
-    ) ||
-    /(?:\+?\d[\d\s().-]{7,}\d)/.test(message)
-  )
-    addFinding(
-      "Contact information or external chat app",
-      "Keep communication inside Fiverr; do not share phone numbers or external chat apps.",
-      "high",
-    );
-  if (
-    /(?:[\w.+-]+\s*@\s*[\w-]+\s*\.\s*[a-z]{2,}|[\w.+-]+\s+(?:at|@)\s+(?:gmail|yahoo|outlook|hotmail)\s+(?:dot|\.)\s*com|g-mail|email me)/i.test(
-      normalized,
-    )
-  )
-    addFinding(
-      "Email address or evasion",
-      "Do not share an email address or disguise one with words such as at or dot.",
-      "high",
-    );
-  if (
-    /(pay outside|crypto|bitcoin|payoneer|gift card|bank transfer|direct payment|direct deal|advance payment|paypal|avoid commission)/i.test(
-      normalized,
-    )
-  )
-    addFinding(
-      "Off-platform payment",
-      "Keep payment and orders inside Fiverr; do not request direct deals or advance payment.",
-      "high",
-    );
-  if (
-    /(facebook\.com|instagram\.com|linkedin\.com|twitter\.com|x\.com|facebook|instagram|linkedin|twitter)/i.test(
-      normalized,
-    )
-  )
-    addFinding(
-      "Social media profile or link",
-      "Do not share social profiles or direct communication channels.",
-      "high",
-    );
-  if (
-    /(free sample|free work|test task|unpaid|before order|do it first)/i.test(
-      normalized,
-    )
-  )
-    addFinding(
-      "Unpaid work request",
-      "Ask for an order before doing custom work.",
-      "medium",
-    );
-  if (
-    /(urgent|asap|right now|today|immediately|1 hour|one hour)/i.test(
-      normalized,
-    )
-  )
-    addFinding(
-      "Urgency pressure",
-      "Confirm scope and delivery time before agreeing.",
-      "medium",
-    );
-  if (message.length < 80)
-    addFinding(
-      "Brief is too short",
-      "Ask for goals, references, files, budget, and deadline.",
-      "low",
-    );
-  const score = Math.max(
-    0,
-    100 -
-      findings.reduce(
-        (total, finding) =>
-          total +
-          (finding.severity === "high"
-            ? 28
-            : finding.severity === "medium"
-              ? 16
-              : 8),
-        0,
-      ),
-  );
-  return {
-    score,
-    findings,
-    restrictedWords,
-    safeRewrite: rewriteFiverrMessage(message),
-  };
-}
-
 export function FiverrChecker() {
   const [message, setMessage] = useState("");
   const [copyLabel, setCopyLabel] = useState("Copy safe message");
   const restrictedWords = findFiverrRestrictedWords(message);
   const hasInputError = restrictedWords.length > 0;
-  const result = message.trim() ? analyzeFiverrMessage(message) : null;
+  const safeRewrite = message.trim() ? rewriteFiverrMessage(message) : "";
+
+  const wordCount = message.trim() ? message.trim().split(/\s+/).length : 0;
 
   async function copyResult() {
-    if (!result) return;
-    await navigator.clipboard.writeText(result.safeRewrite);
+    if (!safeRewrite) return;
+    await navigator.clipboard.writeText(safeRewrite);
     setCopyLabel("Copied");
     window.setTimeout(() => setCopyLabel("Copy safe message"), 1200);
   }
@@ -192,7 +103,7 @@ export function FiverrChecker() {
               ● LIVE / PRIVATE
             </span>
             <span className="rounded-full border border-[#dce5df] bg-white px-3 py-1.5 font-mono text-xs text-[#71807b] shadow-sm min-[701px]:text-sm">
-              {message.length} chars
+              {wordCount} words / {message.length} chars
             </span>
           </div>
           <span className="font-mono text-xs tracking-[0.03em] text-[#71807b] min-[701px]:text-sm">
@@ -231,7 +142,6 @@ export function FiverrChecker() {
             aria-invalid={hasInputError}
           />
 
-          {/* Footer info & Clear Button moved below the box */}
           <div className="mt-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 pt-3 border-t border-[#dce5df]/60">
             {hasInputError ? (
               <p className="rounded-lg border border-[#e4a39a] bg-white px-3.5 py-2 text-sm text-[#b34635] shadow-sm">
@@ -239,7 +149,7 @@ export function FiverrChecker() {
               </p>
             ) : (
               <p className="text-sm text-[#71807b]">
-                Restricted word-এর দ্বিতীয় অক্ষরের পরে hyphen যোগ হবে।
+                Restricted word-গুলো আপনার নির্দিষ্ট নিয়ম অনুযায়ী পরিবর্তিত হবে।
               </p>
             )}
             <button
@@ -261,9 +171,9 @@ export function FiverrChecker() {
           </div>
 
           <div className="flex flex-1 rounded-xl border border-[#b9d8c5] bg-white p-4 shadow-[inset_0_2px_4px_#224c3d05] min-h-55">
-            {result ? (
+            {safeRewrite ? (
               <p className="whitespace-pre-wrap text-base leading-[1.7] text-[#17201e] w-full">
-                {result.safeRewrite}
+                {safeRewrite}
               </p>
             ) : (
               <div className="m-auto text-center p-6">
@@ -277,12 +187,11 @@ export function FiverrChecker() {
             )}
           </div>
 
-          {/* Copy Button moved below the box */}
           <div className="mt-4 flex items-center justify-end pt-3 border-t border-[#b9d8c5]/60">
             <button
               className="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-xl border border-[#157c62] bg-[#157c62] px-5 py-2.5 text-sm sm:text-base font-medium text-white shadow-[0_6px_16px_#157c6230] transition hover:-translate-y-0.5 hover:bg-[#10664f] hover:shadow-[0_8px_20px_#157c6240] active:translate-y-0 disabled:cursor-not-allowed disabled:border-[#b9d8c5] disabled:bg-[#b9d8c5] disabled:shadow-none"
               onClick={() => void copyResult()}
-              disabled={!result}
+              disabled={!safeRewrite}
               type="button"
             >
               <span aria-hidden="true">▣</span> {copyLabel}
