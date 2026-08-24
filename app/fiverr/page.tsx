@@ -1,4 +1,18 @@
+import type { Metadata } from "next";
 import { FiverrChecker } from "../components/FiverrChecker";
+
+export const metadata: Metadata = {
+  title: "PIXELPRESERVE | FIVERR MESSAGE CHECKER & SAFETY TOOL",
+  description:
+    "Check and clean your Fiverr messages before sending. Avoid restricted words, clear warnings, and keep your freelance account safe.",
+  keywords: [
+    "Fiverr message checker",
+    "Fiverr safety",
+    "restricted words filter",
+    "freelancer tools",
+    "PIXELPRESERVE",
+  ],
+};
 
 export default function FiverrPage() {
   return (

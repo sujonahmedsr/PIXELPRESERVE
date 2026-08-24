@@ -171,31 +171,31 @@ export function FiverrChecker() {
   }
 
   return (
-    <div role="tabpanel" className="w-full max-w-7xl mx-auto">
+    <div role="tabpanel" className="mx-auto w-full max-w-7xl">
       {/* Top Info Bar */}
-      <div className="mb-8 flex items-start sm:items-center justify-between gap-5 flex-col sm:flex-row">
-        <div>
-          <span className="font-mono text-sm tracking-[0.12em] text-[#157c62] uppercase font-semibold">
+      <div className="mb-8 flex flex-col items-start justify-between gap-5 min-[701px]:flex-row min-[701px]:items-center">
+        <div className="min-w-0">
+          <span className="font-mono text-xs font-semibold uppercase tracking-[0.12em] text-[#157c62] min-[701px]:text-sm">
             Fiverr / Message Safety
           </span>
-          <h1 className="mt-2 text-2xl sm:text-[30px] leading-[1.08] font-medium tracking-[-1px] text-[#17201e]">
+          <h1 className="mt-2 max-w-full wrap-break-word text-2xl font-medium leading-[1.12] tracking-[-0.04em] text-[#17201e] min-[701px]:whitespace-nowrap min-[701px]:text-[30px]">
             Fiverr message checker
           </h1>
-          <p className="mt-2 max-w-lg text-sm sm:text-base leading-[1.6] text-[#71807b]">
+          <p className="mt-2 max-w-lg text-sm leading-[1.6] text-[#71807b] min-[701px]:text-base">
             Send করার আগে message-এর restricted terms পরিষ্কার করে নিন।
           </p>
         </div>
 
-        <div className="flex flex-wrap sm:flex-col items-start sm:items-end gap-2.5">
+        <div className="flex w-full flex-wrap items-start gap-2.5 min-[701px]:w-auto min-[701px]:flex-col min-[701px]:items-end">
           <div className="flex items-center gap-2">
-            <span className="hidden rounded-full border border-[#b9d8c5] bg-[#f0f8f2] px-3.5 py-1.5 font-mono text-xs sm:text-sm tracking-[0.08em] text-[#157c62] sm:inline-flex shadow-sm">
+            <span className="hidden rounded-full border border-[#b9d8c5] bg-[#f0f8f2] px-3.5 py-1.5 font-mono text-xs tracking-[0.08em] text-[#157c62] shadow-sm min-[701px]:inline-flex min-[701px]:text-sm">
               ● LIVE / PRIVATE
             </span>
-            <span className="font-mono text-xs sm:text-sm text-[#71807b] bg-white px-3 py-1.5 rounded-full border border-[#dce5df] shadow-sm">
+            <span className="rounded-full border border-[#dce5df] bg-white px-3 py-1.5 font-mono text-xs text-[#71807b] shadow-sm min-[701px]:text-sm">
               {message.length} chars
             </span>
           </div>
-          <span className="font-mono text-xs sm:text-sm tracking-[0.03em] text-[#71807b]">
+          <span className="font-mono text-xs tracking-[0.03em] text-[#71807b] min-[701px]:text-sm">
             BROWSER ONLY / PRIVATE
           </span>
         </div>
