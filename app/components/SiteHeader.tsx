@@ -8,6 +8,7 @@ const linkClass =
 
 export function SiteHeader() {
   const pathname = usePathname();
+  const isTimeDesk = pathname === "/time";
 
   return (
     <header className="mx-auto flex w-[calc(100%-24px)] max-w-7xl flex-col items-center justify-center border-b border-[#d5e2da] py-4 min-[701px]:w-[calc(100%-56px)] min-[701px]:flex-row min-[701px]:justify-between min-[701px]:py-5 gap-4">
@@ -41,6 +42,14 @@ export function SiteHeader() {
           href="/tasks"
         >
           TASKS MANAGER
+        </Link>
+        <Link
+          className={`${linkClass} ${
+            pathname === "/time" ? "text-[#157c62]" : "text-[#71807b]"
+          } hover:text-[#157c62]`}
+          href="/time"
+        >
+          TIME DESK
         </Link>
       </nav>
     </header>
