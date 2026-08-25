@@ -4,6 +4,7 @@ import { useState } from "react";
 
 // আপনার দেওয়া নির্দিষ্ট সোয়াপ রুল অনুযায়ী আপডেট করা অবজেক্ট
 const fiverrRules: Record<string, string> = {
+  // --- Existing Words ---
   instagram: "inst-agram",
   whatsapp: "what-sapp",
   telegram: "tele-gram",
@@ -27,6 +28,50 @@ const fiverrRules: Record<string, string> = {
   bank: "ba-nk",
   pay: "p-ay",
   payoneer: "pay-oneer",
+
+  // --- Added Missing Restricted Words ---
+  // Contact & Communication Methods
+  contact: "con-tact",
+  number: "num-ber",
+  address: "add-ress",
+  site: "si-te",
+  website: "web-site",
+  meet: "me-et",
+  google: "goo-gle",
+  anydesk: "any-desk",
+  teamviewer: "team-viewer",
+  slack: "sla-ck",
+  wechat: "we-chat",
+  line: "li-ne",
+  imo: "i-mo",
+
+  // Payment & Financial Terms
+  dollar: "dol-lar",
+  money: "mon-ey",
+  fee: "f-ee",
+  cash: "ca-sh",
+  transfer: "trans-fer",
+  stripe: "stri-pe",
+  wise: "wi-se",
+  wire: "wi-re",
+  usdt: "us-dt",
+  binance: "bin-ance",
+  wallet: "wal-let",
+  cheque: "che-que",
+  card: "ca-rd",
+
+  // Review & Rating Manipulation (Very Strict)
+  review: "re-view",
+  rating: "rat-ing",
+  feedback: "feed-back",
+  star: "st-ar",
+  five: "fi-ve",
+
+  // Off-platform terms
+  outside: "out-side",
+  offplatform: "off-platform",
+  direct: "di-rect",
+  contract: "con-tract",
 };
 
 const restrictedWordsList = Object.keys(fiverrRules);
