@@ -3,28 +3,19 @@
 import { useEffect, useMemo, useState } from "react";
 
 type Zone = {
+  id: string;
   city: string;
   country: string;
   flag: string;
   timezone: string;
   code: string;
 };
-type Alarm = { id: number; label: string; due: number };
-type Weather = {
-  temperature: number;
-  windSpeed: number;
-  weatherCode: number;
-};
-type CityResult = {
-  name: string;
-  country: string;
-  timezone: string;
-  latitude: number;
-  longitude: number;
-};
 
-const zones: Zone[] = [
+type Alarm = { id: number; label: string; due: number };
+
+const INITIAL_ZONES: Zone[] = [
   {
+    id: "dhaka",
     city: "Dhaka",
     country: "Bangladesh",
     flag: "🇧🇩",
@@ -32,6 +23,7 @@ const zones: Zone[] = [
     code: "BST",
   },
   {
+    id: "ny",
     city: "New York",
     country: "United States",
     flag: "🇺🇸",
@@ -39,50 +31,22 @@ const zones: Zone[] = [
     code: "EST",
   },
   {
-    city: "Chicago",
-    country: "United States",
-    flag: "🇺🇸",
-    timezone: "America/Chicago",
-    code: "CST",
-  },
-  {
-    city: "Toronto",
-    country: "Canada",
-    flag: "🇨🇦",
-    timezone: "America/Toronto",
-    code: "EST",
-  },
-  {
-    city: "Los Angeles",
-    country: "United States",
-    flag: "🇺🇸",
-    timezone: "America/Los_Angeles",
-    code: "PST",
-  },
-  {
-    city: "Vancouver",
-    country: "Canada",
-    flag: "🇨🇦",
-    timezone: "America/Vancouver",
-    code: "PST",
-  },
-  {
+    id: "london",
     city: "London",
     country: "United Kingdom",
     flag: "🇬🇧",
     timezone: "Europe/London",
     code: "GMT",
   },
+  {
+    id: "tokyo",
+    city: "Tokyo",
+    country: "Japan",
+    flag: "🇯🇵",
+    timezone: "Asia/Tokyo",
+    code: "JST",
+  },
 ];
-
-const availableTimezones =
-  typeof Intl.supportedValuesOf === "function"
-    ? Intl.supportedValuesOf("timeZone")
-    : zones.map((zone) => zone.timezone);
-
-function timezoneCity(timezone: string) {
-  return timezone.split("/").pop()?.replaceAll("_", " ") ?? timezone;
-}
 
 function timezoneCode(date: Date, timezone: string) {
   return (
@@ -93,16 +57,6 @@ function timezoneCode(date: Date, timezone: string) {
       .formatToParts(date)
       .find((part) => part.type === "timeZoneName")?.value ?? "LOCAL"
   );
-}
-
-function weatherLabel(code: number) {
-  if (code === 0) return "Clear sky";
-  if (code <= 3) return "Partly cloudy";
-  if (code <= 48) return "Foggy";
-  if (code <= 67) return "Rainy";
-  if (code <= 77) return "Snowy";
-  if (code <= 82) return "Rain showers";
-  return "Stormy";
 }
 
 function offsetFor(date: Date, timezone: string) {
@@ -145,6 +99,7 @@ function formatDate(date: Date, timezone: string) {
     weekday: "short",
     month: "short",
     day: "numeric",
+    year: "numeric",
   }).format(date);
 }
 
@@ -159,632 +114,505 @@ function isDaytime(date: Date, timezone: string) {
   return hour >= 6 && hour < 18;
 }
 
-function playCompletionSound() {
+function playNotificationSound() {
   try {
-    const context = new AudioContext();
+    const AudioCtx =
+      window.AudioContext ||
+      (window as unknown as { webkitAudioContext: typeof AudioContext })
+        .webkitAudioContext;
+    const context = new AudioCtx();
     const oscillator = context.createOscillator();
     const gain = context.createGain();
     oscillator.type = "sine";
-    oscillator.frequency.setValueAtTime(660, context.currentTime);
-    oscillator.frequency.setValueAtTime(880, context.currentTime + 0.12);
+    oscillator.frequency.setValueAtTime(587.33, context.currentTime);
+    oscillator.frequency.setValueAtTime(880, context.currentTime + 0.15);
     gain.gain.setValueAtTime(0.001, context.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.16, context.currentTime + 0.02);
-    gain.gain.exponentialRampToValueAtTime(0.001, context.currentTime + 0.34);
+    gain.gain.exponentialRampToValueAtTime(0.2, context.currentTime + 0.03);
+    gain.gain.exponentialRampToValueAtTime(0.001, context.currentTime + 0.4);
     oscillator.connect(gain);
     gain.connect(context.destination);
     oscillator.start();
-    oscillator.stop(context.currentTime + 0.36);
-    window.setTimeout(() => void context.close(), 500);
+    oscillator.stop(context.currentTime + 0.42);
+    setTimeout(() => void context.close(), 500);
   } catch {
-    // Audio is optional and may be blocked by the browser.
+    // Audio fallback
   }
 }
 
-function TimezoneCard({
-  zone,
-  now,
-  twelveHour,
-  baseOffset,
-  weather,
-  weatherStatus,
-}: {
-  zone: Zone;
-  now: Date;
-  twelveHour: boolean;
-  baseOffset: number;
-  weather?: Weather;
-  weatherStatus?: "loading" | "ready" | "error";
-}) {
-  const daytime = isDaytime(now, zone.timezone);
-  return (
-    <article className="group min-h-53.75 rounded-[10px] border border-[#d5e2da] bg-[linear-gradient(145deg,#ffffffd9,#f6faf7d9)] p-5 shadow-[0_18px_50px_#224c3d12] transition-all duration-300 hover:-translate-y-1 hover:border-[#157c62] hover:bg-white">
-      <div className="flex items-start justify-between gap-3">
-        <div className="flex items-center gap-3">
-          <span
-            className="grid size-8.75 place-items-center rounded-lg bg-[#e7f1ec] text-xl"
-            aria-hidden="true"
-          >
-            {zone.flag}
-          </span>
-          <div>
-            <h3 className="text-[17px] font-semibold text-[#157c62] uppercase">
-              {zone.city}
-            </h3>
-            <p className="mt-0.5 text-[13px] text-[#52645b]">
-              {zone.country} / {zone.code}
-            </p>
-          </div>
-        </div>
-        <span
-          className={`flex items-center gap-1.25 font-mono text-[11px] font-semibold tracking-[.08em] ${daytime ? "text-[#157c62]" : "text-[#df795f]"}`}
-        >
-          <span aria-hidden="true">{daytime ? "☼" : "☾"}</span>{" "}
-          {daytime ? "DAY" : "NIGHT"}
-        </span>
-      </div>
-      <div className="mt-8 flex items-end justify-between gap-2">
-        <div>
-          <p className="whitespace-nowrap font-mono text-[clamp(24px,2.5vw,34px)] font-medium tracking-[-1.5px] text-[#17201e]">
-            {formatTime(now, zone.timezone, twelveHour)}
-          </p>
-          <p className="mt-2 text-[13px] uppercase tracking-[.14em] text-[#52645b]">
-            {formatDate(now, zone.timezone)}
-          </p>
-        </div>
-        <span className="text-right font-mono text-[13px] font-semibold text-[#df795f]">
-          {formatDifference(offsetFor(now, zone.timezone) - baseOffset)}
-        </span>
-      </div>
-      {weather && (
-        <div className="mt-5 flex items-center justify-between border-t border-[#d5e2da] pt-3 text-[13px] text-[#52645b]">
-          <span>
-            ☁ {weatherLabel(weather.weatherCode)} ·{" "}
-            {Math.round(weather.windSpeed)} km/h
-          </span>
-          <span className="font-mono font-semibold text-[#157c62]">
-            {Math.round(weather.temperature)}°C
-          </span>
-        </div>
-      )}
-      {!weather && weatherStatus === "loading" && (
-        <div className="mt-5 border-t border-[#d5e2da] pt-3 text-[13px] text-[#71807b]">
-          Loading weather...
-        </div>
-      )}
-      {!weather && weatherStatus === "error" && (
-        <div className="mt-5 border-t border-[#d5e2da] pt-3 text-[13px] text-[#df795f]">
-          Weather is temporarily unavailable.
-        </div>
-      )}
-    </article>
-  );
-}
-
-function CountdownTimer({ now }: { now: Date }) {
-  const [remaining, setRemaining] = useState(25 * 60);
-  const [total, setTotal] = useState(25 * 60);
-  const [running, setRunning] = useState(false);
-
-  useEffect(() => {
-    if (!running) return;
-    const interval = window.setInterval(
-      () => setRemaining((value) => Math.max(value - 1, 0)),
-      1000,
-    );
-    return () => window.clearInterval(interval);
-  }, [running]);
-
-  useEffect(() => {
-    if (remaining === 0) {
-      setRunning(false);
-      playCompletionSound();
+function useLocalStorage<T>(key: string, initialValue: T) {
+  const [storedValue, setStoredValue] = useState<T>(() => {
+    if (typeof window === "undefined") return initialValue;
+    try {
+      const item = window.localStorage.getItem(key);
+      return item ? JSON.parse(item) : initialValue;
+    } catch {
+      return initialValue;
     }
-  }, [remaining]);
-
-  const minutes = Math.floor(remaining / 60)
-    .toString()
-    .padStart(2, "0");
-  const seconds = (remaining % 60).toString().padStart(2, "0");
-  const progress = total ? ((total - remaining) / total) * 100 : 0;
-  const circumference = 2 * Math.PI * 82;
-
-  function setPreset(secondsValue: number) {
-    setRemaining(secondsValue);
-    setTotal(secondsValue);
-    setRunning(false);
-  }
-
-  return (
-    <section
-      className="relative rounded-[10px] border border-[#d5e2da] bg-[linear-gradient(145deg,#ffffffd9,#f6faf7d9)] p-6.75 shadow-[0_18px_50px_#224c3d12] max-[640px]:p-5.25"
-      aria-labelledby="countdown-title"
-    >
-      <div className="flex items-end justify-between gap-5">
-        <div>
-          <p className="font-mono text-[11px] font-semibold tracking-[.16em] text-[#8fa09a]">
-            FOCUS WINDOW
-          </p>
-          <h2
-            id="countdown-title"
-            className="mt-2.5 text-[28px] tracking-[-.8px] text-[#17201e]"
-          >
-            Countdown timer
-          </h2>
-        </div>
-        <span className="flex items-center gap-2 font-mono text-[10px] text-[#157c62] before:inline-block before:size-1.75 before:rounded-full before:bg-[#157c62] before:shadow-[0_0_0_5px_#157c621c]">
-          {running ? "RUNNING" : "PAUSED"}
-        </span>
-      </div>
-      <div className="mt-6.5 flex items-center gap-9.5 max-[640px]:items-start max-[640px]:flex-col max-[640px]:gap-6">
-        <div
-          className="relative size-47.5 shrink-0"
-          aria-label={`${minutes} minutes ${seconds} seconds remaining`}
-        >
-          <svg
-            className="size-full -rotate-90"
-            viewBox="0 0 190 190"
-            aria-hidden="true"
-          >
-            <circle
-              className="fill-none stroke-[#d5e2da] stroke-5"
-              cx="95"
-              cy="95"
-              r="82"
-            />
-            <circle
-              className="fill-none stroke-[#157c62] [stroke-linecap:round] stroke-5 transition-[stroke-dashoffset] duration-500 ease-linear"
-              cx="95"
-              cy="95"
-              r="82"
-              strokeDasharray={circumference}
-              strokeDashoffset={circumference * (1 - progress / 100)}
-            />
-          </svg>
-          <div className="absolute inset-0 grid place-content-center text-center">
-            <strong className="font-mono text-[34px] font-medium tracking-[-2px] text-[#17201e]">
-              {minutes}:{seconds}
-            </strong>
-            <span className="mt-1.25 font-mono text-[10px] tracking-[.15em] text-[#52645b]">
-              MINUTES
-            </span>
-          </div>
-        </div>
-        <div className="max-w-75 max-[640px]:max-w-none">
-          <p className="text-sm leading-6 text-[#71807b]">
-            Protect a small block of attention. Start with a preset or reset
-            whenever you need a clean slate.
-          </p>
-          <div className="mt-5 flex gap-2">
-            <button
-              className="min-h-10 rounded-md border border-[#157c62] bg-[#157c62] px-4 text-xs font-bold text-white transition-[transform,background] hover:bg-[#10664f]"
-              type="button"
-              onClick={() => setRunning((value) => !value)}
-            >
-              {running ? "Pause" : "Start"}
-            </button>
-            <button
-              className="min-h-10 rounded-md border border-[#cbd7cc] bg-white px-4 text-xs font-bold text-[#71807b] transition-[transform,background] duration-200 hover:border-[#157c62] hover:text-[#17201e]"
-              type="button"
-              onClick={() => {
-                setRunning(false);
-                setRemaining(total);
-              }}
-            >
-              Reset
-            </button>
-          </div>
-          <div className="mt-5 flex flex-wrap gap-2" aria-label="Timer presets">
-            {[300, 900, 1800, 3600].map((value) => (
-              <button
-                className="min-h-10 rounded-md border border-[#cbd7cc] bg-white px-3 text-xs font-bold text-[#71807b] transition-[transform,background] duration-200 hover:border-[#157c62] hover:text-[#17201e]"
-                type="button"
-                key={value}
-                onClick={() => setPreset(value)}
-              >
-                +{value === 3600 ? "1h" : `${value / 60}m`}
-              </button>
-            ))}
-          </div>
-        </div>
-      </div>
-      <p className="mt-6.25 font-mono text-[11px] font-semibold tracking-[.16em] text-[#52645b]">
-        SYSTEM CLOCK ·{" "}
-        {now.toLocaleTimeString("en-US", {
-          hour: "2-digit",
-          minute: "2-digit",
-        })}
-      </p>
-    </section>
-  );
-}
-
-function TimeoutManager() {
-  const [label, setLabel] = useState("Client call");
-  const [delay, setDelay] = useState("15");
-  const [unit, setUnit] = useState<"minutes" | "seconds">("minutes");
-  const [alarms, setAlarms] = useState<Alarm[]>([]);
-  const [toast, setToast] = useState("");
+  });
 
   useEffect(() => {
-    if (!alarms.length) return;
-    const interval = window.setInterval(() => {
-      const current = Date.now();
-      const due = alarms.filter((alarm) => alarm.due <= current);
-      if (due.length) {
-        setAlarms((items) => items.filter((alarm) => alarm.due > current));
-        setToast(`${due[0].label} is due now`);
-        playCompletionSound();
-        window.setTimeout(() => setToast(""), 4000);
-      }
-    }, 500);
-    return () => window.clearInterval(interval);
-  }, [alarms]);
+    try {
+      window.localStorage.setItem(key, JSON.stringify(storedValue));
+    } catch (e) {
+      console.error(e);
+    }
+  }, [key, storedValue]);
 
-  function addAlarm(event: React.FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    const amount =
-      Math.max(1, Number(delay) || 1) * (unit === "minutes" ? 60 : 1) * 1000;
-    setAlarms((items) => [
-      ...items,
-      {
-        id: Date.now(),
-        label: label.trim() || "Untitled reminder",
-        due: Date.now() + amount,
-      },
-    ]);
-    setLabel("");
-  }
-
-  return (
-    <section
-      className="relative rounded-[10px] border border-[#d5e2da] bg-[linear-gradient(145deg,#ffffffd9,#f6faf7d9)] p-6.75 shadow-[0_18px_50px_#224c3d12] max-[640px]:p-5.25"
-      aria-labelledby="timeout-title"
-    >
-      <div className="flex items-end justify-between gap-5">
-        <div>
-          <p className="font-mono text-[11px] font-semibold tracking-[.16em] text-[#8fa09a]">
-            DELAYED ACTIONS
-          </p>
-          <h2
-            id="timeout-title"
-            className="mt-2.5 text-[28px] tracking-[-.8px] text-[#17201e]"
-          >
-            Set a reminder
-          </h2>
-        </div>
-        <span className="font-mono text-[11px] font-semibold tracking-[.16em] text-[#157c62]">
-          {alarms.length.toString().padStart(2, "0")} ACTIVE
-        </span>
-      </div>
-      <form className="mt-7 grid grid-cols-2 gap-3" onSubmit={addAlarm}>
-        <label className="grid gap-2 font-mono text-[10px] tracking-[.08em] text-[#52645b] uppercase">
-          <span>Label</span>
-          <input
-            value={label}
-            onChange={(event) => setLabel(event.target.value)}
-            placeholder="Deploy code"
-            className="w-full min-w-0 rounded-md border border-[#cbd7cc] bg-[#f8faf7] p-3 text-sm text-[#17201e] outline-0 placeholder:text-[#71807b] focus:border-[#157c62]"
-          />
-        </label>
-        <label className="grid gap-2 font-mono text-[10px] tracking-[.08em] text-[#52645b] uppercase">
-          <span>Delay</span>
-          <div className="flex gap-1.5">
-            <input
-              type="number"
-              min="1"
-              value={delay}
-              onChange={(event) => setDelay(event.target.value)}
-              className="w-full min-w-0 rounded-md border border-[#cbd7cc] bg-[#f8faf7] p-3 text-sm text-[#17201e] outline-0 focus:border-[#157c62]"
-            />
-            <select
-              className="w-25 min-w-0 rounded-md border border-[#cbd7cc] bg-[#f8faf7] p-3 text-sm text-[#17201e] outline-0 focus:border-[#157c62]"
-              value={unit}
-              onChange={(event) =>
-                setUnit(event.target.value as "minutes" | "seconds")
-              }
-            >
-              <option value="minutes">minutes</option>
-              <option value="seconds">seconds</option>
-            </select>
-          </div>
-        </label>
-        <button
-          className="col-span-full mt-1 min-h-10 justify-self-start rounded-md border border-[#157c62] bg-[#157c62] px-4 text-xs font-bold text-white hover:bg-[#10664f]"
-          type="submit"
-        >
-          Add reminder <span aria-hidden="true">↗</span>
-        </button>
-      </form>
-      <div className="mt-6 border-t border-[#d5e2da]">
-        {alarms.length === 0 ? (
-          <p className="pt-4.75 text-[13px] leading-normal text-[#52645b]">
-            No active reminders. Add one for a client call, deploy, or stretch
-            break.
-          </p>
-        ) : (
-          alarms.map((alarm) => (
-            <div
-              className="grid grid-cols-[22px_1fr_auto_24px] items-center gap-2.25 border-b border-[#d5e2da] py-3.25 text-[13px]"
-              key={alarm.id}
-            >
-              <span className="text-lg text-[#df795f]" aria-hidden="true">
-                ◷
-              </span>
-              <strong className="text-[#17201e]">{alarm.label}</strong>
-              <span className="font-mono text-[11px] text-[#52645b]">
-                {new Date(alarm.due).toLocaleTimeString("en-US", {
-                  hour: "2-digit",
-                  minute: "2-digit",
-                })}
-              </span>
-              <button
-                type="button"
-                className="border-0 bg-transparent text-xl text-[#71827a] hover:text-[#df795f]"
-                aria-label={`Remove ${alarm.label}`}
-                onClick={() =>
-                  setAlarms((items) =>
-                    items.filter((item) => item.id !== alarm.id),
-                  )
-                }
-              >
-                ×
-              </button>
-            </div>
-          ))
-        )}
-      </div>
-      {toast && (
-        <div
-          className="fixed right-6 bottom-6 z-5 flex items-center gap-2.75 rounded-lg border border-[#df795f] bg-[#df795f] px-4.25 py-3.5 font-bold text-[#17201e] shadow-[0_15px_40px_#00000040]"
-          role="status"
-        >
-          <span>✓</span>
-          {toast}
-        </div>
-      )}
-    </section>
-  );
+  return [storedValue, setStoredValue] as const;
 }
 
 export default function TimeDashboard() {
   const [now, setNow] = useState(() => new Date());
-  const [twelveHour, setTwelveHour] = useState(true);
-  const [customTimezone, setCustomTimezone] = useState("Asia/Kolkata");
-  const [timezoneSearch, setTimezoneSearch] = useState("");
-  const [citySearch, setCitySearch] = useState("Kolkata");
-  const [cityResult, setCityResult] = useState<CityResult>({
-    name: "Kolkata",
-    country: "India",
-    timezone: "Asia/Kolkata",
-    latitude: 22.5726,
-    longitude: 88.3639,
-  });
-  const [weather, setWeather] = useState<Weather | null>(null);
-  const [weatherStatus, setWeatherStatus] = useState<
-    "loading" | "ready" | "error"
-  >("loading");
+  const [twelveHour, setTwelveHour] = useLocalStorage("clock_12h_pref", true);
+  const [zones, setZones] = useLocalStorage<Zone[]>(
+    "clock_zones",
+    INITIAL_ZONES,
+  );
+  const [alarms, setAlarms] = useLocalStorage<Alarm[]>("clock_alarms", []);
+
+  const [citySearch, setCitySearch] = useState("");
   const [cityLoading, setCityLoading] = useState(false);
   const [cityError, setCityError] = useState("");
+
+  const [timerSeconds, setTimerSeconds] = useLocalStorage(
+    "timer_remaining",
+    25 * 60,
+  );
+  const [timerTotal, setTimerTotal] = useLocalStorage("timer_total", 25 * 60);
+  const [timerRunning, setTimerRunning] = useState(false);
+
+  const [alarmLabel, setAlarmLabel] = useState("");
+  const [alarmDelay, setAlarmDelay] = useState("10");
+  const [alarmUnit, setAlarmUnit] = useState<"minutes" | "seconds">("minutes");
+  const [toast, setToast] = useState("");
+
   const baseOffset = useMemo(() => offsetFor(now, "Asia/Dhaka"), [now]);
-  const filteredTimezones = useMemo(() => {
-    const query = timezoneSearch.trim().toLowerCase();
-    if (!query) return availableTimezones;
-    return availableTimezones.filter((timezone) =>
-      `${timezoneCity(timezone)} ${timezone}`.toLowerCase().includes(query),
-    );
-  }, [timezoneSearch]);
+
   useEffect(() => {
-    const controller = new AbortController();
-    setWeather(null);
-    setWeatherStatus("loading");
-    void fetch(
-      `https://api.open-meteo.com/v1/forecast?latitude=${cityResult.latitude}&longitude=${cityResult.longitude}&current=temperature_2m,weather_code,wind_speed_10m&timezone=auto`,
-      { signal: controller.signal },
-    )
-      .then((response) => {
-        if (!response.ok) throw new Error("Weather unavailable");
-        return response.json() as Promise<{
-          current: {
-            temperature_2m: number;
-            weather_code: number;
-            wind_speed_10m: number;
-          };
-        }>;
-      })
-      .then((data) =>
-        setWeather({
-          temperature: data.current.temperature_2m,
-          weatherCode: data.current.weather_code,
-          windSpeed: data.current.wind_speed_10m,
-        }),
-      )
-      .then(() => setWeatherStatus("ready"))
-      .catch((error: unknown) => {
-        if (error instanceof DOMException && error.name === "AbortError")
-          return;
-        setWeather(null);
-        setWeatherStatus("error");
-      });
-    return () => controller.abort();
-  }, [cityResult]);
-
-  const customZone: Zone = {
-    city: cityResult.name,
-    country: cityResult.country,
-    flag: "✦",
-    timezone: customTimezone,
-    code: timezoneCode(now, customTimezone),
-  };
-
-  async function searchCity(event: React.FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    const query = citySearch.trim();
-    if (!query) return;
-    setCityLoading(true);
-    setCityError("");
-    try {
-      const response = await fetch(
-        `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(query)}&count=1&language=en&format=json`,
-      );
-      if (!response.ok) throw new Error("City search failed");
-      const data = (await response.json()) as {
-        results?: Array<{
-          name: string;
-          country: string;
-          timezone: string;
-          latitude: number;
-          longitude: number;
-        }>;
-      };
-      const result = data.results?.[0];
-      if (!result) throw new Error("City not found");
-      setCityResult(result);
-      setCustomTimezone(result.timezone);
-    } catch {
-      setCityError("City not found. Try another city name.");
-    } finally {
-      setCityLoading(false);
+    if (typeof window !== "undefined" && "Notification" in window) {
+      if (Notification.permission === "default") {
+        void Notification.requestPermission();
+      }
     }
-  }
+  }, []);
 
   useEffect(() => {
     const interval = window.setInterval(() => setNow(new Date()), 1000);
     return () => window.clearInterval(interval);
   }, []);
 
+  useEffect(() => {
+    if (!timerRunning) return;
+    const interval = window.setInterval(() => {
+      setTimerSeconds((prev) => {
+        if (prev <= 1) {
+          setTimerRunning(false);
+          playNotificationSound();
+          if (Notification.permission === "granted") {
+            new Notification("Timer Completed!", {
+              body: "Your focus session is over.",
+            });
+          }
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+    return () => window.clearInterval(interval);
+  }, [timerRunning, setTimerSeconds]);
+
+  useEffect(() => {
+    if (!alarms.length) return;
+    const interval = window.setInterval(() => {
+      const current = Date.now();
+      const due = alarms.filter((item) => item.due <= current);
+      if (due.length) {
+        setAlarms((items) => items.filter((item) => item.due > current));
+        const message = `Reminder: ${due[0].label}`;
+        setToast(message);
+        playNotificationSound();
+
+        if (Notification.permission === "granted") {
+          new Notification("Reminder Alert!", { body: due[0].label });
+        }
+
+        setTimeout(() => setToast(""), 5000);
+      }
+    }, 1000);
+    return () => window.clearInterval(interval);
+  }, [alarms, setAlarms]);
+
+  async function handleAddCity(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    const query = citySearch.trim();
+    if (!query) return;
+
+    setCityLoading(true);
+    setCityError("");
+    try {
+      const res = await fetch(
+        `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(query)}&count=1&language=en&format=json`,
+      );
+      if (!res.ok) throw new Error("Search failed");
+      const data = (await res.json()) as {
+        results?: Array<{ name: string; country: string; timezone: string }>;
+      };
+      const result = data.results?.[0];
+      if (!result) throw new Error("City not found");
+
+      const newZone: Zone = {
+        id: `${result.name.toLowerCase()}-${Date.now()}`,
+        city: result.name,
+        country: result.country,
+        flag: "📍",
+        timezone: result.timezone,
+        code: timezoneCode(now, result.timezone),
+      };
+
+      setZones((prev) => [...prev, newZone]);
+      setCitySearch("");
+    } catch {
+      setCityError("City not found. Try another city.");
+    } finally {
+      setCityLoading(false);
+    }
+  }
+
+  function handleAddAlarm(e: React.FormEvent) {
+    e.preventDefault();
+    const amount =
+      Math.max(1, Number(alarmDelay) || 1) *
+      (alarmUnit === "minutes" ? 60 : 1) *
+      1000;
+    setAlarms((prev) => [
+      ...prev,
+      {
+        id: Date.now(),
+        label: alarmLabel.trim() || "Quick Task",
+        due: Date.now() + amount,
+      },
+    ]);
+    setAlarmLabel("");
+  }
+
+  const timerMins = Math.floor(timerSeconds / 60)
+    .toString()
+    .padStart(2, "0");
+  const timerSecs = (timerSeconds % 60).toString().padStart(2, "0");
+  const timerProgress = timerTotal
+    ? ((timerTotal - timerSeconds) / timerTotal) * 100
+    : 0;
+
   return (
-    <main className="relative min-h-[calc(100vh-88px)] overflow-hidden  text-[#17201e]">
-      <div className="pointer-events-none absolute -right-52.5 -top-82.5 size-155 rounded-full border border-[#157c6220] shadow-[0_0_100px_#157c620a]" />
-      <div className="pointer-events-none absolute bottom-40 -left-65 size-95 rounded-full border border-[#df795f30]" />
-      <div className="relative z-1 mx-auto max-w-7xl px-2 pt-18 pb-8.5 max-[640px]:pt-11.25">
-        <header className="flex items-end justify-between gap-10 pb-18 max-[640px]:block max-[640px]:pb-12">
+    <main className="relative min-h-screen bg-[#fafcfb] text-[#17201e] px-6 py-10 text-base">
+      <div className="mx-auto max-w-7xl">
+        {/* Header */}
+        <header className="flex flex-wrap items-end justify-between gap-6 pb-8 border-b border-[#d5e2da]">
           <div>
-            <p className="flex items-center gap-2.5 font-mono text-[11px] font-semibold tracking-[.16em] text-[#157c62]">
-              <span className="inline-block size-1.75 rounded-full bg-[#157c62] shadow-[0_0_0_5px_#157c621c]" />{" "}
-              LOCAL / GLOBAL TIME DESK
-            </p>
-            <h1 className="mt-5 text-[clamp(46px,7vw,86px)] font-semibold leading-[.92] tracking-[-4px] text-[#17201e] max-[640px]:text-[52px] max-[640px]:tracking-[-2.5px]">
-              Stay in sync
-              <br />
-              <em className="text-[#e07860] not-italic">across the room.</em>
+            <span className="font-mono text-xs font-bold text-[#157c62] tracking-widest uppercase">
+              ● REALTIME DASHBOARD
+            </span>
+            <h1 className="mt-2 text-[40px] leading-tight font-bold tracking-tight text-[#17201e]">
+              Global Sync & Focus Command
             </h1>
-            <p className="mt-7 max-w-105 text-base leading-[1.7] text-[#71807b]">
-              A quiet command center for your distributed day, built around
-              Bangladesh time.
-            </p>
           </div>
-          <div className="min-w-55 border-l border-[#d5e2da] pb-1.25 pl-6 text-right max-[640px]:mt-8.75 max-[640px]:border-t max-[640px]:border-l-0 max-[640px]:pt-5 max-[640px]:text-left">
-            <p className="font-mono text-[11px] font-semibold tracking-[.16em] text-[#71807b]">
-              MONDAY, AUG 24, 2026
+          <div className="text-right">
+            <p className="font-mono text-xs font-semibold text-[#71807b]">
+              {formatDate(now, "Asia/Dhaka").toUpperCase()}
             </p>
-            <strong className="my-3 block font-mono text-[29px] font-medium tracking-[-1px] text-[#17201e]">
+            <strong className="block font-mono text-3xl font-semibold text-[#157c62]">
               {formatTime(now, "Asia/Dhaka", false)}
             </strong>
-            <span className="font-mono text-[11px] font-semibold tracking-[.16em] text-[#71807b]">
-              DHaka · BST · UTC +06:00
+            <span className="font-mono text-xs text-[#71807b]">
+              DHAKA (BST) UTC +06:00
             </span>
           </div>
         </header>
-        <section aria-labelledby="zones-title">
-          <div className="flex items-end justify-between gap-5 max-[640px]:items-start max-[640px]:flex-col">
+
+        {/* World Clock Grid Section */}
+        <section className="mt-10">
+          <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
             <div>
-              <p className="font-mono text-[11px] font-semibold tracking-[.16em] text-[#8fa09a]">
-                SEVEN LOCATIONS
-              </p>
-              <h2
-                id="zones-title"
-                className="mt-2.5 text-[28px] tracking-[-.8px] text-[#17201e]"
-              >
-                World clock
+              <h2 className="text-[20px] font-bold text-[#17201e]">
+                World Time Engine
               </h2>
+              <p className="text-sm text-[#71807b]">
+                Saved automatically to LocalStorage
+              </p>
             </div>
-            <div
-              className="flex rounded-lg border border-[#d5e2da] bg-[#ffffffa8] p-1"
-              role="group"
-              aria-label="Clock format"
-            >
-              <button
-                className={`rounded-[5px] border-0 px-3 py-2.25 font-mono text-[10px] font-semibold tracking-[.08em] ${twelveHour ? "bg-[#157c62] text-white" : "bg-transparent text-[#71807b]"}`}
-                onClick={() => setTwelveHour(true)}
-                type="button"
-              >
-                12 HOUR
-              </button>
-              <button
-                className={`rounded-[5px] border-0 px-3 py-2.25 font-mono text-[10px] font-semibold tracking-[.08em] ${!twelveHour ? "bg-[#157c62] text-white" : "bg-transparent text-[#71807b]"}`}
-                onClick={() => setTwelveHour(false)}
-                type="button"
-              >
-                24 HOUR
-              </button>
-            </div>
-          </div>
-          <div className="mt-6 grid grid-cols-4 gap-2.5 max-[900px]:grid-cols-2 max-[640px]:grid-cols-1">
-            {zones.map((zone) => (
-              <TimezoneCard
-                key={zone.timezone}
-                zone={zone}
-                now={now}
-                twelveHour={twelveHour}
-                baseOffset={baseOffset}
-              />
-            ))}
-          </div>
-          <div className="mt-2.5 rounded-[10px] border border-[#d5e2da] bg-white/75 p-5 shadow-[0_18px_50px_#224c3d0d]">
-            <div className="flex flex-wrap items-end justify-between gap-4">
-              <div>
-                <p className="font-mono text-[11px] font-semibold tracking-[.16em] text-[#157c62]">
-                  EXPLORE ANYWHERE
-                </p>
-                <h3 className="mt-2 text-[21px] font-semibold tracking-[-.4px] text-[#17201e]">
-                  Add another location
-                </h3>
-              </div>
-              <form
-                className="flex min-w-60 flex-1 flex-wrap items-end gap-2"
-                onSubmit={searchCity}
-              >
-                <label className="grid min-w-60 flex-1 gap-2 font-mono text-[10px] font-semibold tracking-[.08em] text-[#52645b] uppercase">
-                  <span>Search any city</span>
-                  <input
-                    className="rounded-md border border-[#cbd7cc] bg-[#f8faf7] px-3 py-2.5 font-sans text-sm normal-case tracking-normal text-[#17201e] outline-none placeholder:text-[#71807b] focus:border-[#157c62]"
-                    value={citySearch}
-                    onChange={(event) => setCitySearch(event.target.value)}
-                    placeholder="e.g. Tokyo, Paris, Dubai"
-                    type="search"
-                  />
-                </label>
+
+            <div className="flex items-center gap-3">
+              <form onSubmit={handleAddCity} className="flex gap-2">
+                <input
+                  type="text"
+                  placeholder="Add City..."
+                  value={citySearch}
+                  onChange={(e) => setCitySearch(e.target.value)}
+                  className="rounded-lg border border-[#cbd7cc] bg-white px-3 py-2 text-sm outline-none focus:border-[#157c62] focus:ring-1 focus:ring-[#157c62]"
+                />
                 <button
-                  className="min-h-10 rounded-md border border-[#157c62] bg-[#157c62] px-4 text-xs font-bold text-white hover:bg-[#10664f] disabled:cursor-wait disabled:opacity-60"
                   type="submit"
                   disabled={cityLoading}
+                  className="rounded-lg bg-[#157c62] px-4 py-2 text-sm font-bold text-white transition hover:bg-[#10664f] disabled:opacity-50"
                 >
-                  {cityLoading ? "Searching..." : "Search city"}
+                  {cityLoading ? "..." : "+ Add"}
                 </button>
-                {cityError && (
-                  <span className="basis-full font-sans text-xs normal-case tracking-normal text-[#df795f]">
-                    {cityError}
+              </form>
+
+              <div className="flex rounded-lg border border-[#d5e2da] bg-white p-1">
+                <button
+                  onClick={() => setTwelveHour(true)}
+                  className={`px-3 py-1.5 rounded-md text-xs font-mono font-bold transition ${
+                    twelveHour ? "bg-[#157c62] text-white" : "text-[#71807b]"
+                  }`}
+                >
+                  12H
+                </button>
+                <button
+                  onClick={() => setTwelveHour(false)}
+                  className={`px-3 py-1.5 rounded-md text-xs font-mono font-bold transition ${
+                    !twelveHour ? "bg-[#157c62] text-white" : "text-[#71807b]"
+                  }`}
+                >
+                  24H
+                </button>
+              </div>
+            </div>
+          </div>
+
+          {cityError && (
+            <p className="mb-4 text-sm text-[#df795f]">{cityError}</p>
+          )}
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+            {zones.map((zone) => {
+              const daytime = isDaytime(now, zone.timezone);
+              return (
+                <article
+                  key={zone.id}
+                  className={`relative rounded-2xl border p-6 transition-all duration-200 shadow-sm hover:shadow-md ${
+                    daytime
+                      ? "border-[#d5e2da] bg-white text-[#17201e]"
+                      : "border-[#2c3e38] bg-[#1a2421] text-white"
+                  }`}
+                >
+                  {zones.length > 1 && (
+                    <button
+                      onClick={() =>
+                        setZones((prev) =>
+                          prev.filter((item) => item.id !== zone.id),
+                        )
+                      }
+                      className="absolute top-4 right-4 text-sm text-[#71807b] hover:text-[#df795f] transition"
+                    >
+                      ✕
+                    </button>
+                  )}
+                  <div className="flex items-center justify-between">
+                    <span className="text-2xl">{zone.flag}</span>
+                    <span
+                      className={`font-mono text-xs font-bold px-2 py-0.5 rounded-full ${
+                        daytime
+                          ? "bg-[#e7f1ec] text-[#157c62]"
+                          : "bg-[#253530] text-[#52b79a]"
+                      }`}
+                    >
+                      {daytime ? "☼ DAY" : "☾ NIGHT"}
+                    </span>
+                  </div>
+                  <h3 className="mt-4 text-[20px] font-bold uppercase tracking-tight">
+                    {zone.city}
+                  </h3>
+                  <p className="text-sm text-[#71807b]">{zone.country}</p>
+                  <div className="mt-6 flex items-baseline justify-between border-t border-dashed border-[#cbd7cc]/40 pt-4">
+                    <p className="font-mono text-2xl font-bold">
+                      {formatTime(now, zone.timezone, twelveHour)}
+                    </p>
+                    <span className="font-mono text-xs font-medium text-[#df795f]">
+                      {formatDifference(
+                        offsetFor(now, zone.timezone) - baseOffset,
+                      )}
+                    </span>
+                  </div>
+                </article>
+              );
+            })}
+          </div>
+        </section>
+
+        {/* Premium Tools Grid */}
+        <section className="mt-10 grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {/* Focus Timer */}
+          <div className="rounded-2xl border border-[#d5e2da] bg-white p-6 shadow-sm">
+            <span className="font-mono text-xs font-bold text-[#8fa09a] tracking-widest uppercase">
+              FOCUS TIMER
+            </span>
+            <h2 className="text-[20px] font-bold text-[#17201e] mt-1">
+              Pomodoro Window
+            </h2>
+
+            <div className="mt-6 flex flex-col items-center">
+              <div className="relative size-44 grid place-content-center">
+                <svg
+                  className="absolute size-full -rotate-90"
+                  viewBox="0 0 100 100"
+                >
+                  <circle
+                    className="fill-none stroke-[#e7f1ec] stroke-8"
+                    cx="50"
+                    cy="50"
+                    r="42"
+                  />
+                  <circle
+                    className="fill-none stroke-[#157c62] stroke-8 transition-all duration-300"
+                    cx="50"
+                    cy="50"
+                    r="42"
+                    strokeDasharray={264}
+                    strokeDashoffset={264 * (1 - timerProgress / 100)}
+                    strokeLinecap="round"
+                  />
+                </svg>
+                <span className="font-mono text-4xl font-bold">
+                  {timerMins}:{timerSecs}
+                </span>
+              </div>
+
+              <div className="mt-6 flex gap-3">
+                <button
+                  onClick={() => setTimerRunning(!timerRunning)}
+                  className="rounded-lg bg-[#157c62] px-6 py-2.5 text-sm font-bold text-white transition hover:bg-[#10664f]"
+                >
+                  {timerRunning ? "Pause" : "Start"}
+                </button>
+                <button
+                  onClick={() => {
+                    setTimerRunning(false);
+                    setTimerSeconds(timerTotal);
+                  }}
+                  className="rounded-lg border border-[#cbd7cc] px-6 py-2.5 text-sm font-bold text-[#71807b] transition hover:bg-[#f1f5f3]"
+                >
+                  Reset
+                </button>
+              </div>
+
+              <div className="mt-4 flex gap-2">
+                {[300, 900, 1500, 3600].map((sec) => (
+                  <button
+                    key={sec}
+                    onClick={() => {
+                      setTimerSeconds(sec);
+                      setTimerTotal(sec);
+                      setTimerRunning(false);
+                    }}
+                    className="rounded-md border border-[#cbd7cc] px-3 py-1 text-xs font-semibold text-[#71807b] transition hover:border-[#157c62] hover:text-[#157c62]"
+                  >
+                    {sec / 60}m
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* Quick Reminders */}
+          <div className="rounded-2xl border border-[#d5e2da] bg-white p-6 shadow-sm flex flex-col justify-between">
+            <div>
+              <div className="flex justify-between items-center">
+                <div>
+                  <span className="font-mono text-xs font-bold text-[#8fa09a] tracking-widest uppercase">
+                    ALERT SYSTEM
                   </span>
-                )}
+                  <h2 className="text-[20px] font-bold text-[#17201e] mt-1">
+                    Reminders
+                  </h2>
+                </div>
+                <span className="font-mono text-xs font-bold text-[#157c62] bg-[#e7f1ec] px-2.5 py-1 rounded-full">
+                  {alarms.length} ACTIVE
+                </span>
+              </div>
+
+              <form onSubmit={handleAddAlarm} className="mt-5 grid gap-3">
+                <input
+                  type="text"
+                  placeholder="Reminder Title (e.g. Client Call)"
+                  value={alarmLabel}
+                  onChange={(e) => setAlarmLabel(e.target.value)}
+                  className="rounded-lg border border-[#cbd7cc] p-2.5 text-sm outline-none focus:border-[#157c62] focus:ring-1 focus:ring-[#157c62]"
+                />
+                <div className="flex gap-2">
+                  <input
+                    type="number"
+                    min="1"
+                    value={alarmDelay}
+                    onChange={(e) => setAlarmDelay(e.target.value)}
+                    className="w-full rounded-lg border border-[#cbd7cc] p-2.5 text-sm outline-none focus:border-[#157c62] focus:ring-1 focus:ring-[#157c62]"
+                  />
+                  <select
+                    value={alarmUnit}
+                    onChange={(e) =>
+                      setAlarmUnit(e.target.value as "minutes" | "seconds")
+                    }
+                    className="rounded-lg border border-[#cbd7cc] p-2.5 text-sm outline-none focus:border-[#157c62] bg-white"
+                  >
+                    <option value="minutes">mins</option>
+                    <option value="seconds">secs</option>
+                  </select>
+                </div>
+                <button
+                  type="submit"
+                  className="rounded-lg bg-[#157c62] py-2.5 text-sm font-bold text-white transition hover:bg-[#10664f]"
+                >
+                  + Add Reminder
+                </button>
               </form>
             </div>
-            <div className="mt-4 grid max-w-md">
-              <TimezoneCard
-                zone={customZone}
-                now={now}
-                twelveHour={twelveHour}
-                baseOffset={baseOffset}
-                weather={weather ?? undefined}
-                weatherStatus={weatherStatus}
-              />
+
+            <div className="mt-5 max-h-40 overflow-y-auto divide-y divide-[#d5e2da]/60">
+              {alarms.length === 0 ? (
+                <p className="text-sm text-[#71807b] py-2">
+                  No active reminders set.
+                </p>
+              ) : (
+                alarms.map((alarm) => (
+                  <div
+                    key={alarm.id}
+                    className="flex justify-between items-center py-2.5 text-sm"
+                  >
+                    <span className="font-medium text-[#17201e]">
+                      {alarm.label}
+                    </span>
+                    <div className="flex items-center gap-3">
+                      <span className="font-mono text-xs text-[#71807b] bg-[#f1f5f3] px-2 py-0.5 rounded">
+                        {new Date(alarm.due).toLocaleTimeString([], {
+                          hour: "2-digit",
+                          minute: "2-digit",
+                        })}
+                      </span>
+                      <button
+                        onClick={() =>
+                          setAlarms((items) =>
+                            items.filter((item) => item.id !== alarm.id),
+                          )
+                        }
+                        className="text-red-500 hover:text-red-700 font-bold text-base px-1"
+                      >
+                        ×
+                      </button>
+                    </div>
+                  </div>
+                ))
+              )}
             </div>
           </div>
         </section>
-        <div className="mt-2.5 grid grid-cols-[1.15fr_.85fr] gap-2.5 max-[900px]:grid-cols-1">
-          <CountdownTimer now={now} />
-          <TimeoutManager />
-        </div>
       </div>
+
+      {/* Toast Alert */}
+      {toast && (
+        <div className="fixed bottom-6 right-6 z-50 rounded-xl bg-[#df795f] px-5 py-3.5 font-bold text-white shadow-xl animate-bounce text-sm">
+          🔔 {toast}
+        </div>
+      )}
     </main>
   );
 }
