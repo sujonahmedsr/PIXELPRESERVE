@@ -320,11 +320,34 @@ export default function TimeDashboard() {
       const result = data.results?.[0];
       if (!result) throw new Error("City not found");
 
+      const getCountryCode = (resultObj: {
+        name: string;
+        country: string;
+        timezone: string;
+      }): string => {
+        // Safe runtime check using 'in' operator
+        if (
+          "countryCode" in resultObj &&
+          typeof (resultObj as Record<string, unknown>).countryCode === "string"
+        ) {
+          return ((resultObj as Record<string, unknown>).countryCode as string)
+            .trim()
+            .slice(0, 2)
+            .toUpperCase();
+        }
+
+        if (resultObj.country && resultObj.country.trim().length >= 2) {
+          return resultObj.country.trim().slice(0, 2).toUpperCase();
+        }
+
+        return "XX";
+      };
+
       const newZone: Zone = {
         id: `${result.name.toLowerCase()}-${Date.now()}`,
         city: result.name,
         country: result.country,
-        flag: "📍",
+        flag: getCountryCode(result),
         timezone: result.timezone,
         code: timezoneCode(now, result.timezone),
       };
@@ -471,7 +494,7 @@ export default function TimeDashboard() {
                           prev.filter((item) => item.id !== zone.id),
                         )
                       }
-                      className="absolute top-4 right-4 text-sm text-[#71807b] hover:text-[#df795f] transition"
+                      className="absolute top-2 right-3 text-sm text-[#71807b] hover:text-[#df795f] transition"
                     >
                       ✕
                     </button>
