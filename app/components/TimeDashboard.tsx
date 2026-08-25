@@ -141,6 +141,7 @@ function playNotificationSound() {
 
 function useLocalStorage<T>(key: string, initialValue: T) {
   const [storedValue, setStoredValue] = useState<T>(initialValue);
+  const [storageReady, setStorageReady] = useState(false);
 
   useEffect(() => {
     try {
@@ -148,18 +149,21 @@ function useLocalStorage<T>(key: string, initialValue: T) {
       if (item) {
         setStoredValue(JSON.parse(item));
       }
-    } catch (e) {
-      console.error(e);
+    } catch {
+      window.localStorage.removeItem(key);
+    } finally {
+      setStorageReady(true);
     }
   }, [key]);
 
   useEffect(() => {
+    if (!storageReady) return;
     try {
       window.localStorage.setItem(key, JSON.stringify(storedValue));
     } catch (e) {
       console.error(e);
     }
-  }, [key, storedValue]);
+  }, [key, storageReady, storedValue]);
 
   return [storedValue, setStoredValue] as const;
 }

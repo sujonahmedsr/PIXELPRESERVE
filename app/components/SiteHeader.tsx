@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 const linkClass =
-  "font-mono text-xs tracking-[0.03em] no-underline transition min-[701px]:text-base";
+  "text-center font-mono text-[10px] leading-4 tracking-[0.03em] no-underline transition min-[701px]:text-base min-[701px]:leading-normal";
 
 export function SiteHeader() {
   const pathname = usePathname();
@@ -26,7 +26,7 @@ export function SiteHeader() {
         <span className="inline-block size-1.5 rounded-full bg-[#35a67d] shadow-[0_0_0_4px_#35a67d1a]" />
         BROWSER ONLY
       </div>
-      <nav className="flex items-center gap-6" aria-label="Primary navigation">
+      <nav className="grid w-full grid-cols-3 items-center gap-2 min-[701px]:flex min-[701px]:w-auto min-[701px]:gap-6" aria-label="Primary navigation">
         <Link
           className={`${linkClass} ${
             pathname === "/fiverr" ? "text-[#157c62]" : "text-[#71807b]"

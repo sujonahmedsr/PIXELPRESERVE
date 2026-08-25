@@ -53,6 +53,7 @@ const statusLabels: Record<TaskStatus, string> = {
 
 export default function Task_manager() {
   const [tasks, setTasks] = useState<Task[]>(starterTasks);
+  const [storageReady, setStorageReady] = useState(false);
   const [isAdding, setIsAdding] = useState(false);
   const [query, setQuery] = useState("");
   const [filter, setFilter] = useState<TaskFilter>("all");
@@ -65,13 +66,24 @@ export default function Task_manager() {
   });
 
   useEffect(() => {
-    const saved = window.localStorage.getItem("pixel-preserve-tasks");
-    if (saved) setTasks(JSON.parse(saved) as Task[]);
+    try {
+      const saved = window.localStorage.getItem("pixel-preserve-tasks");
+      const parsed = saved ? JSON.parse(saved) : null;
+      if (Array.isArray(parsed)) setTasks(parsed as Task[]);
+    } catch {
+      window.localStorage.removeItem("pixel-preserve-tasks");
+    } finally {
+      setStorageReady(true);
+    }
   }, []);
 
   useEffect(() => {
+    if (!storageReady) return;
     window.localStorage.setItem("pixel-preserve-tasks", JSON.stringify(tasks));
-  }, [tasks]);
+  }, [storageReady, tasks]);
+
+  const isOverdue = (due: string) =>
+    Boolean(due) && new Date(`${due}T00:00:00`) < new Date(new Date().setHours(0, 0, 0, 0));
 
   const progress = useMemo(
     () =>
@@ -88,7 +100,7 @@ export default function Task_manager() {
     (task) =>
       task.status !== "done" &&
       task.due &&
-      new Date(task.due) < new Date("2026-08-21"),
+      isOverdue(task.due),
   ).length;
   const visibleTasks = useMemo(() => {
     const normalizedQuery = query.trim().toLowerCase();
@@ -157,7 +169,7 @@ export default function Task_manager() {
         <section className="flex flex-col justify-between gap-6 px-1 py-8 sm:px-3 lg:flex-row lg:items-end lg:py-10">
           <div>
             <p className="font-mono text-xs font-semibold tracking-[.2em] text-[#16866b]">
-              OPERATIONS / AUG 21, 2026
+              OPERATIONS / {new Intl.DateTimeFormat("en-US", { month: "short", day: "numeric", year: "numeric" }).format(new Date()).toUpperCase()}
             </p>
             <h1 className="mt-4 max-w-3xl text-[40px] font-semibold leading-[1.04] tracking-[-1.8px] sm:text-5xl lg:text-[60px]">
               Your work, in <span className="text-[#df795f]">motion.</span>
@@ -335,7 +347,7 @@ export default function Task_manager() {
                               className={
                                 task.status !== "done" &&
                                 task.due &&
-                                new Date(task.due) < new Date("2026-08-21")
+                                isOverdue(task.due)
                                   ? "font-semibold text-[#c65e45]"
                                   : ""
                               }

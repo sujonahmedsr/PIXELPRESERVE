@@ -1,80 +1,68 @@
-# Pixel Preserve Tools
+# PixelPreserve
 
-![Next.js](https://img.shields.io/badge/Next.js-15-black?style=for-the-badge&logo=next.js)
-![React](https://img.shields.io/badge/React-19-blue?style=for-the-badge&logo=react)
-![TypeScript](https://img.shields.io/badge/TypeScript-7.0-blue?style=for-the-badge&logo=typescript)
-![TailwindCSS](https://img.shields.io/badge/TailwindCSS-4.0-38BDF8?style=for-the-badge&logo=tailwind-css)
-![CI/CD](https://img.shields.io/badge/CI%2FCD-GitHub_Actions-2088FF?style=for-the-badge&logo=github-actions)
+PixelPreserve is a privacy-first browser toolkit for freelancers, developers, and designers. It brings everyday utilities into one responsive Next.js app: image conversion, text and JSON helpers, design tools, a Fiverr message checker, a local task board, and a world-time focus desk.
 
-A modern, high-performance web dashboard application combining real-time global time management, auto-detected weather monitoring, and a productivity-driven focus suite (Pomodoro timer & reminders). Designed with a clean, responsive UI and optimized for developer productivity and seamless client-side persistence.
+All core editing and productivity data stays in the browser. No account is required.
 
----
+## Features
 
-## 🌟 Key Features
+- **WebP converter** — Convert multiple images in the browser, preserve dimensions, choose a quality level, download files individually, or export a real `.zip` archive.
+- **Text case transformer** — Convert text to sentence, lower, upper, title, alternating, capitalized, or inverse case and copy the result.
+- **JSON formatter** — Validate and pretty-print JSON.
+- **Glass & shadow generator** — Adjust glassmorphism settings and copy the generated CSS.
+- **Palette checker** — Generate shades from a base colour and check WCAG contrast ratios.
+- **Fiverr message checker** — Detect configured restricted terms, create a safer rewritten version, and copy it.
+- **Task manager** — Add, filter, move, and delete tasks. Tasks are saved locally in the browser.
+- **Time Desk** — Track multiple time zones, add cities through Open-Meteo geocoding, run a Pomodoro timer, and create browser-local reminders.
 
-### 🌐 1. World Time Engine & Real-Time Sync
+## Tech stack
 
-- **Multi-City Clock Dashboard:** Monitor multiple global time zones simultaneously (defaulting to Dhaka, New York, London, Tokyo, etc.).
-- **Dynamic Day/Night Visual Cards:** Themes automatically adjust based on local sunrise/sunset hours for each time zone.
-- **Instant Time Zone Math:** Automatic calculation of offset differences relative to Bangladesh Standard Time (BST / UTC+6).
-- **Flexible Display Format:** Toggle seamlessly between 12-hour and 24-hour time formats.
-- **Custom City Addition:** Geocoding integration allowing users to search and add any world city dynamically.
+- Next.js (App Router)
+- React and TypeScript
+- Tailwind CSS v4
+- Browser APIs: Canvas, Clipboard, Local Storage, Notifications, Web Audio
+- Open-Meteo Geocoding API (used only when searching for a city)
 
-### 🌤️ 2. Accurate Weather Integration
+## Run locally
 
-- **Auto GPS Detection:** Instant high-accuracy weather detection using HTML5 Geolocation API (`latitude` & `longitude`).
-- **Live Temperature & Weather Codes:** Real-time metrics fetched via Open-Meteo API (`temperature_2m`, `weather_code`).
-- **Fast Parallel Data Fetching:** Optimized asynchronous requests (`Promise.all`) ensuring zero delay when updating multiple cities.
+Prerequisites: Node.js 20.9 or newer.
 
-### ⏱️ 3. Pomodoro Focus Engine
+```bash
+npm install
+npm run dev
+```
 
-- **Visual Countdown Ring:** SVG-based interactive progress ring for visual time tracking.
-- **Custom Presets:** Quick-select focus intervals (5m, 15m, 25m, 60m).
-- **Audio & Browser Push Notifications:** Web Audio API sound alerts and native browser notifications upon timer completion.
-- **Floating Command Bar:** Persistent floating controls active while navigating focus sessions.
+Open [http://localhost:3000](http://localhost:3000).
 
-### 🔔 4. Task Reminders & Alert System
+## Available scripts
 
-- **Quick Task Reminders:** Set custom alerts in minutes or seconds.
-- **Local Storage Persistence:** Reminders and user preferences automatically stored across sessions.
-- **Toast & Audio Alerts:** Sound and UI toast notifications triggered when reminders expire.
+```bash
+npm run dev     # Start the development server
+npm run lint    # Run TypeScript type checks
+npm run build   # Create a production build
+npm run start   # Serve the production build
+```
 
-### ⚡ 5. Enterprise-Grade CI/CD & Architecture
-
-- **Strict TypeScript Verification:** Automated type checks (`tsc --noEmit`) integrated into the workflow.
-- **GitHub Actions Pipeline:** Automated Continuous Integration ensuring zero broken builds or hydration errors reach production.
-
----
-
-## 🛠️ Tech Stack
-
-- **Framework:** Next.js (App Router)
-- **Library:** React 19
-- **Language:** TypeScript 7.0
-- **Styling:** Tailwind CSS v4
-- **State & Storage:** React Hooks + LocalStorage API
-- **APIs Used:**
-  - Open-Meteo Weather API
-  - Open-Meteo Geocoding API
-  - Web Audio API & Web Notification API
-- **CI/CD:** GitHub Actions
-
----
-
-## 📁 Project Structure
+## Project structure
 
 ```text
-pixel-preserve-tools/
-├── .github/
-│   └── workflows/
-│       └── deploy.yml          # Automated CI/CD Pipeline
-├── src/
-│   └── app/
-│       ├── page.tsx            # Global Dashboard & Focus Command Center
-│       ├── layout.tsx          # Root Layout
-│       └── globals.css         # Global Styles (Tailwind CSS v4)
-├── public/                     # Static Assets
-├── package.json                # Dependencies and Scripts
-├── tsconfig.json               # TypeScript Configuration
-└── README.md                   # Documentation
+app/
+├── components/       # Shared UI and interactive tool components
+├── fiverr/page.tsx   # Fiverr message checker route
+├── tasks/page.tsx    # Local task board route
+├── time/page.tsx     # World clock, focus timer, and reminders route
+├── layout.tsx        # Shared metadata, header, and footer
+└── page.tsx          # Main toolbox and WebP converter
 ```
+
+## Privacy and data
+
+Image conversion, text formatting, JSON formatting, CSS generation, and task storage run locally in the browser. Time Desk uses local storage for its preferences, cities, alarms, and timer state. A city search sends only the search term to Open-Meteo's geocoding service.
+
+## Verification
+
+The project is checked in CI with TypeScript and a production Next.js build. Run `npm run lint` and `npm run build` before deploying changes.
+
+## Author
+
+Developed by [Shofiqul Islam](https://github.com/sujonahmedsr).
