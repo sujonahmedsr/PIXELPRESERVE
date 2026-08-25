@@ -1,0 +1,54 @@
+name: CI/CD Pipeline
+
+# ১. কখন এই Pipeline রান হবে?
+on:
+  push:
+    branches:
+      - main # main ব্রাঞ্চে push করলে এটি অটোমেটিক চালু হবে
+
+jobs:
+  # -------------------------------------------------------------
+  # Job 1: Build & Test (Continuous Integration)
+  # -------------------------------------------------------------
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Step 1: Repository থেকে কোড নিয়ে আসা
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      # Step 2: Node.js এনভায়রনমেন্ট সেটআপ করা
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+
+      # Step 3: Dependencies ইনস্টল করা
+      - name: Install Dependencies
+        run: npm ci
+
+      # Step 4: Code Quality / Linting চেক করা
+      - name: Run Linter
+        run: npm run lint
+
+      # Step 5: Build চেক করা (কোনো টাইপ বা সিনট্যাক্স এরর আছে কিনা)
+      - name: Build Project
+        run: npm run build
+
+  # -------------------------------------------------------------
+  # Job 2: Deploy (Continuous Deployment)
+  # -------------------------------------------------------------
+  deploy:
+    needs: build-and-test # build-and-test সফল হলেই কেবল Deploy হবে
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      # আপনার হোস্টিং সার্ভিস অনুযায়ী এখানে Deploy করার কমান্ড/Action বসবে।
+      # উদাহরণস্বরূপ, Vercel / Netlify / VPS Host-এ ডিপ্লয় করার ধাপ:
+      - name: Deploy Announcement
+        run: echo "Code build passed! Ready for automated deployment."
