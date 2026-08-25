@@ -140,15 +140,18 @@ function playNotificationSound() {
 }
 
 function useLocalStorage<T>(key: string, initialValue: T) {
-  const [storedValue, setStoredValue] = useState<T>(() => {
-    if (typeof window === "undefined") return initialValue;
+  const [storedValue, setStoredValue] = useState<T>(initialValue);
+
+  useEffect(() => {
     try {
       const item = window.localStorage.getItem(key);
-      return item ? JSON.parse(item) : initialValue;
-    } catch {
-      return initialValue;
+      if (item) {
+        setStoredValue(JSON.parse(item));
+      }
+    } catch (e) {
+      console.error(e);
     }
-  });
+  }, [key]);
 
   useEffect(() => {
     try {
@@ -162,6 +165,7 @@ function useLocalStorage<T>(key: string, initialValue: T) {
 }
 
 export default function TimeDashboard() {
+  const [mounted, setMounted] = useState(false);
   const [now, setNow] = useState(() => new Date());
   const [twelveHour, setTwelveHour] = useLocalStorage("clock_12h_pref", true);
   const [zones, setZones] = useLocalStorage<Zone[]>(
@@ -174,7 +178,6 @@ export default function TimeDashboard() {
   const [cityLoading, setCityLoading] = useState(false);
   const [cityError, setCityError] = useState("");
 
-  // Persistent Timer State using LocalStorage & Target Time
   const [timerTotal, setTimerTotal] = useLocalStorage(
     "timer_total_sec",
     25 * 60,
@@ -193,9 +196,12 @@ export default function TimeDashboard() {
   const [alarmUnit, setAlarmUnit] = useState<"minutes" | "seconds">("minutes");
   const [toast, setToast] = useState("");
 
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
   const baseOffset = useMemo(() => offsetFor(now, "Asia/Dhaka"), [now]);
 
-  // Request Notification Permission
   useEffect(() => {
     if (typeof window !== "undefined" && "Notification" in window) {
       if (Notification.permission === "default") {
@@ -204,14 +210,13 @@ export default function TimeDashboard() {
     }
   }, []);
 
-  // Main Live Clock Interval
   useEffect(() => {
     const interval = window.setInterval(() => setNow(new Date()), 1000);
     return () => window.clearInterval(interval);
   }, []);
 
-  // Sync Timer across Page Refresh / Navigation using Target Timestamp
   useEffect(() => {
+    if (!mounted) return;
     if (timerEndAt) {
       const remaining = Math.max(
         0,
@@ -229,9 +234,8 @@ export default function TimeDashboard() {
       setTimerSeconds(timerPausedRemaining);
       setTimerRunning(false);
     }
-  }, []);
+  }, [mounted]);
 
-  // Timer Tick Engine
   useEffect(() => {
     if (!timerRunning || !timerEndAt) return;
 
@@ -257,7 +261,6 @@ export default function TimeDashboard() {
     return () => window.clearInterval(interval);
   }, [timerRunning, timerEndAt, timerTotal]);
 
-  // Alarm Check Engine
   useEffect(() => {
     if (!alarms.length) return;
     const interval = window.setInterval(() => {
@@ -279,9 +282,8 @@ export default function TimeDashboard() {
     return () => window.clearInterval(interval);
   }, [alarms, setAlarms]);
 
-  // Timer Handlers
   const handleStartTimer = () => {
-    playNotificationSound(); // Unlocks audio context on user interaction
+    playNotificationSound();
     const targetTime = Date.now() + timerSeconds * 1000;
     setTimerEndAt(targetTime);
     setTimerRunning(true);
@@ -320,34 +322,11 @@ export default function TimeDashboard() {
       const result = data.results?.[0];
       if (!result) throw new Error("City not found");
 
-      const getCountryCode = (resultObj: {
-        name: string;
-        country: string;
-        timezone: string;
-      }): string => {
-        // Safe runtime check using 'in' operator
-        if (
-          "countryCode" in resultObj &&
-          typeof (resultObj as Record<string, unknown>).countryCode === "string"
-        ) {
-          return ((resultObj as Record<string, unknown>).countryCode as string)
-            .trim()
-            .slice(0, 2)
-            .toUpperCase();
-        }
-
-        if (resultObj.country && resultObj.country.trim().length >= 2) {
-          return resultObj.country.trim().slice(0, 2).toUpperCase();
-        }
-
-        return "XX";
-      };
-
       const newZone: Zone = {
         id: `${result.name.toLowerCase()}-${Date.now()}`,
         city: result.name,
         country: result.country,
-        flag: getCountryCode(result),
+        flag: "📍",
         timezone: result.timezone,
         code: timezoneCode(now, result.timezone),
       };
@@ -379,6 +358,8 @@ export default function TimeDashboard() {
     setAlarmLabel("");
   }
 
+  if (!mounted) return null;
+
   const timerMins = Math.floor(timerSeconds / 60)
     .toString()
     .padStart(2, "0");
@@ -388,38 +369,36 @@ export default function TimeDashboard() {
     : 0;
 
   return (
-    <main className="relative min-h-screen text-[#17201e] px-4 sm:px-8 py-10 text-base pb-28">
+    <main className="relative min-h-screen  text-[#17201e] px-4 sm:px-8 py-10 text-base pb-28">
       <div className="mx-auto max-w-7xl">
-        {/* Header */}
         <header className="flex flex-wrap items-end justify-between gap-6 pb-8 border-b border-[#e2ece6]">
           <div>
-            <div className="inline-flex items-center gap-2 rounded-full border border-[#d5e2da] bg-white px-3 py-1  text-xs font-semibold text-[#157c62]">
+            <div className="inline-flex items-center gap-2 rounded-full border border-[#d5e2da] bg-white px-3 py-1 font-mono text-xs font-semibold text-[#157c62]">
               <span className="h-2 w-2 rounded-full bg-[#157c62] animate-pulse" />
               REALTIME DASHBOARD
             </div>
             <h1 className="mt-3 text-3xl sm:text-[38px] leading-tight font-bold tracking-tight text-[#17201e]">
-              GLOBAL SYNC & FOCUS COMMAND
+              Global Sync & Focus Command
             </h1>
           </div>
           <div className="text-right">
-            <p className=" text-xs font-semibold text-[#71807b]">
+            <p className="font-mono text-xs font-semibold text-[#71807b]">
               {formatDate(now, "Asia/Dhaka").toUpperCase()}
             </p>
-            <strong className="block  text-3xl font-semibold text-[#157c62]">
+            <strong className="block font-mono text-3xl font-semibold text-[#157c62]">
               {formatTime(now, "Asia/Dhaka", false)}
             </strong>
-            <span className=" text-xs text-[#71807b]">
+            <span className="font-mono text-xs text-[#71807b]">
               DHAKA (BST) UTC +06:00
             </span>
           </div>
         </header>
 
-        {/* World Clock Grid Section */}
         <section className="mt-10">
           <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
             <div>
               <h2 className="text-xl font-bold text-[#17201e]">
-                WORLD TIME ENGINE
+                World Time Engine
               </h2>
               <p className="text-sm text-[#71807b]">
                 Synced automatically in local storage
@@ -447,7 +426,7 @@ export default function TimeDashboard() {
               <div className="flex rounded-xl border border-[#d5e2da] bg-white p-1">
                 <button
                   onClick={() => setTwelveHour(true)}
-                  className={`px-3 py-1.5 rounded-lg text-xs  font-bold transition ${
+                  className={`px-3 py-1.5 rounded-lg text-xs font-mono font-bold transition ${
                     twelveHour
                       ? "bg-[#157c62] text-white"
                       : "text-[#71807b] hover:text-[#17201e]"
@@ -457,7 +436,7 @@ export default function TimeDashboard() {
                 </button>
                 <button
                   onClick={() => setTwelveHour(false)}
-                  className={`px-3 py-1.5 rounded-lg text-xs  font-bold transition ${
+                  className={`px-3 py-1.5 rounded-lg text-xs font-mono font-bold transition ${
                     !twelveHour
                       ? "bg-[#157c62] text-white"
                       : "text-[#71807b] hover:text-[#17201e]"
@@ -500,9 +479,14 @@ export default function TimeDashboard() {
                     </button>
                   )}
                   <div className="flex items-center justify-between">
-                    <span className="text-2xl">{zone.flag}</span>
+                    <div>
+                      <h3 className="text-lg font-bold uppercase tracking-tight">
+                        {zone.city}
+                      </h3>
+                      <p className="text-sm text-[#71807b]">{zone.country}</p>
+                    </div>
                     <span
-                      className={` text-xs font-bold px-2.5 py-1 rounded-full border ${
+                      className={`font-mono text-xs font-bold px-2.5 py-1 rounded-full border ${
                         daytime
                           ? "bg-[#f1f7f4] border-[#d5e2da] text-[#157c62]"
                           : "bg-[#253530] border-[#364b44] text-[#52b79a]"
@@ -511,15 +495,12 @@ export default function TimeDashboard() {
                       {daytime ? "☼ DAY" : "☾ NIGHT"}
                     </span>
                   </div>
-                  <h3 className="mt-4 text-lg font-bold uppercase tracking-tight">
-                    {zone.city}
-                  </h3>
-                  <p className="text-sm text-[#71807b]">{zone.country}</p>
+
                   <div className="mt-6 flex items-baseline justify-between border-t border-dashed border-[#cbd7cc]/40 pt-4">
-                    <p className=" text-2xl">
+                    <p className="font-mono text-2xl font-bold">
                       {formatTime(now, zone.timezone, twelveHour)}
                     </p>
-                    <span className=" text-xs font-semibold text-[#df795f]">
+                    <span className="font-mono text-xs font-semibold text-[#df795f]">
                       {formatDifference(
                         offsetFor(now, zone.timezone) - baseOffset,
                       )}
@@ -531,20 +512,18 @@ export default function TimeDashboard() {
           </div>
         </section>
 
-        {/* Premium Tools Grid */}
         <section className="mt-10 grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* Focus Timer */}
           <div className="rounded-2xl border border-[#e2ece6] bg-white p-6 sm:p-8">
             <div className="flex items-center justify-between">
               <div>
-                <span className=" text-xs font-bold text-[#8fa09a] tracking-widest uppercase">
+                <span className="font-mono text-xs font-bold text-[#8fa09a] tracking-widest uppercase">
                   FOCUS TIMER
                 </span>
                 <h2 className="text-xl font-bold text-[#17201e] mt-0.5">
-                  POMODORO WINDOW
+                  Pomodoro Window
                 </h2>
               </div>
-              <span className=" text-xs px-2.5 py-1 rounded-full border border-[#e2ece6] bg-[#fafcfb] text-[#71807b]">
+              <span className="font-mono text-xs px-2.5 py-1 rounded-full border border-[#e2ece6] bg-[#fafcfb] text-[#71807b]">
                 {timerRunning ? "● ACTIVE" : "PAUSED"}
               </span>
             </div>
@@ -571,7 +550,7 @@ export default function TimeDashboard() {
                     strokeLinecap="round"
                   />
                 </svg>
-                <span className=" text-4xl font-bold tracking-tight">
+                <span className="font-mono text-4xl font-bold tracking-tight">
                   {timerMins}:{timerSecs}
                 </span>
               </div>
@@ -609,19 +588,18 @@ export default function TimeDashboard() {
             </div>
           </div>
 
-          {/* Quick Reminders */}
           <div className="rounded-2xl border border-[#e2ece6] bg-white p-6 sm:p-8 flex flex-col justify-between">
             <div>
               <div className="flex justify-between items-center">
                 <div>
-                  <span className=" text-xs font-bold text-[#8fa09a] tracking-widest uppercase">
+                  <span className="font-mono text-xs font-bold text-[#8fa09a] tracking-widest uppercase">
                     ALERT SYSTEM
                   </span>
                   <h2 className="text-xl font-bold text-[#17201e] mt-0.5">
-                    REMINDERS
+                    Reminders
                   </h2>
                 </div>
-                <span className=" text-xs font-bold text-[#157c62] bg-[#f1f7f4] border border-[#d5e2da] px-3 py-1 rounded-full">
+                <span className="font-mono text-xs font-bold text-[#157c62] bg-[#f1f7f4] border border-[#d5e2da] px-3 py-1 rounded-full">
                   {alarms.length} ACTIVE
                 </span>
               </div>
@@ -677,7 +655,7 @@ export default function TimeDashboard() {
                       {alarm.label}
                     </span>
                     <div className="flex items-center gap-3">
-                      <span className=" text-xs text-[#71807b] bg-[#f1f5f3] px-2 py-1 rounded-md border border-[#e2ece6]">
+                      <span className="font-mono text-xs text-[#71807b] bg-[#f1f5f3] px-2 py-1 rounded-md border border-[#e2ece6]">
                         {new Date(alarm.due).toLocaleTimeString([], {
                           hour: "2-digit",
                           minute: "2-digit",
@@ -702,16 +680,15 @@ export default function TimeDashboard() {
         </section>
       </div>
 
-      {/* Global Bottom Sticky Countdown Bar */}
       {timerRunning && (
         <aside className="fixed bottom-5 left-1/2 -translate-x-1/2 z-40 flex items-center gap-4 rounded-full border border-[#157c62]/30 bg-[#17201e] px-5 py-2.5 text-white backdrop-blur-md">
           <div className="flex items-center gap-2">
             <span className="h-2 w-2 rounded-full bg-[#52b79a] animate-ping" />
-            <span className=" text-xs font-semibold uppercase tracking-wider text-[#9bb3ab]">
+            <span className="font-mono text-xs font-semibold uppercase tracking-wider text-[#9bb3ab]">
               Focus Session
             </span>
           </div>
-          <div className=" text-lg font-bold text-[#ffffff] border-x border-[#2c3e38] px-3">
+          <div className="font-mono text-lg font-bold text-[#ffffff] border-x border-[#2c3e38] px-3">
             {timerMins}:{timerSecs}
           </div>
           <div className="flex items-center gap-1.5">
@@ -731,7 +708,6 @@ export default function TimeDashboard() {
         </aside>
       )}
 
-      {/* Toast Alert */}
       {toast && (
         <div className="fixed bottom-6 right-6 z-50 rounded-2xl border border-[#df795f] bg-[#df795f] px-5 py-3.5 font-bold text-white animate-bounce text-sm">
           🔔 {toast}
