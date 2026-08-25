@@ -174,11 +174,18 @@ export default function TimeDashboard() {
   const [cityLoading, setCityLoading] = useState(false);
   const [cityError, setCityError] = useState("");
 
-  const [timerSeconds, setTimerSeconds] = useLocalStorage(
-    "timer_remaining",
+  // Persistent Timer State using LocalStorage & Target Time
+  const [timerTotal, setTimerTotal] = useLocalStorage(
+    "timer_total_sec",
     25 * 60,
   );
-  const [timerTotal, setTimerTotal] = useLocalStorage("timer_total", 25 * 60);
+  const [timerEndAt, setTimerEndAt] = useLocalStorage<number | null>(
+    "timer_end_at",
+    null,
+  );
+  const [timerPausedRemaining, setTimerPausedRemaining] =
+    useLocalStorage<number>("timer_paused_rem", 25 * 60);
+  const [timerSeconds, setTimerSeconds] = useState<number>(25 * 60);
   const [timerRunning, setTimerRunning] = useState(false);
 
   const [alarmLabel, setAlarmLabel] = useState("");
@@ -188,6 +195,7 @@ export default function TimeDashboard() {
 
   const baseOffset = useMemo(() => offsetFor(now, "Asia/Dhaka"), [now]);
 
+  // Request Notification Permission
   useEffect(() => {
     if (typeof window !== "undefined" && "Notification" in window) {
       if (Notification.permission === "default") {
@@ -196,31 +204,60 @@ export default function TimeDashboard() {
     }
   }, []);
 
+  // Main Live Clock Interval
   useEffect(() => {
     const interval = window.setInterval(() => setNow(new Date()), 1000);
     return () => window.clearInterval(interval);
   }, []);
 
+  // Sync Timer across Page Refresh / Navigation using Target Timestamp
   useEffect(() => {
-    if (!timerRunning) return;
-    const interval = window.setInterval(() => {
-      setTimerSeconds((prev) => {
-        if (prev <= 1) {
-          setTimerRunning(false);
-          playNotificationSound();
-          if (Notification.permission === "granted") {
-            new Notification("Timer Completed!", {
-              body: "Your focus session is over.",
-            });
-          }
-          return 0;
-        }
-        return prev - 1;
-      });
-    }, 1000);
-    return () => window.clearInterval(interval);
-  }, [timerRunning, setTimerSeconds]);
+    if (timerEndAt) {
+      const remaining = Math.max(
+        0,
+        Math.ceil((timerEndAt - Date.now()) / 1000),
+      );
+      if (remaining > 0) {
+        setTimerSeconds(remaining);
+        setTimerRunning(true);
+      } else {
+        setTimerSeconds(0);
+        setTimerRunning(false);
+        setTimerEndAt(null);
+      }
+    } else {
+      setTimerSeconds(timerPausedRemaining);
+      setTimerRunning(false);
+    }
+  }, []);
 
+  // Timer Tick Engine
+  useEffect(() => {
+    if (!timerRunning || !timerEndAt) return;
+
+    const interval = window.setInterval(() => {
+      const remaining = Math.ceil((timerEndAt - Date.now()) / 1000);
+      if (remaining <= 0) {
+        setTimerSeconds(0);
+        setTimerRunning(false);
+        setTimerEndAt(null);
+        setTimerPausedRemaining(timerTotal);
+        playNotificationSound();
+
+        if (Notification.permission === "granted") {
+          new Notification("Timer Completed!", {
+            body: "Your focus session is over.",
+          });
+        }
+      } else {
+        setTimerSeconds(remaining);
+      }
+    }, 1000);
+
+    return () => window.clearInterval(interval);
+  }, [timerRunning, timerEndAt, timerTotal]);
+
+  // Alarm Check Engine
   useEffect(() => {
     if (!alarms.length) return;
     const interval = window.setInterval(() => {
@@ -241,6 +278,29 @@ export default function TimeDashboard() {
     }, 1000);
     return () => window.clearInterval(interval);
   }, [alarms, setAlarms]);
+
+  // Timer Handlers
+  const handleStartTimer = () => {
+    playNotificationSound(); // Unlocks audio context on user interaction
+    const targetTime = Date.now() + timerSeconds * 1000;
+    setTimerEndAt(targetTime);
+    setTimerRunning(true);
+  };
+
+  const handlePauseTimer = () => {
+    setTimerEndAt(null);
+    setTimerPausedRemaining(timerSeconds);
+    setTimerRunning(false);
+  };
+
+  const handleResetTimer = (newTotalSecs?: number) => {
+    const total = newTotalSecs ?? timerTotal;
+    setTimerEndAt(null);
+    setTimerRunning(false);
+    setTimerTotal(total);
+    setTimerPausedRemaining(total);
+    setTimerSeconds(total);
+  };
 
   async function handleAddCity(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -280,6 +340,7 @@ export default function TimeDashboard() {
 
   function handleAddAlarm(e: React.FormEvent) {
     e.preventDefault();
+    playNotificationSound();
     const amount =
       Math.max(1, Number(alarmDelay) || 1) *
       (alarmUnit === "minutes" ? 60 : 1) *
@@ -304,26 +365,27 @@ export default function TimeDashboard() {
     : 0;
 
   return (
-    <main className="relative min-h-screen bg-[#fafcfb] text-[#17201e] px-6 py-10 text-base">
+    <main className="relative min-h-screen text-[#17201e] px-4 sm:px-8 py-10 text-base pb-28">
       <div className="mx-auto max-w-7xl">
         {/* Header */}
-        <header className="flex flex-wrap items-end justify-between gap-6 pb-8 border-b border-[#d5e2da]">
+        <header className="flex flex-wrap items-end justify-between gap-6 pb-8 border-b border-[#e2ece6]">
           <div>
-            <span className="font-mono text-xs font-bold text-[#157c62] tracking-widest uppercase">
-              ● REALTIME DASHBOARD
-            </span>
-            <h1 className="mt-2 text-[40px] leading-tight font-bold tracking-tight text-[#17201e]">
-              Global Sync & Focus Command
+            <div className="inline-flex items-center gap-2 rounded-full border border-[#d5e2da] bg-white px-3 py-1  text-xs font-semibold text-[#157c62]">
+              <span className="h-2 w-2 rounded-full bg-[#157c62] animate-pulse" />
+              REALTIME DASHBOARD
+            </div>
+            <h1 className="mt-3 text-3xl sm:text-[38px] leading-tight font-bold tracking-tight text-[#17201e]">
+              GLOBAL SYNC & FOCUS COMMAND
             </h1>
           </div>
           <div className="text-right">
-            <p className="font-mono text-xs font-semibold text-[#71807b]">
+            <p className=" text-xs font-semibold text-[#71807b]">
               {formatDate(now, "Asia/Dhaka").toUpperCase()}
             </p>
-            <strong className="block font-mono text-3xl font-semibold text-[#157c62]">
+            <strong className="block  text-3xl font-semibold text-[#157c62]">
               {formatTime(now, "Asia/Dhaka", false)}
             </strong>
-            <span className="font-mono text-xs text-[#71807b]">
+            <span className=" text-xs text-[#71807b]">
               DHAKA (BST) UTC +06:00
             </span>
           </div>
@@ -333,45 +395,49 @@ export default function TimeDashboard() {
         <section className="mt-10">
           <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
             <div>
-              <h2 className="text-[20px] font-bold text-[#17201e]">
-                World Time Engine
+              <h2 className="text-xl font-bold text-[#17201e]">
+                WORLD TIME ENGINE
               </h2>
               <p className="text-sm text-[#71807b]">
-                Saved automatically to LocalStorage
+                Synced automatically in local storage
               </p>
             </div>
 
-            <div className="flex items-center gap-3">
+            <div className="flex flex-wrap items-center gap-3">
               <form onSubmit={handleAddCity} className="flex gap-2">
                 <input
                   type="text"
                   placeholder="Add City..."
                   value={citySearch}
                   onChange={(e) => setCitySearch(e.target.value)}
-                  className="rounded-lg border border-[#cbd7cc] bg-white px-3 py-2 text-sm outline-none focus:border-[#157c62] focus:ring-1 focus:ring-[#157c62]"
+                  className="rounded-xl border border-[#d5e2da] bg-white px-3.5 py-2 text-sm outline-none transition focus:border-[#157c62] focus:ring-1 focus:ring-[#157c62]"
                 />
                 <button
                   type="submit"
                   disabled={cityLoading}
-                  className="rounded-lg bg-[#157c62] px-4 py-2 text-sm font-bold text-white transition hover:bg-[#10664f] disabled:opacity-50"
+                  className="rounded-xl bg-[#157c62] px-4 py-2 text-sm font-bold text-white transition hover:bg-[#10664f] disabled:opacity-50"
                 >
                   {cityLoading ? "..." : "+ Add"}
                 </button>
               </form>
 
-              <div className="flex rounded-lg border border-[#d5e2da] bg-white p-1">
+              <div className="flex rounded-xl border border-[#d5e2da] bg-white p-1">
                 <button
                   onClick={() => setTwelveHour(true)}
-                  className={`px-3 py-1.5 rounded-md text-xs font-mono font-bold transition ${
-                    twelveHour ? "bg-[#157c62] text-white" : "text-[#71807b]"
+                  className={`px-3 py-1.5 rounded-lg text-xs  font-bold transition ${
+                    twelveHour
+                      ? "bg-[#157c62] text-white"
+                      : "text-[#71807b] hover:text-[#17201e]"
                   }`}
                 >
                   12H
                 </button>
                 <button
                   onClick={() => setTwelveHour(false)}
-                  className={`px-3 py-1.5 rounded-md text-xs font-mono font-bold transition ${
-                    !twelveHour ? "bg-[#157c62] text-white" : "text-[#71807b]"
+                  className={`px-3 py-1.5 rounded-lg text-xs  font-bold transition ${
+                    !twelveHour
+                      ? "bg-[#157c62] text-white"
+                      : "text-[#71807b] hover:text-[#17201e]"
                   }`}
                 >
                   24H
@@ -381,7 +447,9 @@ export default function TimeDashboard() {
           </div>
 
           {cityError && (
-            <p className="mb-4 text-sm text-[#df795f]">{cityError}</p>
+            <p className="mb-4 text-sm font-medium text-[#df795f]">
+              {cityError}
+            </p>
           )}
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
@@ -390,9 +458,9 @@ export default function TimeDashboard() {
               return (
                 <article
                   key={zone.id}
-                  className={`relative rounded-2xl border p-6 transition-all duration-200 shadow-sm hover:shadow-md ${
+                  className={`relative rounded-2xl border p-6 transition-all duration-200 ${
                     daytime
-                      ? "border-[#d5e2da] bg-white text-[#17201e]"
+                      ? "border-[#e2ece6] bg-white text-[#17201e]"
                       : "border-[#2c3e38] bg-[#1a2421] text-white"
                   }`}
                 >
@@ -411,24 +479,24 @@ export default function TimeDashboard() {
                   <div className="flex items-center justify-between">
                     <span className="text-2xl">{zone.flag}</span>
                     <span
-                      className={`font-mono text-xs font-bold px-2 py-0.5 rounded-full ${
+                      className={` text-xs font-bold px-2.5 py-1 rounded-full border ${
                         daytime
-                          ? "bg-[#e7f1ec] text-[#157c62]"
-                          : "bg-[#253530] text-[#52b79a]"
+                          ? "bg-[#f1f7f4] border-[#d5e2da] text-[#157c62]"
+                          : "bg-[#253530] border-[#364b44] text-[#52b79a]"
                       }`}
                     >
                       {daytime ? "☼ DAY" : "☾ NIGHT"}
                     </span>
                   </div>
-                  <h3 className="mt-4 text-[20px] font-bold uppercase tracking-tight">
+                  <h3 className="mt-4 text-lg font-bold uppercase tracking-tight">
                     {zone.city}
                   </h3>
                   <p className="text-sm text-[#71807b]">{zone.country}</p>
                   <div className="mt-6 flex items-baseline justify-between border-t border-dashed border-[#cbd7cc]/40 pt-4">
-                    <p className="font-mono text-2xl font-bold">
+                    <p className=" text-2xl">
                       {formatTime(now, zone.timezone, twelveHour)}
                     </p>
-                    <span className="font-mono text-xs font-medium text-[#df795f]">
+                    <span className=" text-xs font-semibold text-[#df795f]">
                       {formatDifference(
                         offsetFor(now, zone.timezone) - baseOffset,
                       )}
@@ -443,22 +511,29 @@ export default function TimeDashboard() {
         {/* Premium Tools Grid */}
         <section className="mt-10 grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Focus Timer */}
-          <div className="rounded-2xl border border-[#d5e2da] bg-white p-6 shadow-sm">
-            <span className="font-mono text-xs font-bold text-[#8fa09a] tracking-widest uppercase">
-              FOCUS TIMER
-            </span>
-            <h2 className="text-[20px] font-bold text-[#17201e] mt-1">
-              Pomodoro Window
-            </h2>
+          <div className="rounded-2xl border border-[#e2ece6] bg-white p-6 sm:p-8">
+            <div className="flex items-center justify-between">
+              <div>
+                <span className=" text-xs font-bold text-[#8fa09a] tracking-widest uppercase">
+                  FOCUS TIMER
+                </span>
+                <h2 className="text-xl font-bold text-[#17201e] mt-0.5">
+                  POMODORO WINDOW
+                </h2>
+              </div>
+              <span className=" text-xs px-2.5 py-1 rounded-full border border-[#e2ece6] bg-[#fafcfb] text-[#71807b]">
+                {timerRunning ? "● ACTIVE" : "PAUSED"}
+              </span>
+            </div>
 
             <div className="mt-6 flex flex-col items-center">
-              <div className="relative size-44 grid place-content-center">
+              <div className="relative size-48 grid place-content-center">
                 <svg
                   className="absolute size-full -rotate-90"
                   viewBox="0 0 100 100"
                 >
                   <circle
-                    className="fill-none stroke-[#e7f1ec] stroke-8"
+                    className="fill-none stroke-[#f1f5f3] stroke-8"
                     cx="50"
                     cy="50"
                     r="42"
@@ -473,39 +548,36 @@ export default function TimeDashboard() {
                     strokeLinecap="round"
                   />
                 </svg>
-                <span className="font-mono text-4xl font-bold">
+                <span className=" text-4xl font-bold tracking-tight">
                   {timerMins}:{timerSecs}
                 </span>
               </div>
 
               <div className="mt-6 flex gap-3">
                 <button
-                  onClick={() => setTimerRunning(!timerRunning)}
-                  className="rounded-lg bg-[#157c62] px-6 py-2.5 text-sm font-bold text-white transition hover:bg-[#10664f]"
+                  onClick={timerRunning ? handlePauseTimer : handleStartTimer}
+                  className="rounded-xl bg-[#157c62] px-7 py-2.5 text-sm font-bold text-white transition hover:bg-[#10664f]"
                 >
-                  {timerRunning ? "Pause" : "Start"}
+                  {timerRunning ? "Pause" : "Start Focus"}
                 </button>
                 <button
-                  onClick={() => {
-                    setTimerRunning(false);
-                    setTimerSeconds(timerTotal);
-                  }}
-                  className="rounded-lg border border-[#cbd7cc] px-6 py-2.5 text-sm font-bold text-[#71807b] transition hover:bg-[#f1f5f3]"
+                  onClick={() => handleResetTimer()}
+                  className="rounded-xl border border-[#d5e2da] px-6 py-2.5 text-sm font-bold text-[#71807b] transition hover:border-[#17201e] hover:text-[#17201e]"
                 >
                   Reset
                 </button>
               </div>
 
-              <div className="mt-4 flex gap-2">
+              <div className="mt-5 flex gap-2">
                 {[300, 900, 1500, 3600].map((sec) => (
                   <button
                     key={sec}
-                    onClick={() => {
-                      setTimerSeconds(sec);
-                      setTimerTotal(sec);
-                      setTimerRunning(false);
-                    }}
-                    className="rounded-md border border-[#cbd7cc] px-3 py-1 text-xs font-semibold text-[#71807b] transition hover:border-[#157c62] hover:text-[#157c62]"
+                    onClick={() => handleResetTimer(sec)}
+                    className={`rounded-lg border px-3.5 py-1.5 text-xs font-semibold transition ${
+                      timerTotal === sec
+                        ? "border-[#157c62] bg-[#f1f7f4] text-[#157c62]"
+                        : "border-[#d5e2da] text-[#71807b] hover:border-[#157c62] hover:text-[#157c62]"
+                    }`}
                   >
                     {sec / 60}m
                   </button>
@@ -515,18 +587,18 @@ export default function TimeDashboard() {
           </div>
 
           {/* Quick Reminders */}
-          <div className="rounded-2xl border border-[#d5e2da] bg-white p-6 shadow-sm flex flex-col justify-between">
+          <div className="rounded-2xl border border-[#e2ece6] bg-white p-6 sm:p-8 flex flex-col justify-between">
             <div>
               <div className="flex justify-between items-center">
                 <div>
-                  <span className="font-mono text-xs font-bold text-[#8fa09a] tracking-widest uppercase">
+                  <span className=" text-xs font-bold text-[#8fa09a] tracking-widest uppercase">
                     ALERT SYSTEM
                   </span>
-                  <h2 className="text-[20px] font-bold text-[#17201e] mt-1">
-                    Reminders
+                  <h2 className="text-xl font-bold text-[#17201e] mt-0.5">
+                    REMINDERS
                   </h2>
                 </div>
-                <span className="font-mono text-xs font-bold text-[#157c62] bg-[#e7f1ec] px-2.5 py-1 rounded-full">
+                <span className=" text-xs font-bold text-[#157c62] bg-[#f1f7f4] border border-[#d5e2da] px-3 py-1 rounded-full">
                   {alarms.length} ACTIVE
                 </span>
               </div>
@@ -537,7 +609,7 @@ export default function TimeDashboard() {
                   placeholder="Reminder Title (e.g. Client Call)"
                   value={alarmLabel}
                   onChange={(e) => setAlarmLabel(e.target.value)}
-                  className="rounded-lg border border-[#cbd7cc] p-2.5 text-sm outline-none focus:border-[#157c62] focus:ring-1 focus:ring-[#157c62]"
+                  className="rounded-xl border border-[#d5e2da] p-3 text-sm outline-none transition focus:border-[#157c62] focus:ring-1 focus:ring-[#157c62]"
                 />
                 <div className="flex gap-2">
                   <input
@@ -545,14 +617,14 @@ export default function TimeDashboard() {
                     min="1"
                     value={alarmDelay}
                     onChange={(e) => setAlarmDelay(e.target.value)}
-                    className="w-full rounded-lg border border-[#cbd7cc] p-2.5 text-sm outline-none focus:border-[#157c62] focus:ring-1 focus:ring-[#157c62]"
+                    className="w-full rounded-xl border border-[#d5e2da] p-3 text-sm outline-none transition focus:border-[#157c62] focus:ring-1 focus:ring-[#157c62]"
                   />
                   <select
                     value={alarmUnit}
                     onChange={(e) =>
                       setAlarmUnit(e.target.value as "minutes" | "seconds")
                     }
-                    className="rounded-lg border border-[#cbd7cc] p-2.5 text-sm outline-none focus:border-[#157c62] bg-white"
+                    className="rounded-xl border border-[#d5e2da] p-3 text-sm outline-none focus:border-[#157c62] bg-white cursor-pointer"
                   >
                     <option value="minutes">mins</option>
                     <option value="seconds">secs</option>
@@ -560,16 +632,16 @@ export default function TimeDashboard() {
                 </div>
                 <button
                   type="submit"
-                  className="rounded-lg bg-[#157c62] py-2.5 text-sm font-bold text-white transition hover:bg-[#10664f]"
+                  className="rounded-xl bg-[#157c62] py-3 text-sm font-bold text-white transition hover:bg-[#10664f]"
                 >
                   + Add Reminder
                 </button>
               </form>
             </div>
 
-            <div className="mt-5 max-h-40 overflow-y-auto divide-y divide-[#d5e2da]/60">
+            <div className="mt-5 max-h-40 overflow-y-auto divide-y divide-[#e2ece6]">
               {alarms.length === 0 ? (
-                <p className="text-sm text-[#71807b] py-2">
+                <p className="text-sm text-[#71807b] py-3 text-center border border-dashed border-[#d5e2da] rounded-xl mt-2">
                   No active reminders set.
                 </p>
               ) : (
@@ -582,7 +654,7 @@ export default function TimeDashboard() {
                       {alarm.label}
                     </span>
                     <div className="flex items-center gap-3">
-                      <span className="font-mono text-xs text-[#71807b] bg-[#f1f5f3] px-2 py-0.5 rounded">
+                      <span className=" text-xs text-[#71807b] bg-[#f1f5f3] px-2 py-1 rounded-md border border-[#e2ece6]">
                         {new Date(alarm.due).toLocaleTimeString([], {
                           hour: "2-digit",
                           minute: "2-digit",
@@ -594,7 +666,7 @@ export default function TimeDashboard() {
                             items.filter((item) => item.id !== alarm.id),
                           )
                         }
-                        className="text-red-500 hover:text-red-700 font-bold text-base px-1"
+                        className="text-[#71807b] hover:text-[#df795f] font-bold text-lg px-1 transition"
                       >
                         ×
                       </button>
@@ -607,9 +679,38 @@ export default function TimeDashboard() {
         </section>
       </div>
 
+      {/* Global Bottom Sticky Countdown Bar */}
+      {timerRunning && (
+        <aside className="fixed bottom-5 left-1/2 -translate-x-1/2 z-40 flex items-center gap-4 rounded-full border border-[#157c62]/30 bg-[#17201e] px-5 py-2.5 text-white backdrop-blur-md">
+          <div className="flex items-center gap-2">
+            <span className="h-2 w-2 rounded-full bg-[#52b79a] animate-ping" />
+            <span className=" text-xs font-semibold uppercase tracking-wider text-[#9bb3ab]">
+              Focus Session
+            </span>
+          </div>
+          <div className=" text-lg font-bold text-[#ffffff] border-x border-[#2c3e38] px-3">
+            {timerMins}:{timerSecs}
+          </div>
+          <div className="flex items-center gap-1.5">
+            <button
+              onClick={handlePauseTimer}
+              className="rounded-full bg-[#2c3e38] px-3 py-1 text-xs font-bold text-white transition hover:bg-[#3d544c]"
+            >
+              Pause
+            </button>
+            <button
+              onClick={() => handleResetTimer()}
+              className="rounded-full border border-[#2c3e38] px-3 py-1 text-xs font-bold text-[#9bb3ab] transition hover:text-white"
+            >
+              Reset
+            </button>
+          </div>
+        </aside>
+      )}
+
       {/* Toast Alert */}
       {toast && (
-        <div className="fixed bottom-6 right-6 z-50 rounded-xl bg-[#df795f] px-5 py-3.5 font-bold text-white shadow-xl animate-bounce text-sm">
+        <div className="fixed bottom-6 right-6 z-50 rounded-2xl border border-[#df795f] bg-[#df795f] px-5 py-3.5 font-bold text-white animate-bounce text-sm">
           🔔 {toast}
         </div>
       )}
