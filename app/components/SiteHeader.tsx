@@ -26,7 +26,18 @@ export function SiteHeader() {
         <span className="inline-block size-1.5 rounded-full bg-[#35a67d] shadow-[0_0_0_4px_#35a67d1a]" />
         BROWSER ONLY
       </div>
-      <nav className="grid w-full grid-cols-3 items-center gap-2 min-[701px]:flex min-[701px]:w-auto min-[701px]:gap-6" aria-label="Primary navigation">
+      <nav
+        className="grid w-full grid-cols-2 items-center gap-2 min-[701px]:flex min-[701px]:w-auto min-[701px]:gap-6"
+        aria-label="Primary navigation"
+      >
+        <Link
+          className={`${linkClass} ${
+            pathname === "/ai" ? "text-[#157c62]" : "text-[#71807b]"
+          } hover:text-[#157c62]`}
+          href="/ai"
+        >
+          AI ASSISTANT
+        </Link>
         <Link
           className={`${linkClass} ${
             pathname === "/fiverr" ? "text-[#157c62]" : "text-[#71807b]"

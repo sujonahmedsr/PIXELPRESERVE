@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import "./tailwind.css";
-import { SiteFooter } from "./components/SiteFooter";
-import { SiteHeader } from "./components/SiteHeader";
+import { AppShell } from "./components/AppShell";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://pixelpreserve.vercel.app"),
@@ -40,9 +39,7 @@ export default function RootLayout({
   return (
     <html lang="bn" suppressHydrationWarning>
       <body suppressHydrationWarning>
-        <SiteHeader />
-        {children}
-        <SiteFooter />
+        <AppShell>{children}</AppShell>
       </body>
     </html>
   );

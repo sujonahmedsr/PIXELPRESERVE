@@ -27,3 +27,66 @@ button:disabled {
   background: #b9d8c5;
   color: #17201e;
 }
+
+.chatbot-markdown > :first-child {
+  margin-top: 0;
+}
+
+.chatbot-markdown > :last-child {
+  margin-bottom: 0;
+}
+
+.chatbot-markdown p,
+.chatbot-markdown ul,
+.chatbot-markdown ol,
+.chatbot-markdown pre,
+.chatbot-markdown table {
+  margin: 0.65rem 0;
+}
+
+.chatbot-markdown ul,
+.chatbot-markdown ol {
+  padding-left: 1.25rem;
+}
+
+.chatbot-markdown ul {
+  list-style: disc;
+}
+
+.chatbot-markdown ol {
+  list-style: decimal;
+}
+
+.chatbot-markdown pre {
+  overflow-x: auto;
+  border-radius: 0.5rem;
+  background: #172033;
+  padding: 0.75rem;
+  color: #e5edf9;
+}
+
+.chatbot-markdown code {
+  border-radius: 0.25rem;
+  background: #eef2ff;
+  padding: 0.1rem 0.25rem;
+  font-size: 0.85em;
+}
+
+.chatbot-markdown pre code {
+  background: transparent;
+  padding: 0;
+}
+
+.chatbot-markdown table {
+  display: block;
+  max-width: 100%;
+  overflow-x: auto;
+  border-collapse: collapse;
+}
+
+.chatbot-markdown th,
+.chatbot-markdown td {
+  border: 1px solid #dbe2ea;
+  padding: 0.35rem 0.5rem;
+  text-align: left;
+}

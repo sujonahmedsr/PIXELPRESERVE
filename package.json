@@ -9,9 +9,14 @@
     "lint": "tsc --noEmit"
   },
   "dependencies": {
+    "@ai-sdk/google": "^4.0.51",
+    "@ai-sdk/react": "^4.0.82",
+    "ai": "^7.0.79",
     "next": "latest",
     "react": "latest",
-    "react-dom": "latest"
+    "react-dom": "latest",
+    "react-markdown": "^10.1.0",
+    "remark-gfm": "^4.0.1"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4.3.3",
