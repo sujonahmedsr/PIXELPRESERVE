@@ -1,6 +1,6 @@
 # PixelPreserve
 
-PixelPreserve is a privacy-first browser toolkit for freelancers, developers, and designers. It brings everyday utilities into one responsive Next.js app: image conversion, text and JSON helpers, design tools, a Fiverr message checker, a local task board, and a world-time focus desk.
+PixelPreserve is a privacy-first browser toolkit for freelancers, developers, and designers. It brings everyday utilities into one responsive Next.js app: image conversion, text and JSON helpers, design tools, a Fiverr message checker, a local task board, and a world-time focus desk. Only for my personal work.
 
 All core editing and productivity data stays in the browser. No account is required.
 
