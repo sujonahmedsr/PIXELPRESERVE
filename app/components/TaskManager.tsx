@@ -183,7 +183,7 @@ export default function Task_manager() {
 
         <div className="grid gap-6 lg:grid-cols-[minmax(230px,25%)_minmax(0,75%)] lg:items-start">
           <aside className="grid gap-4 lg:sticky lg:top-6">
-            <section className="rounded-2xl bg-[#18231f] p-5 text-white shadow-[0_16px_40px_rgba(24,35,31,.12)] sm:p-6">
+            <section className="rounded-2xl border border-[var(--border)] bg-[#18231f] p-5 text-white sm:p-6">
               <div className="flex items-start justify-between">
                 <div>
                   <p className="font-mono text-xs tracking-[.16em] text-[#d8f36a]">
@@ -243,7 +243,7 @@ export default function Task_manager() {
 
           <section
             aria-labelledby="task-board-title"
-            className="min-w-0 rounded-2xl border border-[#dbe2d9] bg-white p-4 shadow-[0_14px_40px_rgba(24,35,31,.06)] sm:p-6 lg:p-7"
+            className="min-w-0 rounded-2xl border border-[var(--border)] bg-white p-4 sm:p-6 lg:p-7"
           >
             <div className="flex flex-col justify-between gap-5 border-b border-[#e4e9e2] pb-6 lg:flex-row lg:items-end">
               <div>
@@ -261,9 +261,9 @@ export default function Task_manager() {
                 </p>
               </div>
               <div className="flex w-full flex-col gap-2 sm:flex-row lg:w-auto">
-                <label className="flex min-w-0 flex-1 items-center gap-2 rounded-xl border border-[#cbd7cc] bg-[#f8faf7] px-3 text-sm text-[#687770] shadow-[0_4px_12px_rgba(24,35,31,.04)] transition focus-within:border-[#16866b] focus-within:ring-2 focus-within:ring-[#16866b]/20 lg:min-w-64">
+                <label className="flex min-w-0 flex-1 items-center gap-2 rounded-xl border border-[var(--border)] bg-[#f8faf7] px-3 text-sm text-[#687770] transition hover:border-[var(--border-hover)] focus-within:border-[#16866b] focus-within:ring-2 focus-within:ring-[#16866b]/20 lg:min-w-64">
                   <span aria-hidden="true" className="text-base">
-                    ⌕
+                    Γîò
                   </span>
                   <span className="sr-only">Search tasks</span>
                   <input
@@ -279,7 +279,7 @@ export default function Task_manager() {
                 </label>
                 <select
                   id="task-filter"
-                  className="rounded-xl border border-[#cbd7cc] bg-[#f8faf7] px-3 py-2.5 text-sm font-semibold text-[#18231f] shadow-[0_4px_12px_rgba(24,35,31,.04)] outline-none focus:border-[#16866b] focus:ring-2 focus:ring-[#16866b]/20"
+                  className="rounded-xl border border-[var(--border)] bg-[#f8faf7] px-3 py-2.5 text-sm font-semibold text-[#18231f] transition hover:border-[var(--border-hover)] outline-none focus:border-[#16866b] focus:ring-2 focus:ring-[#16866b]/20"
                   onChange={(event) =>
                     setFilter(event.target.value as TaskFilter)
                   }
@@ -291,7 +291,7 @@ export default function Task_manager() {
                   <option value="done">Complete</option>
                 </select>
                 <button
-                  className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#16866b] px-4 py-2.5 text-sm font-semibold text-white shadow-[0_8px_18px_rgba(22,134,107,.18)] transition hover:-translate-y-0.5 hover:bg-[#106b56]"
+                  className="inline-flex items-center justify-center gap-2 rounded-xl border border-[#16866b] bg-[#16866b] px-4 py-2.5 text-sm font-semibold text-white transition hover:-translate-y-0.5 hover:border-[#106b56] hover:bg-[#106b56]"
                   onClick={() => setIsAdding(true)}
                   type="button"
                 >
@@ -325,7 +325,7 @@ export default function Task_manager() {
                       .filter((task) => task.status === status)
                       .map((task) => (
                         <article
-                          className="rounded-xl border border-[#dbe2d9] bg-white p-4 shadow-[0_5px_15px_rgba(24,35,31,.04)]"
+                          className="rounded-xl border border-[var(--border)] bg-white p-4 transition-colors hover:border-[var(--border-hover)]"
                           key={task.id}
                         >
                           <div className="flex items-start justify-between gap-3">
@@ -399,7 +399,7 @@ export default function Task_manager() {
           >
             <form
               aria-labelledby="new-task-title"
-              className="my-auto w-full max-w-xl rounded-2xl bg-white p-6 shadow-2xl sm:p-8"
+              className="my-auto w-full max-w-xl rounded-2xl border border-[var(--border)] bg-white p-6 sm:p-8"
               onSubmit={addTask}
             >
               <div className="flex items-start justify-between gap-5 border-b border-[#e4e9e2] pb-5">

@@ -1,103 +1,38 @@
 "use client";
 
-import { FormEvent, KeyboardEvent, useEffect, useRef, useState } from "react";
+import { KeyboardEvent, useEffect, useRef, useState } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
-
-type ChatMessage = { id: string; role: "user" | "assistant"; content: string };
+import { useChatStream, type ChatMessage } from "../hooks/useChatStream";
 
 const WELCOME_MESSAGE: ChatMessage = {
   id: "welcome",
   role: "assistant",
   content:
-    "Hi! I’m **PixelPreserve AI**. Ask me about coding, study, debugging, or anything else.",
+    "Hi! I'm **PixelPreserve AI**. Ask me about coding, study, debugging, or anything else.",
 };
 
 export function Chatbot() {
+  const {
+    messages,
+    input,
+    setInput,
+    isLoading,
+    error,
+    sendMessage,
+  } = useChatStream({ initialMessages: [WELCOME_MESSAGE] });
+
   const [isOpen, setIsOpen] = useState(false);
-  const [messages, setMessages] = useState<ChatMessage[]>([WELCOME_MESSAGE]);
-  const [input, setInput] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState("");
   const endRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
 
   useEffect(() => {
     endRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, isLoading, error]);
+
   useEffect(() => {
     if (isOpen) inputRef.current?.focus();
   }, [isOpen]);
-
-  async function sendMessage(event?: FormEvent<HTMLFormElement>) {
-    event?.preventDefault();
-    const text = input.trim();
-    if (!text || isLoading) return;
-
-    const userMessage: ChatMessage = {
-      id: crypto.randomUUID(),
-      role: "user",
-      content: text,
-    };
-    const assistantId = crypto.randomUUID();
-    const requestMessages = [...messages, userMessage];
-    setMessages([
-      ...requestMessages,
-      { id: assistantId, role: "assistant", content: "" },
-    ]);
-    setInput("");
-    setError("");
-    setIsLoading(true);
-
-    try {
-      const response = await fetch("/api/chat", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          messages: requestMessages.map(({ role, content }) => ({
-            role,
-            content,
-          })),
-        }),
-      });
-      if (!response.ok || !response.body) {
-        const data = (await response.json().catch(() => null)) as {
-          error?: string;
-        } | null;
-        throw new Error(
-          data?.error ?? "The assistant could not respond. Please try again.",
-        );
-      }
-
-      const reader = response.body.getReader();
-      const decoder = new TextDecoder();
-      let answer = "";
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
-        answer += decoder.decode(value, { stream: true });
-        setMessages((current) =>
-          current.map((message) =>
-            message.id === assistantId
-              ? { ...message, content: answer }
-              : message,
-          ),
-        );
-      }
-      answer += decoder.decode();
-    } catch (caughtError) {
-      setMessages((current) =>
-        current.filter((message) => message.id !== assistantId),
-      );
-      setError(
-        caughtError instanceof Error
-          ? caughtError.message
-          : "Something went wrong. Please try again.",
-      );
-    } finally {
-      setIsLoading(false);
-    }
-  }
 
   function handleKeyDown(event: KeyboardEvent<HTMLTextAreaElement>) {
     if (event.key === "Enter" && !event.shiftKey) {
@@ -111,12 +46,12 @@ export function Chatbot() {
       {isOpen && (
         <section
           aria-label="AI assistant"
-          className="mb-3 flex h-[min(640px,calc(100vh-7.5rem))] w-[calc(100vw-2.5rem)] max-w-105 flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-2xl shadow-slate-900/20"
+          className="mb-3 flex h-[min(640px,calc(100vh-7.5rem))] w-[calc(100vw-2.5rem)] max-w-105 flex-col overflow-hidden rounded-2xl border border-[var(--border)] bg-[var(--bg-surface)]"
         >
-          <header className="flex items-center justify-between bg-linear-to-r from-indigo-600 to-violet-600 px-4 py-3 text-white">
+          <header className="flex items-center justify-between bg-linear-to-r from-[var(--accent)] to-[#0e8a6a] px-4 py-3 text-white">
             <div>
               <h2 className="font-semibold">PixelPreserve AI</h2>
-              <p className="text-xs text-indigo-100">
+              <p className="text-xs opacity-80">
                 Coding, study &amp; general help
               </p>
             </div>
@@ -129,11 +64,11 @@ export function Chatbot() {
               ×
             </button>
           </header>
-          <div className="flex-1 space-y-4 overflow-y-auto bg-slate-50 p-4">
+          <div className="flex-1 space-y-4 overflow-y-auto bg-[var(--bg-card)] p-4">
             {messages.map((message) => (
               <article
                 key={message.id}
-                className={`max-w-[90%] rounded-2xl px-3.5 py-2.5 text-sm leading-6 ${message.role === "user" ? "ml-auto rounded-br-md bg-indigo-600 text-white" : "rounded-bl-md bg-white text-slate-800 shadow-sm ring-1 ring-slate-200"}`}
+                className={`max-w-[90%] rounded-2xl px-3.5 py-2.5 text-sm leading-6 ${message.role === "user" ? "ml-auto rounded-br-md bg-[var(--bg-button)] text-white" : "rounded-bl-md bg-[var(--bg-surface)] text-[var(--text-primary)] ring-1 ring-[var(--border)]"}`}
               >
                 {message.content ? (
                   <div className="chatbot-markdown wrap-break-word">
@@ -143,12 +78,12 @@ export function Chatbot() {
                   </div>
                 ) : (
                   <span
-                    className="inline-flex items-center gap-1 text-slate-500"
+                    className="inline-flex items-center gap-1 text-[var(--text-secondary)]"
                     aria-label="Thinking"
                   >
-                    <i className="h-1.5 w-1.5 animate-bounce rounded-full bg-indigo-500" />
-                    <i className="h-1.5 w-1.5 animate-bounce rounded-full bg-indigo-500 [animation-delay:150ms]" />
-                    <i className="h-1.5 w-1.5 animate-bounce rounded-full bg-indigo-500 [animation-delay:300ms]" />
+                    <i className="h-1.5 w-1.5 animate-bounce rounded-full bg-[var(--accent)]" />
+                    <i className="h-1.5 w-1.5 animate-bounce rounded-full bg-[var(--accent)] [animation-delay:150ms]" />
+                    <i className="h-1.5 w-1.5 animate-bounce rounded-full bg-[var(--accent)] [animation-delay:300ms]" />
                   </span>
                 )}
               </article>
@@ -156,7 +91,7 @@ export function Chatbot() {
             {error && (
               <p
                 role="alert"
-                className="rounded-lg bg-red-50 p-3 text-sm text-red-700"
+                className="rounded-lg bg-[var(--status-danger-bg)] p-3 text-sm text-[var(--status-danger)]"
               >
                 {error}
               </p>
@@ -164,10 +99,10 @@ export function Chatbot() {
             <div ref={endRef} />
           </div>
           <form
-            onSubmit={sendMessage}
-            className="border-t border-slate-200 bg-white p-3"
+            onSubmit={(e) => void sendMessage(e)}
+            className="border-t border-[var(--border)] bg-[var(--bg-surface)] p-3"
           >
-            <div className="flex items-end gap-2 rounded-xl border border-slate-300 bg-slate-50 p-2 focus-within:border-indigo-500 focus-within:ring-2 focus-within:ring-indigo-100">
+            <div className="flex items-end gap-2 rounded-xl border border-[var(--border)] bg-[var(--bg-card)] p-2 focus-within:border-[var(--accent)] focus-within:ring-2 focus-within:ring-[var(--accent)]/20">
               <textarea
                 ref={inputRef}
                 value={input}
@@ -176,18 +111,18 @@ export function Chatbot() {
                 rows={1}
                 placeholder="Ask anything…"
                 disabled={isLoading}
-                className="max-h-28 min-h-6 flex-1 resize-none bg-transparent px-1 text-sm text-slate-900 outline-none placeholder:text-slate-400 disabled:opacity-60"
+                className="max-h-28 min-h-6 flex-1 resize-none bg-transparent px-1 text-sm text-[var(--text-primary)] outline-none placeholder:text-[var(--text-secondary)] disabled:opacity-60"
                 aria-label="Chat message"
               />
               <button
                 type="submit"
                 disabled={!input.trim() || isLoading}
-                className="rounded-lg bg-indigo-600 px-3 py-1.5 text-sm font-medium text-white transition hover:bg-indigo-700 disabled:opacity-40"
+                className="rounded-lg bg-[var(--accent)] px-3 py-1.5 text-sm font-medium text-white transition hover:bg-[var(--accent-hover)] disabled:opacity-40"
               >
                 Send
               </button>
             </div>
-            <p className="mt-1.5 text-center text-[11px] text-slate-400">
+            <p className="mt-1.5 text-center text-[11px] text-[var(--text-secondary)]">
               Enter to send · Shift + Enter for a new line
             </p>
           </form>
@@ -196,7 +131,7 @@ export function Chatbot() {
       <button
         type="button"
         onClick={() => setIsOpen((open) => !open)}
-        className="ml-auto flex h-14 w-14 items-center justify-center rounded-full bg-linear-to-br from-indigo-600 to-violet-600 text-2xl text-white shadow-lg shadow-indigo-600/30 transition hover:scale-105 hover:shadow-xl focus:outline-none focus:ring-4 focus:ring-indigo-300"
+        className="ml-auto flex h-14 w-14 items-center justify-center rounded-full border border-white/20 bg-linear-to-br from-[var(--accent)] to-[#0e8a6a] text-2xl text-white transition hover:scale-105 hover:border-white/50 focus:outline-none focus:ring-4 focus:ring-[var(--accent)]/30"
         aria-label={isOpen ? "Close chat" : "Open AI chat"}
         aria-expanded={isOpen}
       >

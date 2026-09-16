@@ -11,14 +11,14 @@ export function SectionHeading({
 }: SectionHeadingProps) {
   return (
     <div>
-      <span className="font-mono text-base tracking-[0.12em] text-[#157c62]">
+      <span className="font-mono text-base tracking-[0.12em] text-[var(--accent)]">
         {eyebrow}
       </span>
-      <h2 className="mt-2 max-w-142.5 text-[30px] leading-[1.08] font-medium tracking-[-1.8px]">
+      <h2 className="mt-2 max-w-142.5 text-[30px] leading-[1.08] font-medium tracking-[-1.8px] text-[var(--text-primary)]">
         {title}
       </h2>
       {description ? (
-        <p className="mt-2.5 max-w-130 text-base leading-[1.6] text-[#71807b]">
+        <p className="mt-2.5 max-w-130 text-base leading-[1.6] text-[var(--text-secondary)]">
           {description}
         </p>
       ) : null}

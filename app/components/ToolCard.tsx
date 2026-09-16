@@ -17,23 +17,23 @@ export function ToolCard({
 }: ToolCardProps) {
   return (
     <button
-      className={`relative flex min-h-43.5 flex-col items-start rounded-2xl border p-4.25 text-left transition duration-200 hover:-translate-y-1 hover:border-[#8fc5aa] hover:bg-white hover:text-[#17201e] hover:shadow-[0_18px_34px_#2e725914] focus-visible:ring-2 focus-visible:ring-[#157c62] focus-visible:ring-offset-2 ${active ? "border-[#8fc5aa] bg-white text-[#17201e] shadow-[0_18px_34px_#2e725914]" : "border-[#dbe8e0] bg-[#f7faf7] text-[#71807b]"}`}
+      className={`relative flex min-h-43.5 flex-col items-start rounded-2xl border p-4.25 text-left transition duration-200 hover:-translate-y-0.5 hover:border-[var(--border-hover)] hover:bg-[var(--bg-surface)] hover:text-[var(--text-primary)] focus-visible:ring-2 focus-visible:ring-[var(--accent)] focus-visible:ring-offset-2 ${active ? "border-[var(--accent)] bg-[var(--bg-surface)] text-[var(--text-primary)] ring-1 ring-[var(--accent)]/30" : "border-[var(--border)] bg-[var(--bg-card)] text-[var(--text-secondary)]"}`}
       onClick={onClick}
       type="button"
       aria-pressed={active}
     >
       <span className="flex w-full items-center justify-between">
-        <span className="grid size-10.5 place-items-center rounded-xl bg-[#157c62] text-base text-white shadow-[0_10px_20px_#157c6238]">
+        <span className="grid size-10.5 place-items-center rounded-xl border border-white/20 bg-[var(--accent)] text-base text-white">
           {icon}
         </span>
         <span className="font-mono text-base tracking-[0.08em]">{tag}</span>
       </span>
-      <span className="mt-5.5 text-base font-medium text-[#17201e]">
+      <span className="mt-5.5 text-base font-medium text-[var(--text-primary)]">
         {title}
       </span>
       <span className="mt-1 text-base leading-[1.45]">{description}</span>
       <span
-        className="absolute right-4.25 bottom-3.75 text-xl text-[#157c62]"
+        className="absolute right-4.25 bottom-3.75 text-xl text-[var(--accent)]"
         aria-hidden="true"
       >
         ↗

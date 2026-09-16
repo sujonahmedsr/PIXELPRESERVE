@@ -1,8 +1,85 @@
 @import "tailwindcss";
 
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* ─── Design Tokens ─── */
 :root {
-  background: #edf3ef;
-  color: #17201e;
+  /* Backgrounds */
+  --bg-primary: #edf3ef;
+  --bg-surface: #ffffff;
+  --bg-surface-glass: #ffffffc7;
+  --bg-card: #f8faf8;
+  --bg-tool: #f4f9f5;
+  --bg-tool-hover: #e9f5ed;
+  --bg-button: #17201e;
+  --bg-dark-card: #18231f;
+
+  /* Text */
+  --text-primary: #17201e;
+  --text-secondary: #71807b;
+
+  /* Accent */
+  --accent: #157c62;
+  --accent-hover: #10664f;
+  --accent-shadow: #157c6230;
+  --accent-soft: #e7f4ef;
+  --accent-soft-border: #a8d1ba;
+
+  /* Status */
+  --status-danger: #b34635;
+  --status-danger-bg: #fff0eb;
+  --status-warning: #df795f;
+  --status-success-bg: #dff1e6;
+
+  /* Border */
+  --border: #d5e2da;
+  --border-light: #dce5df;
+  --border-hover: #88be9e;
+
+  /* Misc */
+  --shadow-card: none;
+  --code-bg: #172033;
+  --code-text: #e5edf9;
+
+  background: var(--bg-primary);
+  color: var(--text-primary);
+}
+
+/* ─── Dark Theme ─── */
+.dark {
+  --bg-primary: #0d1512;
+  --bg-surface: #1a2420;
+  --bg-surface-glass: #1a2420cc;
+  --bg-card: #152019;
+  --bg-tool: #111c17;
+  --bg-tool-hover: #1a2e25;
+  --bg-button: #e2ede6;
+  --bg-dark-card: #0f1714;
+
+  --text-primary: #e2ede6;
+  --text-secondary: #8fa09a;
+
+  --accent: #2dd4a8;
+  --accent-hover: #26b892;
+  --accent-shadow: #2dd4a830;
+  --accent-soft: #112a22;
+  --accent-soft-border: #1e4a3a;
+
+  --status-danger: #f87171;
+  --status-danger-bg: #3b1616;
+  --status-warning: #fb923c;
+  --status-success-bg: #112a22;
+
+  --border: #2a3b35;
+  --border-light: #243330;
+  --border-hover: #3d7561;
+
+  --shadow-card: none;
+  --code-bg: #0d1117;
+  --code-text: #c9d1d9;
+
+  background: var(--bg-primary);
+  color: var(--text-primary);
 }
 
 body {
@@ -10,6 +87,13 @@ body {
   background:
     radial-gradient(circle at 12% 8%, #ffffffcc 0, transparent 28rem),
     linear-gradient(135deg, #f7faf7 0%, #edf3ef 52%, #f6eee8 100%);
+  transition: background-color 0.3s ease;
+}
+
+.dark body {
+  background:
+    radial-gradient(circle at 12% 8%, #1a242022 0, transparent 28rem),
+    linear-gradient(135deg, #0d1512 0%, #111c17 52%, #151a18 100%);
 }
 
 a,
@@ -28,6 +112,24 @@ button:disabled {
   color: #17201e;
 }
 
+.dark ::selection {
+  background: #1e4a3a;
+  color: #e2ede6;
+}
+
+/* ─── Toast Animation ─── */
+@keyframes slideInRight {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+/* ─── Chatbot Markdown ─── */
 .chatbot-markdown > :first-child {
   margin-top: 0;
 }
@@ -60,14 +162,14 @@ button:disabled {
 .chatbot-markdown pre {
   overflow-x: auto;
   border-radius: 0.5rem;
-  background: #172033;
+  background: var(--code-bg);
   padding: 0.75rem;
-  color: #e5edf9;
+  color: var(--code-text);
 }
 
 .chatbot-markdown code {
   border-radius: 0.25rem;
-  background: #eef2ff;
+  background: var(--accent-soft);
   padding: 0.1rem 0.25rem;
   font-size: 0.85em;
 }
@@ -86,7 +188,39 @@ button:disabled {
 
 .chatbot-markdown th,
 .chatbot-markdown td {
-  border: 1px solid #dbe2ea;
+  border: 1px solid var(--border);
   padding: 0.35rem 0.5rem;
   text-align: left;
+}
+
+.chatbot-markdown h1,
+.chatbot-markdown h2,
+.chatbot-markdown h3,
+.chatbot-markdown h4 {
+  margin-top: 1rem;
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.chatbot-markdown h1 { font-size: 1.5rem; }
+.chatbot-markdown h2 { font-size: 1.25rem; }
+.chatbot-markdown h3 { font-size: 1.1rem; }
+
+.chatbot-markdown blockquote {
+  border-left: 3px solid var(--accent);
+  padding-left: 1rem;
+  margin: 0.65rem 0;
+  color: var(--text-secondary);
+}
+
+.chatbot-markdown a {
+  color: var(--accent);
+  text-decoration: underline;
+}
+
+.chatbot-markdown hr {
+  border: none;
+  border-top: 1px solid var(--border);
+  margin: 1rem 0;
 }

@@ -191,8 +191,8 @@ function GlassPanel() {
       className="grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(280px,360px)]"
       role="tabpanel"
     >
-      {/* বামপাশের প্রিভিউ প্যানেলটি এখন স্টিকি */}
-      <div className="self-start overflow-hidden rounded-2xl border border-[#dce5df] bg-[#e7f1ec] p-5 shadow-[0_14px_35px_rgba(23,32,30,.05)] sm:p-8 lg:sticky lg:top-2">
+      {/* Sticky preview panel */}
+      <div className="self-start overflow-hidden rounded-2xl border border-[#dce5df] bg-[#e7f1ec] p-5 sm:p-8 lg:sticky lg:top-2">
         <div className="relative flex min-h-80 items-center justify-center overflow-hidden rounded-xl bg-[radial-gradient(circle_at_20%_20%,#d8f36a_0,transparent_34%),radial-gradient(circle_at_80%_80%,#df795f_0,transparent_36%),#18372e] p-8">
           {showBackdropText && (
             <div
@@ -256,8 +256,8 @@ function GlassPanel() {
         </pre>
       </div>
 
-      {/* ডানপাশের কন্ট্রোল প্যানেল যা স্ক্রোল হবে */}
-      <div className="grid gap-5 rounded-2xl border border-[#dce5df] bg-[#f8faf8] p-5 shadow-[0_14px_35px_rgba(23,32,30,.04)] sm:grid-cols-2 lg:grid-cols-1">
+      {/* Control panel */}
+      <div className="grid gap-5 rounded-2xl border border-[#dce5df] bg-[#f8faf8] p-5 sm:grid-cols-2 lg:grid-cols-1">
         <div className="sm:col-span-2 lg:col-span-1">
           <div className="flex items-start justify-between gap-3">
             <div>
@@ -466,8 +466,8 @@ function PalettePanel() {
       className="grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(280px,360px)]"
       role="tabpanel"
     >
-      {/* বামপাশের কনট্রাস্ট চেকার প্যানেলটি এখন স্টিকি */}
-      <div className="self-start rounded-2xl border border-[#d5e4da] bg-[#f8fbf8] p-5 shadow-[0_18px_45px_rgba(23,32,30,.07)] lg:sticky lg:top-6 sm:p-7">
+      {/* Sticky contrast checker panel */}
+      <div className="self-start rounded-2xl border border-[#d5e4da] bg-[#f8fbf8] p-5 lg:sticky lg:top-6 sm:p-7">
         <div className="flex flex-col justify-between gap-5 border-b border-[#dce9df] pb-6 sm:flex-row sm:items-end">
           <div>
             <p className="font-mono text-[11px] font-semibold tracking-[.18em] text-[#157c62]">
@@ -477,7 +477,7 @@ function PalettePanel() {
               MAKE TYPE EFFORTLESS TO READ.
             </h3>
           </div>
-          <div className="rounded-xl border border-[#cfe1d5] bg-white px-4 py-3 text-left shadow-[0_8px_20px_rgba(23,32,30,.04)] sm:min-w-32 sm:text-right">
+          <div className="rounded-xl border border-[#cfe1d5] bg-white px-4 py-3 text-left sm:min-w-32 sm:text-right">
             <span className="block font-mono text-[10px] font-semibold tracking-[.14em] text-[#91a19a]">
               RATIO
             </span>
@@ -503,7 +503,7 @@ function PalettePanel() {
               <span className="text-xs font-semibold uppercase tracking-[.12em] text-[#71807b]">
                 {color.label}
               </span>
-              <div className="flex items-center gap-2 rounded-xl border border-[#d5e4da] bg-white p-1.5 shadow-[0_4px_12px_rgba(23,32,30,.03)] focus-within:border-[#157c62]">
+              <div className="flex items-center gap-2 rounded-xl border border-[#d5e4da] bg-white p-1.5 focus-within:border-[#157c62]">
                 <input
                   className="size-9 shrink-0 cursor-pointer rounded-lg border-0 bg-transparent p-0.5"
                   type="color"
@@ -523,7 +523,7 @@ function PalettePanel() {
           ))}
         </div>
         <div
-          className="relative mt-6 overflow-hidden rounded-2xl p-7 shadow-[0_14px_28px_rgba(23,32,30,.12)]"
+          className="relative mt-6 overflow-hidden rounded-2xl border border-current/20 p-7"
           style={{ background, color: foreground }}
         >
           <span className="absolute -right-5 -top-8 size-28 rounded-full border-18 border-current opacity-10" />
@@ -538,7 +538,7 @@ function PalettePanel() {
           </p>
         </div>
         <div className="mt-5 grid gap-3 sm:grid-cols-2">
-          <div className="rounded-xl border border-[#dce5df] bg-white p-4 shadow-[0_6px_16px_rgba(23,32,30,.03)]">
+          <div className="rounded-xl border border-[#dce5df] bg-white p-4">
             <div className="flex items-center justify-between gap-2">
               <p className="text-sm font-medium text-[#17201e]">Normal text</p>
               <span className="rounded-full bg-[#eef4ef] px-2 py-1 text-[10px] font-bold uppercase tracking-wider text-[#71807b]">
@@ -566,7 +566,7 @@ function PalettePanel() {
               </b>
             </div>
           </div>
-          <div className="rounded-xl border border-[#dce5df] bg-white p-4 shadow-[0_6px_16px_rgba(23,32,30,.03)]">
+          <div className="rounded-xl border border-[#dce5df] bg-white p-4">
             <div className="flex items-center justify-between gap-2">
               <p className="text-sm font-medium text-[#17201e]">Large text</p>
               <span className="rounded-full bg-[#eef4ef] px-2 py-1 text-[10px] font-bold uppercase tracking-wider text-[#71807b]">
@@ -597,8 +597,8 @@ function PalettePanel() {
         </div>
       </div>
 
-      {/* ডানপাশের প্যালেট বিল্ডার যা স্ক্রোল হবে */}
-      <div className="rounded-2xl border border-[#dce5df] bg-[#f8faf8] p-5 shadow-[0_14px_35px_rgba(23,32,30,.04)] sm:p-6">
+      {/* Palette builder panel */}
+      <div className="rounded-2xl border border-[#dce5df] bg-[#f8faf8] p-5 sm:p-6">
         <p className="font-mono text-xs tracking-[.16em] text-[#157c62]">
           PALETTE BUILDER
         </p>
