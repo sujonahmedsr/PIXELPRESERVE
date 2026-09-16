@@ -343,7 +343,7 @@ export function CryptoToolkit() {
         </div>
 
         {/* Tab Switcher */}
-        <div className="flex items-center gap-1.5 rounded-xl border border-[var(--border)] bg-[var(--bg-surface)] p-1">
+        <div className="flex flex-wrap items-center gap-1.5 rounded-xl border border-[var(--border)] bg-[var(--bg-surface)] p-1">
           <button
             type="button"
             onClick={() => setActiveTab("hash")}

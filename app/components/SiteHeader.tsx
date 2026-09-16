@@ -8,6 +8,7 @@ import { CommandPalette } from "./CommandPalette";
 
 const navLinks = [
   { href: "/#tools", label: "ALL TOOLS" },
+  { href: "/prayer", label: "PRAYER TIMES" },
   { href: "/ai", label: "AI ASSISTANT" },
 ];
 
@@ -73,7 +74,7 @@ export function SiteHeader() {
             key={link.href}
             className={`${linkClass} ${
               pathname === link.href
-                ? "text-[var(--accent)]"
+                ? "text-[var(--accent)] font-semibold"
                 : "text-[var(--text-secondary)]"
             } hover:text-[var(--accent)]`}
             href={link.href}
@@ -81,6 +82,7 @@ export function SiteHeader() {
             {link.label}
           </Link>
         ))}
+
         {/* Quick Command Launcher */}
         <CommandPalette />
 
@@ -107,7 +109,7 @@ export function SiteHeader() {
                 key={link.href}
                 className={`rounded-lg px-4 py-3 font-mono text-sm tracking-[0.03em] no-underline transition ${
                   pathname === link.href
-                    ? "bg-[var(--accent-soft)] text-[var(--accent)]"
+                    ? "bg-[var(--accent-soft)] text-[var(--accent)] font-semibold"
                     : "text-[var(--text-secondary)] hover:bg-[var(--bg-card)]"
                 }`}
                 href={link.href}

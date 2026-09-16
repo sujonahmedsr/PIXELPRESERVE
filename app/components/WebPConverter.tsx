@@ -205,8 +205,8 @@ export function WebPConverter() {
 
       {(converting || files.length > 0) && (
         <div className="mt-6 border-t border-[var(--border)] pt-6">
-          <div className="flex items-end justify-between">
-            <h3 className="text-2xl font-medium text-[var(--text-primary)]">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <h3 className="text-xl sm:text-2xl font-medium text-[var(--text-primary)]">
               {converting
                 ? "Converting your images…"
                 : `${files.length} WebP file(s) ready`}

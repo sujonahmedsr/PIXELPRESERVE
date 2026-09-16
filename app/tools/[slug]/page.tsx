@@ -221,7 +221,7 @@ export default async function ToolPage({
             href="/"
             className="font-mono text-xs text-[var(--accent)] hover:underline"
           >
-            All 10 Tools →
+            All {TOOLS.length} Tools →
           </Link>
         </div>
 

@@ -45,7 +45,8 @@ export default function Home() {
           </div>
 
           <h1 className="mt-4 text-3xl font-bold tracking-tight text-[var(--text-primary)] sm:text-5xl min-[901px]:text-6xl">
-            All Your Developer Tools, <span className="text-[var(--accent)]">in One Place.</span>
+            All Your Developer Tools,{" "}
+            <span className="text-[var(--accent)]">in One Place.</span>
           </h1>
 
           <p className="mx-auto mt-4 max-w-2xl text-base leading-relaxed text-[var(--text-secondary)] sm:text-lg">
@@ -101,7 +102,7 @@ export default function Home() {
             </div>
 
             {/* Quick Search */}
-            <div className="relative w-full sm:w-72">
+            <div className="relative w-full sm:w-80">
               <span
                 className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-sm text-[var(--text-secondary)]"
                 aria-hidden="true"
@@ -110,7 +111,7 @@ export default function Home() {
               </span>
               <input
                 type="text"
-                placeholder="Search tools..."
+                placeholder="Search utilities (e.g. WebP, JSON, Base64, JWT, Crypto, Markdown)..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="w-full rounded-xl border border-[var(--border)] bg-[var(--bg-surface)] py-2 pl-9 pr-3 text-sm text-[var(--text-primary)] outline-none transition placeholder:text-[var(--text-secondary)] focus:border-[var(--accent)] focus:ring-1 focus:ring-[var(--accent)]"
@@ -168,7 +169,7 @@ export default function Home() {
                 </div>
 
                 <div className="mt-5 flex items-center justify-between border-t border-[var(--border)] pt-3 text-xs font-mono text-[var(--text-secondary)]">
-                  <span>Open Tool</span>
+                  <span>Open Workspace</span>
                   <span className="text-base text-[var(--accent)] transition group-hover:translate-x-0.5" aria-hidden="true">
                     ↗
                   </span>
@@ -192,14 +193,14 @@ export default function Home() {
                   AI SUITE
                 </span>
                 <span className="font-mono text-xs text-[var(--text-secondary)]">
-                  Streaming Responses
+                  Streaming Gemini
                 </span>
               </div>
               <h2 className="mt-1 text-xl font-bold text-[var(--text-primary)] sm:text-2xl">
-                PixelPreserve AI Assistant
+                Need Intelligent Assistance?
               </h2>
               <p className="mt-1 text-sm text-[var(--text-secondary)]">
-                Ask coding questions, debug issues, explore algorithms, and optimize your designs with real-time streaming AI.
+                Chat with PixelPreserve AI for coding architecture, study roadmaps, regex help, and step-by-step debugging.
               </p>
             </div>
           </div>
@@ -212,6 +213,39 @@ export default function Home() {
         </div>
       </section>
 
+      {/* Islamic Prayer Times Banner Shortcut */}
+      <section className="mt-8 rounded-2xl border border-[var(--border)] bg-[var(--bg-surface-glass)] p-6 sm:p-8 backdrop-blur-[18px]">
+        <div className="flex flex-col items-start justify-between gap-6 md:flex-row md:items-center">
+          <div className="flex items-start gap-4">
+            <span className="grid size-12 shrink-0 place-items-center rounded-2xl border border-white/20 bg-emerald-600 text-2xl text-white">
+              🕌
+            </span>
+            <div>
+              <div className="flex items-center gap-2">
+                <span className="rounded-md border border-emerald-500/30 bg-emerald-500/10 px-2 py-0.5 font-mono text-[11px] font-semibold text-emerald-500">
+                  BANGLADESH (ইফা)
+                </span>
+                <span className="font-mono text-xs text-[var(--text-secondary)]">
+                  100% Accurate MuslimBangla Calibrated
+                </span>
+              </div>
+              <h2 className="mt-1 text-xl font-bold text-[var(--text-primary)] sm:text-2xl">
+                Islamic Prayer Times &amp; 3 Prohibited Salah Intervals
+              </h2>
+              <p className="mt-1 text-sm text-[var(--text-secondary)]">
+                View official timings for Dhaka, Chittagong, Sylhet, and all divisions with live countdowns and forbidden prayer warnings.
+              </p>
+            </div>
+          </div>
+          <Link
+            href="/prayer"
+            className="inline-flex shrink-0 items-center justify-center gap-2 rounded-xl border border-[var(--border)] bg-[var(--bg-surface)] px-5 py-3 text-sm font-semibold text-[var(--text-primary)] transition hover:-translate-y-0.5 hover:border-[var(--accent)] hover:text-[var(--accent)]"
+          >
+            View Prayer Times ↗
+          </Link>
+        </div>
+      </section>
+
       {/* Trust & Architecture Badges */}
       <section className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-3">
         <div className="rounded-2xl border border-[var(--border)] bg-[var(--bg-card)] p-5">
@@ -220,7 +254,7 @@ export default function Home() {
             100% In-Browser Privacy
           </h3>
           <p className="mt-1 text-sm text-[var(--text-secondary)]">
-            All conversions and formatting execute directly in your browser using Web APIs. No sensitive files or data ever leave your device.
+            All conversions and formatting execute directly in your browser using Web APIs. Zero network uploads.
           </p>
         </div>
         <div className="rounded-2xl border border-[var(--border)] bg-[var(--bg-card)] p-5">
@@ -229,7 +263,7 @@ export default function Home() {
             Zero Reload Navigation
           </h3>
           <p className="mt-1 text-sm text-[var(--text-secondary)]">
-            Instantaneous client-side transitions powered by Next.js. Switch between tools seamlessly without losing browser context.
+            Instantaneous client-side transitions powered by Next.js. Switch between tools without losing state.
           </p>
         </div>
         <div className="rounded-2xl border border-[var(--border)] bg-[var(--bg-card)] p-5">
@@ -238,7 +272,7 @@ export default function Home() {
             Command Palette (Ctrl + K)
           </h3>
           <p className="mt-1 text-sm text-[var(--text-secondary)]">
-            Jump to any tool, toggle themes, or search utilities instantly with our keyboard-driven spotlight command menu.
+            Jump to any tool, toggle themes, or search utilities instantly with our keyboard-driven command menu.
           </p>
         </div>
       </section>
