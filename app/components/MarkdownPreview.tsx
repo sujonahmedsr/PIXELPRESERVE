@@ -30,7 +30,7 @@ npm run dev
 - [ ] Release production bundle
 
 ## 📊 Comparison Matrix
-| Feature | PixelPreserve | Standard Tools |
+| Feature | SHOFIDEV_TOOLS | Standard Tools |
 | :--- | :---: | :---: |
 | Client-Side Privacy | ✅ 100% | ❌ Cloud Upload |
 | Instant Render | ✅ Yes | ⚠️ Periodic Sync |
@@ -39,7 +39,7 @@ npm run dev
 > 💡 **Pro Tip**: Use double space at the end of a line for a soft line break.
 
 ---
-Created with ❤️ by **PixelPreserve Developer Suite**.
+Created with ❤️ by **SHOFIDEV_TOOLS Developer Suite**.
 `,
   },
   {
@@ -91,7 +91,7 @@ def generate_sha256(text: str) -> str:
     """Generate SHA-256 hash using hashlib"""
     return hashlib.sha256(text.encode('utf-8')).hexdigest()
 
-print(generate_sha256("PixelPreserve"))
+print(generate_sha256("SHOFIDEV_TOOLS"))
 \`\`\`
 
 ### Nested Blockquotes & Alerts
@@ -130,7 +130,7 @@ print(generate_sha256("PixelPreserve"))
 3. Launch development server
 
 ## Links & Images
-- Visit [PixelPreserve](https://pixelpreserve.vercel.app)
+- Visit [SHOFIDEV_TOOLS](https://shofidev-tools.vercel.app)
 - Image syntax: \`![Alt Text](https://example.com/image.png)\`
 
 ## Horizontal Rule
@@ -144,47 +144,56 @@ const SYNTAX_GUIDE = [
   {
     element: "Heading 1 to 4",
     syntax: "# H1\n## H2\n### H3\n#### H4",
-    description: "Creates hierarchical section headers with automatic font sizing and anchor structure.",
+    description:
+      "Creates hierarchical section headers with automatic font sizing and anchor structure.",
   },
   {
     element: "Bold & Italic",
     syntax: "**bold**\n*italic*\n***bold italic***",
-    description: "Emphasizes text using double asterisks for bold and single asterisks for italic.",
+    description:
+      "Emphasizes text using double asterisks for bold and single asterisks for italic.",
   },
   {
     element: "Strikethrough (GFM)",
     syntax: "~~deleted text~~",
-    description: "Renders text with a horizontal line through the center to indicate deprecation.",
+    description:
+      "Renders text with a horizontal line through the center to indicate deprecation.",
   },
   {
     element: "Code Block (Syntax)",
     syntax: "```javascript\nconst x = 42;\nconsole.log(x);\n```",
-    description: "Fenced code block with optional language tag for styled monospaced rendering.",
+    description:
+      "Fenced code block with optional language tag for styled monospaced rendering.",
   },
   {
     element: "GFM Tables",
     syntax: "| Name | Role |\n| :--- | :---: |\n| Alex | Admin |",
-    description: "Creates aligned tabular data grids. Use colons for alignment (:--- left, :---: center, ---: right).",
+    description:
+      "Creates aligned tabular data grids. Use colons for alignment (:--- left, :---: center, ---: right).",
   },
   {
     element: "Task Checkboxes",
     syntax: "- [x] Completed task\n- [ ] Pending item",
-    description: "Renders interactive checklists ideal for project roadmaps, sprints, and deliverable tracking.",
+    description:
+      "Renders interactive checklists ideal for project roadmaps, sprints, and deliverable tracking.",
   },
   {
     element: "Blockquotes",
     syntax: "> Informational tip or quotation\n> Second line",
-    description: "Displays indented callout blocks with left accent border for notes and warnings.",
+    description:
+      "Displays indented callout blocks with left accent border for notes and warnings.",
   },
   {
     element: "Hyperlinks",
     syntax: "[Link Label](https://example.com)",
-    description: "Creates clickable web links that open securely in the browser.",
+    description:
+      "Creates clickable web links that open securely in the browser.",
   },
   {
     element: "Horizontal Divider",
     syntax: "---",
-    description: "Draws a subtle divider line to visually break up documentation sections.",
+    description:
+      "Draws a subtle divider line to visually break up documentation sections.",
   },
 ];
 
@@ -213,7 +222,11 @@ export function MarkdownPreview() {
     }
   }
 
-  function insertSyntax(prefix: string, suffix: string = "", placeholder: string = "") {
+  function insertSyntax(
+    prefix: string,
+    suffix: string = "",
+    placeholder: string = "",
+  ) {
     const textarea = textareaRef.current;
     if (!textarea) return;
 
@@ -234,7 +247,7 @@ export function MarkdownPreview() {
       textarea.focus();
       textarea.setSelectionRange(
         start + prefix.length,
-        start + prefix.length + selectedText.length
+        start + prefix.length + selectedText.length,
       );
     }, 10);
   }
@@ -248,7 +261,8 @@ export function MarkdownPreview() {
             Markdown Live Previewer
           </h2>
           <p className="mt-0.5 text-xs text-[var(--text-secondary)]">
-            Real-time GitHub Flavored Markdown (GFM) editor with live preview, syntax guide, and export.
+            Real-time GitHub Flavored Markdown (GFM) editor with live preview,
+            syntax guide, and export.
           </p>
         </div>
 
@@ -316,7 +330,8 @@ export function MarkdownPreview() {
                 Markdown &amp; GFM Syntax Reference
               </h3>
               <p className="text-xs text-[var(--text-secondary)]">
-                Everything supported by this live editor, with code examples and rendering expectations.
+                Everything supported by this live editor, with code examples and
+                rendering expectations.
               </p>
             </div>
             <button
@@ -334,7 +349,9 @@ export function MarkdownPreview() {
                 key={idx}
                 className="rounded-xl border border-[var(--border)] bg-[var(--bg-card)] p-3 font-mono text-xs"
               >
-                <div className="font-bold text-[var(--text-primary)]">{guide.element}</div>
+                <div className="font-bold text-[var(--text-primary)]">
+                  {guide.element}
+                </div>
                 <pre className="my-1.5 overflow-x-auto rounded border border-[var(--border)] bg-[var(--bg-surface)] p-2 text-[11px] text-[var(--accent)]">
                   {guide.syntax}
                 </pre>
@@ -401,7 +418,13 @@ export function MarkdownPreview() {
         <span className="text-[var(--border)]">|</span>
         <button
           type="button"
-          onClick={() => insertSyntax("```typescript\n", "\n```", "const message: string = 'Hello';")}
+          onClick={() =>
+            insertSyntax(
+              "```typescript\n",
+              "\n```",
+              "const message: string = 'Hello';",
+            )
+          }
           className="rounded px-2 py-1 text-[var(--text-secondary)] hover:bg-[var(--bg-card)] hover:text-[var(--text-primary)]"
           title="Code Block"
         >
@@ -417,7 +440,11 @@ export function MarkdownPreview() {
         </button>
         <button
           type="button"
-          onClick={() => insertSyntax("| Header 1 | Header 2 |\n| :--- | :---: |\n| Item 1 | Value 1 |\n")}
+          onClick={() =>
+            insertSyntax(
+              "| Header 1 | Header 2 |\n| :--- | :---: |\n| Item 1 | Value 1 |\n",
+            )
+          }
           className="rounded px-2 py-1 text-[var(--text-secondary)] hover:bg-[var(--bg-card)] hover:text-[var(--text-primary)]"
           title="Table"
         >
@@ -433,7 +460,9 @@ export function MarkdownPreview() {
         </button>
         <button
           type="button"
-          onClick={() => insertSyntax("[", "](https://example.com)", "Link Text")}
+          onClick={() =>
+            insertSyntax("[", "](https://example.com)", "Link Text")
+          }
           className="rounded px-2 py-1 text-[var(--text-secondary)] hover:bg-[var(--bg-card)] hover:text-[var(--text-primary)]"
           title="Link"
         >
@@ -446,9 +475,12 @@ export function MarkdownPreview() {
         {/* Editor Box */}
         <div className="flex flex-col">
           <div className="mb-2 flex items-center justify-between font-mono text-xs text-[var(--text-secondary)]">
-            <span className="font-semibold uppercase tracking-wider">Markdown Input</span>
+            <span className="font-semibold uppercase tracking-wider">
+              Markdown Input
+            </span>
             <span>
-              {markdown.length} chars · {markdown.trim() ? markdown.trim().split(/\s+/).length : 0} words
+              {markdown.length} chars ·{" "}
+              {markdown.trim() ? markdown.trim().split(/\s+/).length : 0} words
             </span>
           </div>
           <textarea
@@ -463,7 +495,9 @@ export function MarkdownPreview() {
         {/* Live Rendered Output */}
         <div className="flex flex-col">
           <div className="mb-2 flex items-center justify-between font-mono text-xs text-[var(--text-secondary)]">
-            <span className="font-semibold uppercase tracking-wider">Live HTML Rendered</span>
+            <span className="font-semibold uppercase tracking-wider">
+              Live HTML Rendered
+            </span>
             <span className="text-[var(--accent)]">● Real-Time GFM Engine</span>
           </div>
           <div
@@ -477,9 +511,12 @@ export function MarkdownPreview() {
             ) : (
               <div className="flex h-full min-h-[400px] flex-col items-center justify-center text-center text-xs text-[var(--text-secondary)]">
                 <span className="text-3xl">📝</span>
-                <p className="mt-2 font-mono">No markdown content to preview.</p>
+                <p className="mt-2 font-mono">
+                  No markdown content to preview.
+                </p>
                 <p className="mt-1 max-w-xs text-[11px]">
-                  Type in the editor or click one of the quick templates above to preview live formatting.
+                  Type in the editor or click one of the quick templates above
+                  to preview live formatting.
                 </p>
               </div>
             )}

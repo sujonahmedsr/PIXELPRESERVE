@@ -9,18 +9,12 @@ const WELCOME_MESSAGE: ChatMessage = {
   id: "welcome",
   role: "assistant",
   content:
-    "Hi! I'm **PixelPreserve AI**. Ask me about coding, study, debugging, or anything else.",
+    "Hi! I'm **SHOFIDEV_TOOLS AI**. Ask me about coding, study, debugging, or anything else.",
 };
 
 export function Chatbot() {
-  const {
-    messages,
-    input,
-    setInput,
-    isLoading,
-    error,
-    sendMessage,
-  } = useChatStream({ initialMessages: [WELCOME_MESSAGE] });
+  const { messages, input, setInput, isLoading, error, sendMessage } =
+    useChatStream({ initialMessages: [WELCOME_MESSAGE] });
 
   const [isOpen, setIsOpen] = useState(false);
   const endRef = useRef<HTMLDivElement>(null);
@@ -50,7 +44,7 @@ export function Chatbot() {
         >
           <header className="flex items-center justify-between bg-linear-to-r from-[var(--accent)] to-[#0e8a6a] px-4 py-3 text-white">
             <div>
-              <h2 className="font-semibold">PixelPreserve AI</h2>
+              <h2 className="font-semibold">SHOFIDEV_TOOLS AI</h2>
               <p className="text-xs opacity-80">
                 Coding, study &amp; general help
               </p>

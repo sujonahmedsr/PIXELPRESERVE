@@ -14,6 +14,9 @@ import TimeDashboard from "../../components/TimeDashboard";
 import { JwtDebugger } from "../../components/JwtDebugger";
 import { CryptoToolkit } from "../../components/CryptoToolkit";
 
+const siteUrl =
+  process.env.NEXT_PUBLIC_SITE_URL || "https://shofidev-tools.vercel.app";
+
 export function generateStaticParams() {
   return TOOLS.map((tool) => ({ slug: tool.slug }));
 }
@@ -27,13 +30,39 @@ export async function generateMetadata({
   const tool = TOOLS.find((t) => t.slug === slug);
 
   if (!tool) {
-    return { title: "Tool Not Found | PixelPreserve" };
+    return { title: "Tool Not Found | SHOFIDEV_TOOLS" };
   }
 
   return {
-    title: `${tool.name} | PixelPreserve Developer Suite`,
-    description: tool.shortDescription,
-    keywords: [tool.name, tool.tag, "developer tools", "PixelPreserve", "client-side tools"],
+    title: `${tool.name} - Free Online Developer Tool`,
+    description: `${tool.name} on SHOFIDEV_TOOLS (Shofi Dev Tools): ${tool.shortDescription} 100% private, free, in-browser developer utility created by Shofiqul Islam.`,
+    keywords: [
+      tool.name,
+      tool.tag,
+      "shofi dev tools",
+      "SHOFIDEV_TOOLS",
+      "shofidev tools",
+      "developer tools",
+      "free developer tools",
+      "online developer tools",
+      "browser developer tools",
+      "client-side tools",
+    ],
+    alternates: {
+      canonical: `/tools/${slug}`,
+    },
+    openGraph: {
+      title: `${tool.name} - Free Online Developer Tool | SHOFIDEV_TOOLS`,
+      description: tool.shortDescription,
+      url: `${siteUrl}/tools/${slug}`,
+      siteName: "SHOFIDEV_TOOLS",
+      type: "website",
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: `${tool.name} | SHOFIDEV_TOOLS Developer Suite`,
+      description: tool.shortDescription,
+    },
   };
 }
 
@@ -82,10 +111,68 @@ export default async function ToolPage({
     }
   }
 
+  const toolJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    name: `${tool.name} - SHOFIDEV_TOOLS`,
+    alternateName: `${tool.name} by Shofi Dev Tools`,
+    applicationCategory: "DeveloperApplication",
+    operatingSystem: "All",
+    browserRequirements: "Requires JavaScript. Requires HTML5.",
+    description: tool.shortDescription,
+    url: `${siteUrl}/tools/${tool.slug}`,
+    offers: {
+      "@type": "Offer",
+      price: "0",
+      priceCurrency: "USD",
+    },
+    author: {
+      "@type": "Person",
+      name: "Shofiqul Islam",
+      url: "https://github.com/sujonahmedsr",
+    },
+  };
+
+  const breadcrumbJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      {
+        "@type": "ListItem",
+        position: 1,
+        name: "Home",
+        item: siteUrl,
+      },
+      {
+        "@type": "ListItem",
+        position: 2,
+        name: "Tools",
+        item: `${siteUrl}/#tools`,
+      },
+      {
+        "@type": "ListItem",
+        position: 3,
+        name: tool.name,
+        item: `${siteUrl}/tools/${tool.slug}`,
+      },
+    ],
+  };
+
   return (
     <main className="relative mx-auto w-[calc(100%-24px)] max-w-7xl px-0 pb-16 min-[701px]:w-[calc(100%-56px)]">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(toolJsonLd) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
+      />
       {/* Breadcrumb Navigation */}
-      <nav aria-label="Breadcrumb" className="mt-4 mb-5 flex items-center gap-2 font-mono text-xs sm:text-sm text-[var(--text-secondary)]">
+      <nav
+        aria-label="Breadcrumb"
+        className="mt-4 mb-5 flex items-center gap-2 font-mono text-xs sm:text-sm text-[var(--text-secondary)]"
+      >
         <Link
           href="/"
           className="transition hover:text-[var(--accent)] hover:underline"
@@ -136,9 +223,7 @@ export default async function ToolPage({
         </div>
 
         {/* Live Interactive Workspace */}
-        <div className="min-h-[300px]">
-          {renderTool(tool.slug)}
-        </div>
+        <div className="min-h-[300px]">{renderTool(tool.slug)}</div>
       </section>
 
       {/* Dedicated Tool Summary Section */}
@@ -187,7 +272,9 @@ export default async function ToolPage({
             <ul className="mt-4 space-y-2.5 text-sm text-[var(--text-secondary)]">
               {tool.summary.keyFeatures.map((feat, idx) => (
                 <li key={idx} className="flex items-start gap-2.5">
-                  <span className="mt-0.5 text-[var(--accent)] font-bold">✓</span>
+                  <span className="mt-0.5 text-[var(--accent)] font-bold">
+                    ✓
+                  </span>
                   <span>{feat}</span>
                 </li>
               ))}
@@ -205,7 +292,9 @@ export default async function ToolPage({
               Client-Side Privacy Guarantee
             </h4>
             <p className="mt-1 text-xs sm:text-sm leading-relaxed text-[var(--text-secondary)]">
-              {tool.summary.privacyNote} PixelPreserve does not transmit, store, or log any of your files, text, or tokens on external servers.
+              {tool.summary.privacyNote} SHOFIDEV_TOOLS does not transmit,
+              store, or log any of your files, text, or tokens on external
+              servers.
             </p>
           </div>
         </div>

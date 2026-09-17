@@ -13,13 +13,55 @@ interface BDDistrict {
 
 const BD_DIVISIONS: BDDistrict[] = [
   { id: "dhaka", nameBn: "ঢাকা", nameEn: "Dhaka", lat: 23.8103, lng: 90.4125 },
-  { id: "chittagong", nameBn: "চট্টগ্রাম", nameEn: "Chittagong", lat: 22.3569, lng: 91.7832 },
-  { id: "sylhet", nameBn: "সিলেট", nameEn: "Sylhet", lat: 24.8949, lng: 91.8687 },
-  { id: "rajshahi", nameBn: "রাজশাহী", nameEn: "Rajshahi", lat: 24.3636, lng: 88.6241 },
-  { id: "khulna", nameBn: "খুলনা", nameEn: "Khulna", lat: 22.8456, lng: 89.5403 },
-  { id: "barisal", nameBn: "বরিশাল", nameEn: "Barisal", lat: 22.701, lng: 90.3535 },
-  { id: "rangpur", nameBn: "রংপুর", nameEn: "Rangpur", lat: 25.7439, lng: 89.2752 },
-  { id: "mymensingh", nameBn: "ময়মনসিংহ", nameEn: "Mymensingh", lat: 24.7471, lng: 90.4203 },
+  {
+    id: "chittagong",
+    nameBn: "চট্টগ্রাম",
+    nameEn: "Chittagong",
+    lat: 22.3569,
+    lng: 91.7832,
+  },
+  {
+    id: "sylhet",
+    nameBn: "সিলেট",
+    nameEn: "Sylhet",
+    lat: 24.8949,
+    lng: 91.8687,
+  },
+  {
+    id: "rajshahi",
+    nameBn: "রাজশাহী",
+    nameEn: "Rajshahi",
+    lat: 24.3636,
+    lng: 88.6241,
+  },
+  {
+    id: "khulna",
+    nameBn: "খুলনা",
+    nameEn: "Khulna",
+    lat: 22.8456,
+    lng: 89.5403,
+  },
+  {
+    id: "barisal",
+    nameBn: "বরিশাল",
+    nameEn: "Barisal",
+    lat: 22.701,
+    lng: 90.3535,
+  },
+  {
+    id: "rangpur",
+    nameBn: "রংপুর",
+    nameEn: "Rangpur",
+    lat: 25.7439,
+    lng: 89.2752,
+  },
+  {
+    id: "mymensingh",
+    nameBn: "ময়মনসিংহ",
+    nameEn: "Mymensingh",
+    lat: 24.7471,
+    lng: 90.4203,
+  },
 ];
 
 interface PrayerTimesData {
@@ -50,7 +92,11 @@ function minutesTo12h(totalMins: number): string {
   return `${displayH.toString().padStart(2, "0")}:${m.toString().padStart(2, "0")} ${period}`;
 }
 
-function calculateBDOkTimes(date: Date, lat: number, lng: number): PrayerTimesData {
+function calculateBDOkTimes(
+  date: Date,
+  lat: number,
+  lng: number,
+): PrayerTimesData {
   const fajrAngle = 18;
   const ishaAngle = 18;
   const tzOffset = 6;
@@ -81,7 +127,8 @@ function calculateBDOkTimes(date: Date, lat: number, lng: number): PrayerTimesDa
   const L = q + 1.915 * Math.sin(d2r(g)) + 0.02 * Math.sin(d2r(2 * g));
 
   const e = 23.439 - 0.00000036 * d;
-  const RA = r2d(Math.atan2(Math.cos(d2r(e)) * Math.sin(d2r(L)), Math.cos(d2r(L)))) / 15;
+  const RA =
+    r2d(Math.atan2(Math.cos(d2r(e)) * Math.sin(d2r(L)), Math.cos(d2r(L)))) / 15;
   const sinDelta = Math.sin(d2r(e)) * Math.sin(d2r(L));
   const cosDelta = Math.sqrt(1 - sinDelta * sinDelta);
   const delta = r2d(Math.asin(sinDelta));
@@ -103,7 +150,7 @@ function calculateBDOkTimes(date: Date, lat: number, lng: number): PrayerTimesDa
 
   // Hanafi Asr (Shadow factor 2)
   const asrAltitude = -r2d(
-    Math.atan(1 / (2 + Math.tan(d2r(Math.abs(lat - delta)))))
+    Math.atan(1 / (2 + Math.tan(d2r(Math.abs(lat - delta))))),
   );
   const haAsr = hourAngle(-asrAltitude);
 
@@ -128,10 +175,12 @@ function calculateBDOkTimes(date: Date, lat: number, lng: number): PrayerTimesDa
 }
 
 export default function PrayerPage() {
-  const [selectedDivision, setSelectedDivision] = useState<BDDistrict>(BD_DIVISIONS[0]);
+  const [selectedDivision, setSelectedDivision] = useState<BDDistrict>(
+    BD_DIVISIONS[0],
+  );
   const [currentTime, setCurrentTime] = useState<Date>(new Date());
   const [timings, setTimings] = useState<PrayerTimesData>(() =>
-    calculateBDOkTimes(new Date(), BD_DIVISIONS[0].lat, BD_DIVISIONS[0].lng)
+    calculateBDOkTimes(new Date(), BD_DIVISIONS[0].lat, BD_DIVISIONS[0].lng),
   );
 
   // Tick clock every second
@@ -161,7 +210,7 @@ export default function PrayerPage() {
     async function fetchLive() {
       try {
         const url = `https://api.aladhan.com/v1/timingsByCity?city=${encodeURIComponent(
-          selectedDivision.nameEn
+          selectedDivision.nameEn,
         )}&country=Bangladesh&method=1&school=1`;
         const res = await fetch(url, { cache: "no-cache" });
         if (!res.ok) throw new Error("API failed");
@@ -188,7 +237,11 @@ export default function PrayerPage() {
       } catch {
         if (!isCancelled) {
           setTimings(
-            calculateBDOkTimes(new Date(), selectedDivision.lat, selectedDivision.lng)
+            calculateBDOkTimes(
+              new Date(),
+              selectedDivision.lat,
+              selectedDivision.lng,
+            ),
           );
         }
       }
@@ -370,14 +423,21 @@ export default function PrayerPage() {
               Islamic Prayer &amp; Salah Times
             </h1>
             <p className="mt-1 text-sm text-[var(--text-secondary)]">
-              Official Bangladesh timetable calibrated to Islamic Foundation Bangladesh &amp; MuslimBangla.com
+              Official Bangladesh timetable calibrated to Islamic Foundation
+              Bangladesh &amp; MuslimBangla.com
             </p>
           </div>
 
           <div className="rounded-xl border border-[var(--border)] bg-[var(--bg-card)] p-3 text-right font-mono text-xs">
-            <div className="text-[var(--text-secondary)]">Current Time (BST):</div>
+            <div className="text-[var(--text-secondary)]">
+              Current Time (BST):
+            </div>
             <div className="text-base font-bold text-[var(--text-primary)]">
-              {currentTime.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" })}
+              {currentTime.toLocaleTimeString([], {
+                hour: "2-digit",
+                minute: "2-digit",
+                second: "2-digit",
+              })}
             </div>
             <div className="text-[11px] text-[var(--accent)]">
               {selectedDivision.nameEn} ({selectedDivision.nameBn}), Bangladesh
@@ -396,27 +456,35 @@ export default function PrayerPage() {
                     Salah is Currently Prohibited (Makruh Tahrimi)
                   </h3>
                   <p className="mt-1 text-base font-semibold text-rose-300">
-                    {prayerState.prohibitedName} prohibited period in progress until {prayerState.prohibitedEndStr}.
+                    {prayerState.prohibitedName} prohibited period in progress
+                    until {prayerState.prohibitedEndStr}.
                   </p>
                   <p className="mt-1 text-xs leading-relaxed text-rose-200/80">
-                    It is strictly forbidden to perform obligatory or voluntary prayers during sunrise, midday zenith (Zawal), and sunset (Sahih Muslim 831).
+                    It is strictly forbidden to perform obligatory or voluntary
+                    prayers during sunrise, midday zenith (Zawal), and sunset
+                    (Sahih Muslim 831).
                   </p>
                 </div>
               </div>
             </div>
           ) : (
-            <div className="rounded-2xl border border-emerald-500/30 bg-emerald-500/10 p-5 text-emerald-500">
+            <div className="rounded-2xl border border-emerald-500/30 bg-emerald-500/10 p-5 text-emerald-600">
               <div className="flex items-center gap-3">
                 <span className="text-3xl">🟢</span>
                 <div>
-                  <h3 className="font-mono text-sm font-bold uppercase tracking-wider text-emerald-400">
+                  <h3 className="font-mono text-sm font-bold uppercase tracking-wider text-emerald-600">
                     Permissible for Prayer
                   </h3>
-                  <p className="mt-0.5 text-base font-semibold text-emerald-300">
-                    Active Waqt: <strong>{prayerState.currentPrayer.name}</strong> ({prayerState.currentPrayer.subName}) · Next: <strong>{prayerState.nextPrayer.name}</strong> ({prayerState.countdownFormatted} remaining).
+                  <p className="mt-0.5 text-base font-semibold text-emerald-600">
+                    Active Waqt:{" "}
+                    <strong>{prayerState.currentPrayer.name}</strong> (
+                    {prayerState.currentPrayer.subName}) · Next:{" "}
+                    <strong>{prayerState.nextPrayer.name}</strong> (
+                    {prayerState.countdownFormatted} remaining).
                   </p>
-                  <p className="mt-1 text-xs text-emerald-200/80">
-                    All obligatory (Fard) and voluntary (Nafl) prayers are currently permissible.
+                  <p className="mt-1 text-xs text-emerald-500">
+                    All obligatory (Fard) and voluntary (Nafl) prayers are
+                    currently permissible.
                   </p>
                 </div>
               </div>
@@ -465,8 +533,8 @@ export default function PrayerPage() {
                     isCurrent
                       ? "border-[var(--accent)] bg-[var(--accent-soft)] text-[var(--text-primary)]"
                       : isNext
-                      ? "border-amber-500/40 bg-amber-500/5 text-[var(--text-primary)]"
-                      : "border-[var(--border)] bg-[var(--bg-surface)] text-[var(--text-primary)] hover:border-[var(--border-hover)]"
+                        ? "border-amber-500/40 bg-amber-500/5 text-[var(--text-primary)]"
+                        : "border-[var(--border)] bg-[var(--bg-surface)] text-[var(--text-primary)] hover:border-[var(--border-hover)]"
                   }`}
                 >
                   <div className="text-2xl">{prayer.icon}</div>
@@ -509,7 +577,8 @@ export default function PrayerPage() {
             </span>
           </div>
           <p className="text-xs text-[var(--text-secondary)]">
-            According to Islamic Fiqh, performing any prayer (Fard or Nafl) is strictly prohibited during these three daily intervals:
+            According to Islamic Fiqh, performing any prayer (Fard or Nafl) is
+            strictly prohibited during these three daily intervals:
           </p>
 
           <div className="mt-4 grid grid-cols-1 gap-4 md:grid-cols-3">
@@ -523,7 +592,8 @@ export default function PrayerPage() {
                 {prayerState.p1Str}
               </div>
               <p className="mt-2 text-[11px] leading-relaxed text-[var(--text-secondary)]">
-                From sunrise for 15 minutes until the sun is a spear&apos;s height above the horizon. Ishraq begins after this ends.
+                From sunrise for 15 minutes until the sun is a spear&apos;s
+                height above the horizon. Ishraq begins after this ends.
               </p>
             </div>
 
@@ -537,7 +607,8 @@ export default function PrayerPage() {
                 {prayerState.p2Str}
               </div>
               <p className="mt-2 text-[11px] leading-relaxed text-[var(--text-secondary)]">
-                From 6 minutes before Dhuhr until Dhuhr starts. When the sun is directly overhead at its meridian.
+                From 6 minutes before Dhuhr until Dhuhr starts. When the sun is
+                directly overhead at its meridian.
               </p>
             </div>
 
@@ -551,7 +622,8 @@ export default function PrayerPage() {
                 {prayerState.p3Str}
               </div>
               <p className="mt-2 text-[11px] leading-relaxed text-[var(--text-secondary)]">
-                From 16 minutes before Maghrib until the sun fully sets. (Except for that day&apos;s delayed Asr prayer).
+                From 16 minutes before Maghrib until the sun fully sets. (Except
+                for that day&apos;s delayed Asr prayer).
               </p>
             </div>
           </div>
@@ -563,13 +635,17 @@ export default function PrayerPage() {
             <span className="font-semibold uppercase text-[var(--text-primary)]">
               Tahajjud / Sahri End:
             </span>{" "}
-            <strong className="text-[var(--accent)]">{prayerState.tahajjudSahriEnd}</strong>
+            <strong className="text-[var(--accent)]">
+              {prayerState.tahajjudSahriEnd}
+            </strong>
           </div>
           <div>
             <span className="font-semibold uppercase text-[var(--text-primary)]">
               Ishraq &amp; Chasht (Duha):
             </span>{" "}
-            <strong className="text-[var(--accent)]">{prayerState.ishraqChashtStr}</strong>
+            <strong className="text-[var(--accent)]">
+              {prayerState.ishraqChashtStr}
+            </strong>
           </div>
           <div>
             <a

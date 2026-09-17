@@ -7,7 +7,10 @@ function formatJson(value: string) {
   try {
     return { value: JSON.stringify(JSON.parse(value), null, 2), error: "" };
   } catch {
-    return { value, error: "Invalid JSON syntax: please check commas, quotes, and brackets." };
+    return {
+      value,
+      error: "Invalid JSON syntax: please check commas, quotes, and brackets.",
+    };
   }
 }
 
@@ -15,13 +18,16 @@ function minifyJson(value: string) {
   try {
     return { value: JSON.stringify(JSON.parse(value)), error: "" };
   } catch {
-    return { value, error: "Invalid JSON syntax: please check commas, quotes, and brackets." };
+    return {
+      value,
+      error: "Invalid JSON syntax: please check commas, quotes, and brackets.",
+    };
   }
 }
 
 export function JsonFormatter() {
   const [jsonText, setJsonText] = useState(
-    '{"store": "PixelPreserve", "private": true}',
+    '{"store": "SHOFIDEV_TOOLS", "private": true}',
   );
   const [jsonError, setJsonError] = useState("");
   const { addToast } = useToast();

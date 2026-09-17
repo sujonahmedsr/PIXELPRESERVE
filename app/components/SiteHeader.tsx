@@ -26,12 +26,12 @@ export function SiteHeader() {
         <Link
           className="group flex items-center gap-3 text-lg font-semibold tracking-[0.02em] text-[var(--text-primary)] no-underline"
           href="/"
-          aria-label="PixelPreserve home"
+          aria-label="SHOFIDEV_TOOLS home"
         >
           <span className="grid size-9 place-items-center rounded-xl border border-white/20 bg-[var(--accent)] text-white transition group-hover:rotate-6 group-hover:bg-[var(--accent-hover)]">
             ✦
           </span>
-          PIXELPRESERVE
+          SHOFIDEV_TOOLS
         </Link>
 
         <div className="flex items-center gap-2 min-[701px]:hidden">

@@ -1,6 +1,6 @@
-# PixelPreserve
+# SHOFIDEV_TOOLS
 
-PixelPreserve is a privacy-first browser toolkit for freelancers, developers, and designers. It brings everyday utilities into one responsive Next.js app: image conversion, text and JSON helpers, Base64 encoding, Markdown preview, design tools, a Fiverr message checker, a local task board, a world-time focus desk, and a built-in AI assistant. Only for my personal work.
+SHOFIDEV_TOOLS (Shofi Dev Tools) is a privacy-first browser toolkit for developers, freelancers, and designers created by Shofiqul Islam. It brings everyday developer utilities into one fast, responsive Next.js application: image conversion, text and JSON helpers, Base64 encoding, Markdown preview, design tools, a Fiverr message checker, a local task board, a world-time focus desk, Bangladesh prayer times, and a built-in AI assistant.
 
 All core editing and productivity data stays in the browser. No account is required.
 

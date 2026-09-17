@@ -13,24 +13,63 @@ function md5(str: string): string {
   function bitRol(num: number, cnt: number): number {
     return (num << cnt) | (num >>> (32 - cnt));
   }
-  function md5cmn(q: number, a: number, b: number, x: number, s: number, t: number): number {
+  function md5cmn(
+    q: number,
+    a: number,
+    b: number,
+    x: number,
+    s: number,
+    t: number,
+  ): number {
     return safeAdd(bitRol(safeAdd(safeAdd(a, q), safeAdd(x, t)), s), b);
   }
-  function md5ff(a: number, b: number, c: number, d: number, x: number, s: number, t: number): number {
+  function md5ff(
+    a: number,
+    b: number,
+    c: number,
+    d: number,
+    x: number,
+    s: number,
+    t: number,
+  ): number {
     return md5cmn((b & c) | (~b & d), a, b, x, s, t);
   }
-  function md5gg(a: number, b: number, c: number, d: number, x: number, s: number, t: number): number {
+  function md5gg(
+    a: number,
+    b: number,
+    c: number,
+    d: number,
+    x: number,
+    s: number,
+    t: number,
+  ): number {
     return md5cmn((b & d) | (c & ~d), a, b, x, s, t);
   }
-  function md5hh(a: number, b: number, c: number, d: number, x: number, s: number, t: number): number {
+  function md5hh(
+    a: number,
+    b: number,
+    c: number,
+    d: number,
+    x: number,
+    s: number,
+    t: number,
+  ): number {
     return md5cmn(b ^ c ^ d, a, b, x, s, t);
   }
-  function md5ii(a: number, b: number, c: number, d: number, x: number, s: number, t: number): number {
+  function md5ii(
+    a: number,
+    b: number,
+    c: number,
+    d: number,
+    x: number,
+    s: number,
+    t: number,
+  ): number {
     return md5cmn(c ^ (b | ~d), a, b, x, s, t);
   }
 
   function binlMD5(x: number[], len: number): number[] {
-    x[len >> 5] |= 0x80 << len % 32;
+    x[len >> 5] |= 0x80 << (len % 32);
     x[(((len + 64) >>> 9) << 4) + 14] = len;
     let a = 1732584193;
     let b = -271733879;
@@ -122,7 +161,7 @@ function md5(str: string): string {
   function rstr2binl(input: string): number[] {
     const output: number[] = [];
     for (let i = 0; i < input.length * 8; i += 8) {
-      output[i >> 5] |= (input.charCodeAt(i / 8) & 0xff) << i % 32;
+      output[i >> 5] |= (input.charCodeAt(i / 8) & 0xff) << (i % 32);
     }
     return output;
   }
@@ -150,8 +189,10 @@ export function CryptoToolkit() {
   const { success } = useToast();
 
   // Hash & HMAC State
-  const [hashInput, setHashInput] = useState("Hello, PixelPreserve!");
-  const [algorithm, setAlgorithm] = useState<"SHA-256" | "SHA-512" | "SHA-384" | "SHA-1" | "MD5">("SHA-256");
+  const [hashInput, setHashInput] = useState("Hello, SHOFIDEV_TOOLS!");
+  const [algorithm, setAlgorithm] = useState<
+    "SHA-256" | "SHA-512" | "SHA-384" | "SHA-1" | "MD5"
+  >("SHA-256");
   const [hmacSecret, setHmacSecret] = useState("");
   const [hexResult, setHexResult] = useState("");
   const [base64Result, setBase64Result] = useState("");
@@ -166,10 +207,16 @@ export function CryptoToolkit() {
   const [generatedToken, setGeneratedToken] = useState<string>("");
 
   // Timestamp Converter State
-  const [currentEpoch, setCurrentEpoch] = useState<number>(() => Math.floor(Date.now() / 1000));
+  const [currentEpoch, setCurrentEpoch] = useState<number>(() =>
+    Math.floor(Date.now() / 1000),
+  );
   const [isLiveClock, setIsLiveClock] = useState(true);
-  const [timestampInput, setTimestampInput] = useState<string>(() => Math.floor(Date.now() / 1000).toString());
-  const [dateInput, setDateInput] = useState<string>(() => new Date().toISOString().slice(0, 16));
+  const [timestampInput, setTimestampInput] = useState<string>(() =>
+    Math.floor(Date.now() / 1000).toString(),
+  );
+  const [dateInput, setDateInput] = useState<string>(() =>
+    new Date().toISOString().slice(0, 16),
+  );
 
   // Live ticking epoch clock
   useEffect(() => {
@@ -198,7 +245,11 @@ export function CryptoToolkit() {
           if (!isCancelled) {
             setHexResult(result);
             // Convert hex to base64
-            const raw = result.match(/\w{2}/g)?.map((a) => String.fromCharCode(parseInt(a, 16))).join("") || "";
+            const raw =
+              result
+                .match(/\w{2}/g)
+                ?.map((a) => String.fromCharCode(parseInt(a, 16)))
+                .join("") || "";
             setBase64Result(btoa(raw));
           }
         } else {
@@ -215,7 +266,7 @@ export function CryptoToolkit() {
               keyData,
               { name: "HMAC", hash: { name: algorithm } },
               false,
-              ["sign"]
+              ["sign"],
             );
             buffer = await window.crypto.subtle.sign("HMAC", key, data);
           } else {
@@ -338,7 +389,8 @@ export function CryptoToolkit() {
             Backend Crypto &amp; Token Suite
           </h2>
           <p className="mt-0.5 text-xs text-[var(--text-secondary)]">
-            Essential cryptographic hashes, HMAC signatures, UUID generator, and Unix epoch converter.
+            Essential cryptographic hashes, HMAC signatures, UUID generator, and
+            Unix epoch converter.
           </p>
         </div>
 
@@ -395,10 +447,14 @@ export function CryptoToolkit() {
                     >
                       Algorithm
                     </label>
-                    <span className="font-mono text-[11px] text-[var(--text-secondary)]">Web Crypto API</span>
+                    <span className="font-mono text-[11px] text-[var(--text-secondary)]">
+                      Web Crypto API
+                    </span>
                   </div>
                   <div className="flex flex-wrap gap-2">
-                    {(["SHA-256", "SHA-512", "SHA-384", "SHA-1", "MD5"] as const).map((alg) => (
+                    {(
+                      ["SHA-256", "SHA-512", "SHA-384", "SHA-1", "MD5"] as const
+                    ).map((alg) => (
                       <button
                         key={alg}
                         type="button"
@@ -460,7 +516,9 @@ export function CryptoToolkit() {
                 <div>
                   <div className="mb-1.5 flex items-center justify-between">
                     <span className="font-mono text-xs font-semibold uppercase tracking-wider text-[var(--text-secondary)]">
-                      {hmacSecret ? `HMAC-${algorithm} (Hex)` : `${algorithm} Digest (Hex)`}
+                      {hmacSecret
+                        ? `HMAC-${algorithm} (Hex)`
+                        : `${algorithm} Digest (Hex)`}
                     </span>
                     <button
                       type="button"
@@ -484,7 +542,9 @@ export function CryptoToolkit() {
                     <button
                       type="button"
                       disabled={!base64Result}
-                      onClick={() => copyToClipboard(base64Result, "Base64 Hash")}
+                      onClick={() =>
+                        copyToClipboard(base64Result, "Base64 Hash")
+                      }
                       className="rounded-lg border border-[var(--border)] bg-[var(--bg-card)] px-2.5 py-1 font-mono text-xs text-[var(--text-secondary)] transition hover:border-[var(--border-hover)] hover:text-[var(--text-primary)] disabled:opacity-40"
                     >
                       Copy Base64
@@ -496,7 +556,9 @@ export function CryptoToolkit() {
                 </div>
 
                 <div className="rounded-xl border border-[var(--border)] bg-[var(--bg-card)] p-3 text-xs text-[var(--text-secondary)]">
-                  💡 <strong>Backend Use Case:</strong> Compute checksums, password hashes, and verify signatures for webhooks from Stripe, GitHub, Shopify, and Slack using client-side HMAC.
+                  💡 <strong>Backend Use Case:</strong> Compute checksums,
+                  password hashes, and verify signatures for webhooks from
+                  Stripe, GitHub, Shopify, and Slack using client-side HMAC.
                 </div>
               </div>
             </div>
@@ -566,7 +628,11 @@ export function CryptoToolkit() {
                     onChange={(e) => {
                       setUppercaseUuid(e.target.checked);
                       setGeneratedUuids((prev) =>
-                        prev.map((id) => (e.target.checked ? id.toUpperCase() : id.toLowerCase()))
+                        prev.map((id) =>
+                          e.target.checked
+                            ? id.toUpperCase()
+                            : id.toLowerCase(),
+                        ),
                       );
                     }}
                     className="accent-[var(--accent)]"
@@ -595,7 +661,9 @@ export function CryptoToolkit() {
                     key={i}
                     className="flex items-center justify-between rounded-xl border border-[var(--border)] bg-[var(--bg-card)] px-3 py-2 font-mono text-xs"
                   >
-                    <span className="truncate text-[var(--text-primary)]">{uuid}</span>
+                    <span className="truncate text-[var(--text-primary)]">
+                      {uuid}
+                    </span>
                     <button
                       type="button"
                       onClick={() => copyToClipboard(uuid, "UUID")}
@@ -611,7 +679,9 @@ export function CryptoToolkit() {
               {generatedUuids.length > 1 && (
                 <button
                   type="button"
-                  onClick={() => copyToClipboard(generatedUuids.join("\n"), "All UUIDs")}
+                  onClick={() =>
+                    copyToClipboard(generatedUuids.join("\n"), "All UUIDs")
+                  }
                   className="mt-3 w-full rounded-xl border border-[var(--border)] bg-[var(--bg-card)] py-2 font-mono text-xs text-[var(--text-secondary)] transition hover:border-[var(--border-hover)] hover:text-[var(--text-primary)]"
                 >
                   Copy All ({generatedUuids.length} UUIDs)
@@ -692,7 +762,9 @@ export function CryptoToolkit() {
               </div>
 
               <p className="mt-4 text-xs text-[var(--text-secondary)]">
-                Ideal for <code>JWT_SECRET</code>, database encryption keys, session cookies, and webhook signing secrets in your <code>.env</code> file.
+                Ideal for <code>JWT_SECRET</code>, database encryption keys,
+                session cookies, and webhook signing secrets in your{" "}
+                <code>.env</code> file.
               </p>
             </div>
           </div>
@@ -732,7 +804,9 @@ export function CryptoToolkit() {
               </button>
               <button
                 type="button"
-                onClick={() => copyToClipboard(currentEpoch.toString(), "Current Epoch")}
+                onClick={() =>
+                  copyToClipboard(currentEpoch.toString(), "Current Epoch")
+                }
                 className="rounded-lg border border-[var(--accent)] bg-[var(--accent-soft)] px-3 py-1.5 font-mono text-xs font-semibold text-[var(--accent)] transition hover:opacity-90"
               >
                 Copy Epoch
@@ -765,7 +839,11 @@ export function CryptoToolkit() {
                   />
                   <button
                     type="button"
-                    onClick={() => setTimestampInput(Math.floor(Date.now() / 1000).toString())}
+                    onClick={() =>
+                      setTimestampInput(
+                        Math.floor(Date.now() / 1000).toString(),
+                      )
+                    }
                     className="shrink-0 rounded-xl border border-[var(--border)] bg-[var(--bg-card)] px-3 py-2 font-mono text-xs text-[var(--text-secondary)] transition hover:border-[var(--border-hover)] hover:text-[var(--text-primary)]"
                   >
                     Now
@@ -776,26 +854,46 @@ export function CryptoToolkit() {
               {parsedTimestampInfo ? (
                 <div className="space-y-2 rounded-xl border border-[var(--border)] bg-[var(--bg-card)] p-3.5 font-mono text-xs">
                   <div>
-                    <span className="text-[var(--text-secondary)]">Format Detected:</span>{" "}
+                    <span className="text-[var(--text-secondary)]">
+                      Format Detected:
+                    </span>{" "}
                     <strong className="text-[var(--text-primary)]">
-                      {parsedTimestampInfo.isMilliseconds ? "Milliseconds (13 digits)" : "Seconds (10 digits)"}
+                      {parsedTimestampInfo.isMilliseconds
+                        ? "Milliseconds (13 digits)"
+                        : "Seconds (10 digits)"}
                     </strong>
                   </div>
                   <div>
-                    <span className="text-[var(--text-secondary)]">ISO 8601:</span>{" "}
-                    <strong className="text-[var(--accent)]">{parsedTimestampInfo.iso}</strong>
+                    <span className="text-[var(--text-secondary)]">
+                      ISO 8601:
+                    </span>{" "}
+                    <strong className="text-[var(--accent)]">
+                      {parsedTimestampInfo.iso}
+                    </strong>
                   </div>
                   <div>
-                    <span className="text-[var(--text-secondary)]">UTC String:</span>{" "}
-                    <strong className="text-[var(--text-primary)]">{parsedTimestampInfo.utc}</strong>
+                    <span className="text-[var(--text-secondary)]">
+                      UTC String:
+                    </span>{" "}
+                    <strong className="text-[var(--text-primary)]">
+                      {parsedTimestampInfo.utc}
+                    </strong>
                   </div>
                   <div>
-                    <span className="text-[var(--text-secondary)]">Local Time:</span>{" "}
-                    <strong className="text-[var(--text-primary)]">{parsedTimestampInfo.local}</strong>
+                    <span className="text-[var(--text-secondary)]">
+                      Local Time:
+                    </span>{" "}
+                    <strong className="text-[var(--text-primary)]">
+                      {parsedTimestampInfo.local}
+                    </strong>
                   </div>
                   <div>
-                    <span className="text-[var(--text-secondary)]">Relative:</span>{" "}
-                    <strong className="text-emerald-500">{parsedTimestampInfo.relative}</strong>
+                    <span className="text-[var(--text-secondary)]">
+                      Relative:
+                    </span>{" "}
+                    <strong className="text-emerald-500">
+                      {parsedTimestampInfo.relative}
+                    </strong>
                   </div>
                 </div>
               ) : (
@@ -828,7 +926,9 @@ export function CryptoToolkit() {
                   />
                   <button
                     type="button"
-                    onClick={() => setDateInput(new Date().toISOString().slice(0, 16))}
+                    onClick={() =>
+                      setDateInput(new Date().toISOString().slice(0, 16))
+                    }
                     className="shrink-0 rounded-xl border border-[var(--border)] bg-[var(--bg-card)] px-3 py-2 font-mono text-xs text-[var(--text-secondary)] transition hover:border-[var(--border-hover)] hover:text-[var(--text-primary)]"
                   >
                     Now
@@ -840,12 +940,21 @@ export function CryptoToolkit() {
                 <div className="space-y-3 rounded-xl border border-[var(--border)] bg-[var(--bg-card)] p-3.5 font-mono text-xs">
                   <div className="flex items-center justify-between">
                     <div>
-                      <div className="text-[var(--text-secondary)]">Unix Seconds (10-digit):</div>
-                      <div className="text-sm font-bold text-[var(--accent)]">{parsedDateInfo.seconds}</div>
+                      <div className="text-[var(--text-secondary)]">
+                        Unix Seconds (10-digit):
+                      </div>
+                      <div className="text-sm font-bold text-[var(--accent)]">
+                        {parsedDateInfo.seconds}
+                      </div>
                     </div>
                     <button
                       type="button"
-                      onClick={() => copyToClipboard(parsedDateInfo.seconds.toString(), "Seconds Timestamp")}
+                      onClick={() =>
+                        copyToClipboard(
+                          parsedDateInfo.seconds.toString(),
+                          "Seconds Timestamp",
+                        )
+                      }
                       className="rounded border border-[var(--border)] bg-[var(--bg-surface)] px-2 py-1 text-[11px] text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
                     >
                       Copy
@@ -854,12 +963,21 @@ export function CryptoToolkit() {
 
                   <div className="border-t border-[var(--border)] pt-2 flex items-center justify-between">
                     <div>
-                      <div className="text-[var(--text-secondary)]">Unix Milliseconds (13-digit):</div>
-                      <div className="text-sm font-bold text-[var(--text-primary)]">{parsedDateInfo.milliseconds}</div>
+                      <div className="text-[var(--text-secondary)]">
+                        Unix Milliseconds (13-digit):
+                      </div>
+                      <div className="text-sm font-bold text-[var(--text-primary)]">
+                        {parsedDateInfo.milliseconds}
+                      </div>
                     </div>
                     <button
                       type="button"
-                      onClick={() => copyToClipboard(parsedDateInfo.milliseconds.toString(), "Milliseconds Timestamp")}
+                      onClick={() =>
+                        copyToClipboard(
+                          parsedDateInfo.milliseconds.toString(),
+                          "Milliseconds Timestamp",
+                        )
+                      }
                       className="rounded border border-[var(--border)] bg-[var(--bg-surface)] px-2 py-1 text-[11px] text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
                     >
                       Copy

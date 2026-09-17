@@ -9,12 +9,16 @@ const BASE64_SAMPLES = [
   {
     label: "Plaintext Text",
     type: "encode" as Mode,
-    text: "Hello, World! PixelPreserve Developer Suite makes client-side utilities fast and private.",
+    text: "Hello, World! SHOFIDEV_TOOLS Developer Suite makes client-side utilities fast and private.",
   },
   {
     label: "JSON Payload",
     type: "encode" as Mode,
-    text: JSON.stringify({ userId: 1042, role: "admin", active: true }, null, 2),
+    text: JSON.stringify(
+      { userId: 1042, role: "admin", active: true },
+      null,
+      2,
+    ),
   },
   {
     label: "Basic Auth (user:pass)",
@@ -37,45 +41,42 @@ export function Base64Tool() {
   const fileRef = useRef<HTMLInputElement>(null);
   const { success, error: toastError } = useToast();
 
-  const processText = useCallback(
-    (text: string, operation: Mode) => {
-      if (!text.trim()) {
-        setOutput("");
-        setError("");
-        return;
-      }
-      try {
-        if (operation === "encode") {
-          const encoded = btoa(
-            new TextEncoder()
-              .encode(text)
-              .reduce((data, byte) => data + String.fromCharCode(byte), ""),
-          );
-          setOutput(encoded);
-          setError("");
-        } else {
-          // Clean base64 (remove data URI prefixes if user pasted one)
-          let clean = text.trim();
-          if (clean.includes("base64,")) {
-            clean = clean.split("base64,")[1];
-          }
-          const decoded = new TextDecoder().decode(
-            Uint8Array.from(atob(clean), (char) => char.charCodeAt(0)),
-          );
-          setOutput(decoded);
-          setError("");
-        }
-      } catch {
-        setError(
-          operation === "decode"
-            ? "Invalid Base64 string — verify that the string contains valid Base64 characters (A-Z, a-z, 0-9, +, /, =)."
-            : "Encoding failed — input text contains unsupported characters.",
+  const processText = useCallback((text: string, operation: Mode) => {
+    if (!text.trim()) {
+      setOutput("");
+      setError("");
+      return;
+    }
+    try {
+      if (operation === "encode") {
+        const encoded = btoa(
+          new TextEncoder()
+            .encode(text)
+            .reduce((data, byte) => data + String.fromCharCode(byte), ""),
         );
-        setOutput("");
+        setOutput(encoded);
+        setError("");
+      } else {
+        // Clean base64 (remove data URI prefixes if user pasted one)
+        let clean = text.trim();
+        if (clean.includes("base64,")) {
+          clean = clean.split("base64,")[1];
+        }
+        const decoded = new TextDecoder().decode(
+          Uint8Array.from(atob(clean), (char) => char.charCodeAt(0)),
+        );
+        setOutput(decoded);
+        setError("");
       }
-    },
-    [],
-  );
+    } catch {
+      setError(
+        operation === "decode"
+          ? "Invalid Base64 string — verify that the string contains valid Base64 characters (A-Z, a-z, 0-9, +, /, =)."
+          : "Encoding failed — input text contains unsupported characters.",
+      );
+      setOutput("");
+    }
+  }, []);
 
   function handleInputChange(value: string) {
     setInput(value);
@@ -128,7 +129,8 @@ export function Base64Tool() {
             Base64 Encoder &amp; Decoder
           </h2>
           <p className="mt-0.5 text-xs text-[var(--text-secondary)]">
-            Convert strings and files to/from RFC 4648 Base64 format with UTF-8 support.
+            Convert strings and files to/from RFC 4648 Base64 format with UTF-8
+            support.
           </p>
         </div>
 
@@ -213,30 +215,44 @@ export function Base64Tool() {
 
           <div className="grid grid-cols-1 gap-4 md:grid-cols-3 font-mono text-xs">
             <div className="rounded-xl border border-[var(--border)] bg-[var(--bg-card)] p-3.5">
-              <div className="font-bold text-[var(--text-primary)]">1. Why Encode?</div>
+              <div className="font-bold text-[var(--text-primary)]">
+                1. Why Encode?
+              </div>
               <p className="mt-1 text-[11px] leading-relaxed text-[var(--text-secondary)]">
-                Base64 translates binary data into 64 ASCII characters (A-Z, a-z, 0-9, +, /). This allows binary files (images, audio, keys) to be safely transferred through text-only mediums (JSON, emails, HTML).
+                Base64 translates binary data into 64 ASCII characters (A-Z,
+                a-z, 0-9, +, /). This allows binary files (images, audio, keys)
+                to be safely transferred through text-only mediums (JSON,
+                emails, HTML).
               </p>
             </div>
 
             <div className="rounded-xl border border-[var(--border)] bg-[var(--bg-card)] p-3.5">
-              <div className="font-bold text-[var(--text-primary)]">2. Data URIs in CSS/HTML</div>
+              <div className="font-bold text-[var(--text-primary)]">
+                2. Data URIs in CSS/HTML
+              </div>
               <p className="mt-1 text-[11px] leading-relaxed text-[var(--text-secondary)]">
                 You can inline small icons directly into CSS: <br />
-                <code className="text-[var(--accent)]">data:image/png;base64,iVBORw0...</code>
+                <code className="text-[var(--accent)]">
+                  data:image/png;base64,iVBORw0...
+                </code>
                 <br />
                 This eliminates extra HTTP network requests for tiny assets.
               </p>
             </div>
 
             <div className="rounded-xl border border-[var(--border)] bg-[var(--bg-card)] p-3.5">
-              <div className="font-bold text-[var(--text-primary)]">3. HTTP Basic Auth</div>
+              <div className="font-bold text-[var(--text-primary)]">
+                3. HTTP Basic Auth
+              </div>
               <p className="mt-1 text-[11px] leading-relaxed text-[var(--text-secondary)]">
                 APIs often use Base64 for credentials:
                 <br />
-                <code className="text-[var(--accent)]">Authorization: Basic [base64(user:pass)]</code>
+                <code className="text-[var(--accent)]">
+                  Authorization: Basic [base64(user:pass)]
+                </code>
                 <br />
-                Note: Base64 is an encoding, NOT encryption. Never use it alone for security!
+                Note: Base64 is an encoding, NOT encryption. Never use it alone
+                for security!
               </p>
             </div>
           </div>
@@ -283,13 +299,11 @@ export function Base64Tool() {
         <div className="flex flex-col">
           <div className="mb-2 flex items-center justify-between font-mono text-xs text-[var(--text-secondary)]">
             <span className="font-semibold uppercase tracking-wider">
-              {mode === "encode" ? "Base64 Encoded Result" : "Decoded Plaintext Result"}
+              {mode === "encode"
+                ? "Base64 Encoded Result"
+                : "Decoded Plaintext Result"}
             </span>
-            {output && (
-              <span>
-                {output.length} characters
-              </span>
-            )}
+            {output && <span>{output.length} characters</span>}
           </div>
           <div className="min-h-[300px] w-full flex-1 overflow-y-auto rounded-2xl border border-[var(--border)] bg-[var(--bg-card)] p-4 font-mono text-xs leading-relaxed text-[var(--text-primary)]">
             {error ? (

@@ -1,6 +1,13 @@
 "use client";
 
-import { ChangeEvent, DragEvent, useCallback, useEffect, useRef, useState } from "react";
+import {
+  ChangeEvent,
+  DragEvent,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import { createZip } from "../lib/zip";
 import { useToast } from "./Toast";
 
@@ -48,7 +55,9 @@ export function WebPConverter() {
 
   const convert = useCallback(
     async (input: FileList | File[]) => {
-      const images = [...input].filter((file) => file.type.startsWith("image/"));
+      const images = [...input].filter((file) =>
+        file.type.startsWith("image/"),
+      );
       if (!images.length) return;
       setConverting(true);
       setProgress({ current: 0, total: images.length });
@@ -58,12 +67,14 @@ export function WebPConverter() {
         setProgress({ current: i + 1, total: images.length });
         try {
           const source = URL.createObjectURL(images[i]);
-          const image = await new Promise<HTMLImageElement>((resolve, reject) => {
-            const loaded = new Image();
-            loaded.onload = () => resolve(loaded);
-            loaded.onerror = reject;
-            loaded.src = source;
-          });
+          const image = await new Promise<HTMLImageElement>(
+            (resolve, reject) => {
+              const loaded = new Image();
+              loaded.onload = () => resolve(loaded);
+              loaded.onerror = reject;
+              loaded.src = source;
+            },
+          );
           URL.revokeObjectURL(source);
           const canvas = document.createElement("canvas");
           canvas.width = image.naturalWidth;
@@ -86,7 +97,10 @@ export function WebPConverter() {
       setFiles(next);
       setConverting(false);
       if (next.length) {
-        addToast(`${next.length} image(s) successfully converted to WebP`, "success");
+        addToast(
+          `${next.length} image(s) successfully converted to WebP`,
+          "success",
+        );
       }
     },
     [encode, files, quality, addToast],
@@ -108,7 +122,7 @@ export function WebPConverter() {
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.href = url;
-    link.download = "pixelpreserve-webp-images.zip";
+    link.download = "shofidev-tools-webp-images.zip";
     link.click();
     URL.revokeObjectURL(url);
     addToast("ZIP download started", "success");
@@ -160,7 +174,9 @@ export function WebPConverter() {
           <span className="font-mono text-base text-[var(--accent)]">
             Resolution
           </span>
-          <strong className="ml-4 text-base font-medium text-[var(--text-primary)]">100% Original</strong>
+          <strong className="ml-4 text-base font-medium text-[var(--text-primary)]">
+            100% Original
+          </strong>
           <small className="mt-1 block text-base text-[var(--text-secondary)]">
             Image dimensions will remain untouched
           </small>
@@ -189,8 +205,12 @@ export function WebPConverter() {
       {converting && (
         <div className="mt-4">
           <div className="flex items-center justify-between text-sm text-[var(--text-secondary)]">
-            <span>Converting... {progress.current}/{progress.total}</span>
-            <span>{Math.round((progress.current / progress.total) * 100)}%</span>
+            <span>
+              Converting... {progress.current}/{progress.total}
+            </span>
+            <span>
+              {Math.round((progress.current / progress.total) * 100)}%
+            </span>
           </div>
           <div className="mt-2 h-2 overflow-hidden rounded-full bg-[var(--border)]">
             <div

@@ -54,8 +54,9 @@ export function CommandPalette() {
     list.push(
       {
         id: "page-ai",
-        title: "PixelPreserve AI Assistant",
-        description: "Intelligent coding helper, technical tutor, and AI consultation",
+        title: "SHOFIDEV_TOOLS AI Assistant",
+        description:
+          "Intelligent coding helper, technical tutor, and AI consultation",
         category: "Pages",
         icon: "🤖",
         action: () => {
@@ -110,7 +111,9 @@ export function CommandPalette() {
     (event: React.KeyboardEvent) => {
       if (event.key === "ArrowDown") {
         event.preventDefault();
-        setSelectedIndex((idx) => (idx + 1) % Math.max(1, filteredItems.length));
+        setSelectedIndex(
+          (idx) => (idx + 1) % Math.max(1, filteredItems.length),
+        );
       } else if (event.key === "ArrowUp") {
         event.preventDefault();
         setSelectedIndex((idx) =>
@@ -158,7 +161,10 @@ export function CommandPalette() {
           >
             {/* Search Input Bar */}
             <div className="flex items-center gap-3 border-b border-[var(--border)] px-4 py-3.5">
-              <span className="text-base text-[var(--text-secondary)]" aria-hidden="true">
+              <span
+                className="text-base text-[var(--text-secondary)]"
+                aria-hidden="true"
+              >
                 ⌕
               </span>
               <input

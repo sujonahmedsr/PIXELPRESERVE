@@ -18,7 +18,7 @@ type ThemeContextValue = {
   toggleTheme: () => void;
 };
 
-const STORAGE_KEY = "pixelpreserve-theme";
+const STORAGE_KEY = "shofidev-tools-theme";
 
 const ThemeContext = createContext<ThemeContextValue>({
   theme: "system",
@@ -49,7 +49,8 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     try {
-      const stored = localStorage.getItem(STORAGE_KEY) as Theme | null;
+      const stored = (localStorage.getItem(STORAGE_KEY) ||
+        localStorage.getItem("pixelpreserve-theme")) as Theme | null;
       if (stored && ["light", "dark", "system"].includes(stored)) {
         setThemeState(stored);
       }

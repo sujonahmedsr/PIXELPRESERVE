@@ -4,7 +4,13 @@ import Link from "next/link";
 import { useMemo, useState } from "react";
 import { TOOLS, type ToolItem } from "./lib/tools";
 
-type CategoryFilter = "All" | "Backend" | "Text & Code" | "Media" | "Design & CSS" | "Productivity";
+type CategoryFilter =
+  | "All"
+  | "Backend"
+  | "Text & Code"
+  | "Media"
+  | "Design & CSS"
+  | "Productivity";
 
 const CATEGORIES: CategoryFilter[] = [
   "All",
@@ -16,7 +22,8 @@ const CATEGORIES: CategoryFilter[] = [
 ];
 
 export default function Home() {
-  const [selectedCategory, setSelectedCategory] = useState<CategoryFilter>("All");
+  const [selectedCategory, setSelectedCategory] =
+    useState<CategoryFilter>("All");
   const [searchQuery, setSearchQuery] = useState("");
 
   const filteredTools = useMemo(() => {
@@ -41,16 +48,19 @@ export default function Home() {
         <div className="mx-auto max-w-3xl text-center">
           <div className="inline-flex items-center gap-2 rounded-full border border-[var(--accent-soft-border)] bg-[var(--accent-soft)] px-3.5 py-1 font-mono text-xs font-semibold text-[var(--accent)]">
             <span>✦</span>
-            <span>100% PRIVATE &amp; CLIENT-SIDE</span>
+            <span>SHOFIDEV_TOOLS · 100% PRIVATE DEVELOPER SUITE</span>
           </div>
 
           <h1 className="mt-4 text-3xl font-bold tracking-tight text-[var(--text-primary)] sm:text-5xl min-[901px]:text-6xl">
-            All Your Developer Tools,{" "}
-            <span className="text-[var(--accent)]">in One Place.</span>
+            All Your{" "}
+            <span className="text-[var(--accent)]">Developer Tools</span>, in
+            One Place.
           </h1>
 
           <p className="mx-auto mt-4 max-w-2xl text-base leading-relaxed text-[var(--text-secondary)] sm:text-lg">
-            Zero server uploads. Zero tracking. Fast, minimalist, privacy-first utilities built to remove friction from your daily workflow.
+            SHOFIDEV_TOOLS is a privacy-first collection of essential online
+            developer tools created by Shofiqul Islam. Zero server uploads, zero
+            tracking, and instant client-side execution.
           </p>
 
           <div className="mt-6 flex flex-wrap items-center justify-center gap-4 font-mono text-xs text-[var(--text-secondary)]">
@@ -75,7 +85,11 @@ export default function Home() {
         <div className="mt-10 border-t border-[var(--border)] pt-6" id="tools">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             {/* Category Pills */}
-            <div className="flex flex-wrap items-center gap-1.5" role="tablist" aria-label="Tool categories">
+            <div
+              className="flex flex-wrap items-center gap-1.5"
+              role="tablist"
+              aria-label="Tool categories"
+            >
               {CATEGORIES.map((cat) => {
                 const count =
                   cat === "All"
@@ -129,7 +143,8 @@ export default function Home() {
                 No tools found matching &ldquo;{searchQuery}&rdquo;
               </h3>
               <p className="mt-1 text-sm text-[var(--text-secondary)]">
-                Try searching with another keyword or select &ldquo;All&rdquo; categories.
+                Try searching with another keyword or select &ldquo;All&rdquo;
+                categories.
               </p>
               <button
                 type="button"
@@ -170,7 +185,10 @@ export default function Home() {
 
                 <div className="mt-5 flex items-center justify-between border-t border-[var(--border)] pt-3 text-xs font-mono text-[var(--text-secondary)]">
                   <span>Open Workspace</span>
-                  <span className="text-base text-[var(--accent)] transition group-hover:translate-x-0.5" aria-hidden="true">
+                  <span
+                    className="text-base text-[var(--accent)] transition group-hover:translate-x-0.5"
+                    aria-hidden="true"
+                  >
                     ↗
                   </span>
                 </div>
@@ -200,7 +218,8 @@ export default function Home() {
                 Need Intelligent Assistance?
               </h2>
               <p className="mt-1 text-sm text-[var(--text-secondary)]">
-                Chat with PixelPreserve AI for coding architecture, study roadmaps, regex help, and step-by-step debugging.
+                Chat with SHOFIDEV_TOOLS AI for coding architecture, study
+                roadmaps, regex help, and step-by-step debugging.
               </p>
             </div>
           </div>
@@ -233,7 +252,8 @@ export default function Home() {
                 Islamic Prayer Times &amp; 3 Prohibited Salah Intervals
               </h2>
               <p className="mt-1 text-sm text-[var(--text-secondary)]">
-                View official timings for Dhaka, Chittagong, Sylhet, and all divisions with live countdowns and forbidden prayer warnings.
+                View official timings for Dhaka, Chittagong, Sylhet, and all
+                divisions with live countdowns and forbidden prayer warnings.
               </p>
             </div>
           </div>
@@ -254,7 +274,8 @@ export default function Home() {
             100% In-Browser Privacy
           </h3>
           <p className="mt-1 text-sm text-[var(--text-secondary)]">
-            All conversions and formatting execute directly in your browser using Web APIs. Zero network uploads.
+            All conversions and formatting execute directly in your browser
+            using Web APIs. Zero network uploads.
           </p>
         </div>
         <div className="rounded-2xl border border-[var(--border)] bg-[var(--bg-card)] p-5">
@@ -263,7 +284,8 @@ export default function Home() {
             Zero Reload Navigation
           </h3>
           <p className="mt-1 text-sm text-[var(--text-secondary)]">
-            Instantaneous client-side transitions powered by Next.js. Switch between tools without losing state.
+            Instantaneous client-side transitions powered by Next.js. Switch
+            between tools without losing state.
           </p>
         </div>
         <div className="rounded-2xl border border-[var(--border)] bg-[var(--bg-card)] p-5">
@@ -272,7 +294,8 @@ export default function Home() {
             Command Palette (Ctrl + K)
           </h3>
           <p className="mt-1 text-sm text-[var(--text-secondary)]">
-            Jump to any tool, toggle themes, or search utilities instantly with our keyboard-driven command menu.
+            Jump to any tool, toggle themes, or search utilities instantly with
+            our keyboard-driven command menu.
           </p>
         </div>
       </section>

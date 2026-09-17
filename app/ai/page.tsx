@@ -16,9 +16,9 @@ type Conversation = {
   updatedAt: number;
 };
 
-const STORAGE_KEY = "pixelpreserve-ai-conversations-v1";
+const STORAGE_KEY = "shofidev-ai-conversations-v1";
 const STARTER_PROMPTS = [
-  "Tell me about PixelPreserve and its features",
+  "Tell me about SHOFIDEV_TOOLS and its developer tools",
   "Explain React Server Components simply",
   "Help me debug a TypeScript error",
   "Make a 7-day study plan for JavaScript",
@@ -63,9 +63,11 @@ function AIPageContent() {
 
   useEffect(() => {
     try {
-      const parsed: unknown = JSON.parse(
-        localStorage.getItem(STORAGE_KEY) ?? "[]",
-      );
+      const raw =
+        localStorage.getItem(STORAGE_KEY) ??
+        localStorage.getItem("pixelpreserve-ai-conversations-v1") ??
+        "[]";
+      const parsed: unknown = JSON.parse(raw);
       if (Array.isArray(parsed) && parsed.length) {
         const history = parsed.filter(
           (item): item is Conversation =>
@@ -158,7 +160,7 @@ function AIPageContent() {
             <span className="grid size-8 place-items-center rounded-lg bg-[var(--accent)] text-white">
               ✦
             </span>{" "}
-            PIXELPRESERVE
+            SHOFIDEV_TOOLS
           </Link>
           <button
             type="button"
@@ -227,7 +229,9 @@ function AIPageContent() {
               ✦
             </Link>
             <div>
-              <h1 className="font-semibold text-[var(--text-primary)]">PixelPreserve AI</h1>
+              <h1 className="font-semibold text-[var(--text-primary)]">
+                SHOFIDEV_TOOLS AI
+              </h1>
               <p className="text-xs text-[var(--text-secondary)]">
                 Fast answers, clear explanations
               </p>
@@ -326,7 +330,10 @@ function AIPageContent() {
           </div>
         </div>
         <div className="shrink-0 border-t border-[var(--border)] bg-[var(--bg-surface)] px-4 py-4 sm:px-8">
-          <form onSubmit={(e) => void sendMessage(e)} className="mx-auto max-w-4xl">
+          <form
+            onSubmit={(e) => void sendMessage(e)}
+            className="mx-auto max-w-4xl"
+          >
             <div className="flex items-end gap-2 rounded-2xl border border-[var(--border)] bg-[var(--bg-card)] p-2 transition focus-within:border-[var(--accent)] focus-within:ring-2 focus-within:ring-[var(--accent)]/20">
               <textarea
                 ref={inputRef}
@@ -335,9 +342,9 @@ function AIPageContent() {
                 onKeyDown={handleKeyDown}
                 rows={1}
                 disabled={isLoading}
-                placeholder="Message PixelPreserve AI…"
+                placeholder="Message SHOFIDEV_TOOLS AI…"
                 className="min-h-7 flex-1 resize-none overflow-hidden bg-transparent px-2 py-1.5 text-[15px] leading-6 text-[var(--text-primary)] outline-none placeholder:text-[var(--text-secondary)] disabled:opacity-60"
-                aria-label="Message PixelPreserve AI"
+                aria-label="Message SHOFIDEV_TOOLS AI"
               />
               <button
                 type="submit"
